@@ -15,14 +15,14 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @date Created in 2023/8/2 9:43
  */
 @SpringBootTest(classes = TestJasypt.class)
-public class TestJasypt {
+class TestJasypt {
 	@Test
-	public void generateEncrypt() {
+	void generateEncrypt() {
 		PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
 		SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-		config.setPassword("0xsb");//标准0x...sb密码
+		config.setPassword("0x31cYJY@sb");//标准0x...sb密码
 		// 默认值
-		config.setAlgorithm("PBEWithMD5AndDES");
+		config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
 		config.setKeyObtentionIterations("1000");
 		config.setPoolSize("1");
 		config.setProviderName("SunJCE");
