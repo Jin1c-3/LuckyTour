@@ -59,5 +59,5 @@ public interface Consts {
 	/**
 	 * session保存的key
 	 */
-	String SESSION_TOKEN_KEY = "key:session:token";
+	String TOKEN_KEY = "token";
 }

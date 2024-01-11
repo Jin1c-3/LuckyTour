@@ -1,7 +1,10 @@
 package com.luckytour.server.config;
 
+import com.luckytour.server.interceptor.TokenInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -11,6 +14,50 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+	private final String[] EXCLUDED_PATH_PATTERNS = {
+			"/**/doc.html",
+			"/**/login",
+			"/**/login.html",
+			"/**/registry",
+			"/**/registry.html",
+			"/**/*.js",
+			"/**/*.css",
+			"/**/*.woff",
+			"/**/*.ttf",
+			"/**/*.jpg",
+			"/css/**",
+			"/js/**",
+			"/img/**",
+			"/media/**",
+			"/vendors/**",
+			"/avatar/**",
+			"/download/**",
+			"/test/**",
+			"/swagger-ui.html/**",
+			"/swagger-ui.html#/**",
+			"/swagger-resources/**",
+			"/**/webjars/**",
+			"/**/v3/**",
+			"/**/before-update/**",
+			"/**/update-pwd/**",
+			"/**/alipay/**",
+			"/**/callback/**",
+	};
+
+	@Bean
+	public TokenInterceptor getTokenInterceptor() {
+		return new TokenInterceptor();
+	}
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(getTokenInterceptor())
+				// 排除不需要拦截的路径
+				.excludePathPatterns(EXCLUDED_PATH_PATTERNS)
+				// 需要拦截的路径
+				.addPathPatterns("/**");
+	}
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
