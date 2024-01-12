@@ -1,5 +1,6 @@
 package com.luckytour.server.vo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,14 +16,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(name = "JwtResponse", description = "JWT响应token返回")
 public class JwtResponse {
-	/**
-	 * token 字段
-	 */
+
+	@Schema(description = "token")
 	private String token;
-	/**
-	 * token类型
-	 */
+
+	@Schema(description = "token类型")
 	private String tokenType = "Bearer";
 
 	public JwtResponse(String token) {
