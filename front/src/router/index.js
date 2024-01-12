@@ -90,6 +90,23 @@ const router = createRouter({
       path: "/user",
       name: "user",
       component: () => import("@/views/UserView.vue"),
+      children: [
+        {
+          path: "login",
+          name: "login",
+          component: () => import("@/components/Login.vue"),
+        },
+        {
+          path: "register",
+          name: "register",
+          component: () => import("@/components/Register.vue"),
+        },
+        {
+          path: "validateCode",
+          name: "validateCode",
+          component: () => import("@/components/ValidationCode.vue"),
+        },
+      ],
     },
     {
       path: "/404",

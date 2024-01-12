@@ -29,10 +29,20 @@
       <v-list-item-title v-text="item.text"></v-list-item-title>
     </v-list-item>
   </v-list>
+
+  <router-view v-slot="{ Component }">
+    <keep-alive>
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, KeepAlive } from "vue";
+import { RouterView, useRouter } from "vue-router";
+
+const router = useRouter();
+
 
 const items = [
   { text: "我的账户", icon: "mdi-clock" },
