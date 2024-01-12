@@ -1,6 +1,7 @@
-package com.luckytour.server.common;
+package com.luckytour.server.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.luckytour.server.common.BaseException;
 import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.common.constant.IApiStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @NoArgsConstructor
-@Schema(name = "Response", description = "统一响应体")
+@Schema(name = "ApiResponse", description = "统一响应体")
 @Getter
 public class ApiResponse<T> implements Serializable {
 	private static final long serialVersionUID = 1L;

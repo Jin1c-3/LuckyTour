@@ -1,22 +1,28 @@
 package com.luckytour.server.controller;
 
-import com.luckytour.server.common.ApiResponse;
 import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.common.constant.Consts;
 import com.luckytour.server.entity.User;
+import com.luckytour.server.exception.EMailException;
+import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.exception.SecurityException;
+import com.luckytour.server.payload.ApiResponse;
+import com.luckytour.server.payload.JwtResponse;
 import com.luckytour.server.payload.LoginRequest;
+import com.luckytour.server.service.EMailService;
 import com.luckytour.server.service.UserService;
 import com.luckytour.server.util.JwtUtil;
-import com.luckytour.server.vo.JwtResponse;
+import com.luckytour.server.util.ValidationUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * <p>
@@ -36,18 +42,44 @@ public class AuthController {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private EMailService eMailService;
+
+	@GetMapping("/getcode")
+	@Operation(summary = "新建用户之前和无密码登录的验证码获取")
+	public ApiResponse<String> getcode(String emailOrPhone) throws MysqlException {
+		if (userService.findByEmailOrPhone(emailOrPhone) != null) {
+			return ApiResponse.ofStatus(ApiStatus.USER_ALREADY_EXIST);
+		}
+		String code = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
+		if (ValidationUtil.isMobile(emailOrPhone)) {
+			//TODO: 发送短信验证码
+		} else if (ValidationUtil.isEmail(emailOrPhone)) {
+			try {
+				eMailService.sendVerificationCode(emailOrPhone, code);
+			} catch (Exception e) {
+				throw new EMailException("邮件发送失败", e);
+			}
+		}
+		return ApiResponse.ofSuccess(code);
+	}
+
 	@Operation(summary = "登录")
 	@PostMapping("/login")
-	public ApiResponse<JwtResponse> login(HttpServletRequest request,@Valid @RequestBody LoginRequest loginRequest) {
-		/*TODO: 1.根据用户名查询用户信息
-		 * 2.校验密码是否正确
-		 * 3.异常处理
-		 */
-		User user = User.builder()
-				.username(loginRequest.getUsernameOrEmailOrPhone())
-				.id(loginRequest.getUsernameOrEmailOrPhone() + 111)
-				.build();
-		String jwt = JwtUtil.create(user.getId(), user.getUsername(), loginRequest.getRememberMe());
+	public ApiResponse<JwtResponse> login(HttpServletRequest request, @Valid @RequestBody LoginRequest loginRequest) throws MysqlException {
+		User user = userService.findByEmailOrPhone(loginRequest.getEmailOrPhone());
+		// 用户不存在或密码存在且错误
+		if (user == null || StringUtils.isNotBlank(user.getPassword()) && !user.getPassword().equals(loginRequest.getPassword())) {
+			return ApiResponse.ofStatus(ApiStatus.USERNAME_PASSWORD_ERROR);
+		}
+		// 密码不存在，那肯定是之前就获取过验证码了
+		// 更新极光registrationId
+		if (StringUtils.isNotBlank(loginRequest.getJrid())) {
+			user.setJiguangRegistrationId(loginRequest.getJrid());
+			userService.updateById(user);
+		}
+
+		String jwt = JwtUtil.create(user.getId(), user.getNickname(), loginRequest.getRememberMe());
 		request.setAttribute(Consts.TOKEN_KEY, jwt);
 		return ApiResponse.ofSuccess(new JwtResponse(jwt));
 	}

@@ -1,6 +1,6 @@
 package com.luckytour.server.exception.handler;
 
-import com.luckytour.server.common.ApiResponse;
+import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.common.BaseException;
 import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.controller.AopLogger4Controller;

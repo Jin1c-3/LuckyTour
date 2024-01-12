@@ -81,6 +81,22 @@ public enum ApiStatus implements IApiStatus {
 	 * redis异常
 	 */
 	REDIS_ERROR(513, "redis异常"),
+
+	/**
+	 * mysql异常
+	 */
+	MYSQL_ERROR(514, "mysql异常"),
+
+	/**
+	 * email异常
+	 */
+	EMAIL_ERROR(515, "email异常"),
+
+	/**
+	 * SMS短信异常
+	 */
+	SMS_ERROR(516, "sms短信异常"),
+
 	/**
 	 * 用户名或密码错误！
 	 */
@@ -99,7 +115,13 @@ public enum ApiStatus implements IApiStatus {
 	/**
 	 * 当前用户已在别处登录，请尝试更改密码或重新登录！
 	 */
-	TOKEN_OUT_OF_CTRL(5003, "当前用户已在别处登录，请尝试更改密码或重新登录！");
+	TOKEN_OUT_OF_CTRL(5003, "当前用户已在别处登录，请尝试更改密码或重新登录！"),
+
+	/**
+	 * 注册时用户已存在
+	 */
+	USER_ALREADY_EXIST(5004, "用户已存在！");
+	;
 
 	/**
 	 * 状态码

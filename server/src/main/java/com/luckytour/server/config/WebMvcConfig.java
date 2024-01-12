@@ -36,6 +36,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			"/test/**",
 			"/swagger-ui.html/**",
 			"/swagger-ui.html#/**",
+			"/swagger-ui/**",
 			"/swagger-resources/**",
 			"/**/webjars/**",
 			"/**/v3/**",
@@ -43,6 +44,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			"/**/update-pwd/**",
 			"/**/alipay/**",
 			"/**/callback/**",
+			"/user/getcode/**",
+			"/user/new/**",
+			"/auth/**",
 	};
 
 	@Bean

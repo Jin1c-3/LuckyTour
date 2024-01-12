@@ -1,7 +1,7 @@
 package com.luckytour.server.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.luckytour.server.common.ApiResponse;
+import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.common.BaseException;
 import com.luckytour.server.common.constant.IApiStatus;
 import jakarta.servlet.http.HttpServletResponse;

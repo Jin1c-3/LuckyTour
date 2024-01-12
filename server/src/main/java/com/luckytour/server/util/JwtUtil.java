@@ -5,7 +5,6 @@ import com.luckytour.server.common.constant.Consts;
 import com.luckytour.server.exception.SecurityException;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,7 @@ public class JwtUtil {
 	/**
 	 * jwt 加密 key，默认值：yutech.
 	 */
-	public static String key = "yutech";
+	public static String key = "luckytour";
 
 	/**
 	 * jwt 过期时间，默认值：600000 {@code 10 分钟}.
@@ -66,7 +65,7 @@ public class JwtUtil {
 		}
 
 		String jwt = builder.compact();
-		String key = Consts.REDIS_JWT_KEY_PREFIX + subject;
+		String key = Consts.REDIS_JWT_KEY_PREFIX + id;
 		// 将生成的JWT保存至Redis
 		RedisUtil.set(key, jwt);
 		RedisUtil.expire(key, ttl, TimeUnit.MILLISECONDS);
@@ -86,8 +85,8 @@ public class JwtUtil {
 					.parseClaimsJws(jwt)
 					.getBody();
 
-			String username = claims.getSubject();
-			String redisKey = Consts.REDIS_JWT_KEY_PREFIX + username;
+			String id = claims.getId();
+			String redisKey = Consts.REDIS_JWT_KEY_PREFIX + id;
 
 			// 校验redis中的JWT是否存在
 			if (!RedisUtil.hasKey(redisKey)) {
@@ -125,9 +124,9 @@ public class JwtUtil {
 	 */
 	public static void invalidate(HttpServletRequest request) {
 		String jwt = getJwtFromRequest(request);
-		String username = getUsernameFromJwt(jwt);
+		String id = getIdFromJwt(jwt);
 		// 从redis中清除JWT
-		RedisUtil.del(Consts.REDIS_JWT_KEY_PREFIX + username);
+		RedisUtil.del(Consts.REDIS_JWT_KEY_PREFIX + id);
 	}
 
 
@@ -137,8 +136,8 @@ public class JwtUtil {
 	 * @param jwt JWT
 	 * @return 用户名
 	 */
-	private static String getUsernameFromJwt(String jwt) {
-		return parse(jwt).getSubject();
+	private static String getIdFromJwt(String jwt) {
+		return parse(jwt).getId();
 	}
 
 	/**
@@ -148,11 +147,11 @@ public class JwtUtil {
 	 * @return JWT
 	 */
 	private static String getJwtFromRequest(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		String jwt = (String) session.getAttribute(Consts.TOKEN_KEY);
+		String jwt = request.getHeader(Consts.TOKEN_KEY);
 		if (StringUtils.isNoneBlank(jwt)) {
 			return jwt;
 		}
+		log.warn("JWT 为空");
 		return null;
 //		String bearerToken = request.getHeader("Authorization");
 //		if (StringUtils.isNoneBlank(bearerToken) && bearerToken.startsWith("Bearer ")) {

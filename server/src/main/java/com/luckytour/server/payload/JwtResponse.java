@@ -1,9 +1,11 @@
-package com.luckytour.server.vo;
+package com.luckytour.server.payload;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -17,7 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(name = "JwtResponse", description = "JWT响应token返回")
-public class JwtResponse {
+public class JwtResponse implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "token")
 	private String token;

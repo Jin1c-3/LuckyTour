@@ -1,6 +1,9 @@
 package com.luckytour.server.payload;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -11,15 +14,14 @@ import lombok.Data;
  * @date Created in 2018-12-12 18:05
  */
 @Data
-public class PageCondition {
-	/**
-	 * 当前页码
-	 */
+@Schema(name = "PageCondition", description = "分页请求参数")
+public class PageCondition implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Schema(description = "当前页码，从1开始")
 	private Integer currentPage;
 
-	/**
-	 * 每页条数
-	 */
+	@Schema(description = "每页显示数量")
 	private Integer pageSize;
 
 }

@@ -7,6 +7,7 @@ import com.luckytour.server.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @date Created in 2023/8/1 19:36
  */
 @Configuration
+@Slf4j
 public class TokenInterceptor implements HandlerInterceptor {
 
 	@Override

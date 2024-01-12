@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
-            <version>4.0.0</version>
+            <version>4.4.0</version>
         </dependency>
 
         <!-- 解析 UserAgent 信息，用于logger记录 -->
@@ -151,14 +151,14 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.3.1</version>
+            <version>3.5.5</version>
         </dependency>
 
         <!--mybatis-plus代码生成器-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.5.3.1</version>
+            <version>3.5.5</version>
         </dependency>
 
         <!--velocity模板-->
@@ -173,6 +173,17 @@
             <groupId>cn.jpush.api</groupId>
             <artifactId>jpush-client</artifactId>
             <version>3.7.3</version>
+        </dependency>
+
+        <!--以下两项是支持发送邮件功能-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <!--thymeleaf是为了发送模板邮件-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
     </dependencies>
 

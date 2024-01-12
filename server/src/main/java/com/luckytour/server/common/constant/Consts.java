@@ -57,7 +57,7 @@ public interface Consts {
 	String ANONYMOUS_NAME = "匿名用户";
 
 	/**
-	 * session保存的key
+	 * 保存的key
 	 */
-	String TOKEN_KEY = "token";
+	String TOKEN_KEY = "X-token";
 }

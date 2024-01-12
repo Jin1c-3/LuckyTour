@@ -2,7 +2,7 @@ package com.luckytour.server.controller;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
-import com.luckytour.server.common.ApiResponse;
+import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.service.JiguangPushService;
 import com.luckytour.server.vo.JiguangNotification;
