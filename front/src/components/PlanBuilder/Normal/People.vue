@@ -1,14 +1,22 @@
 <template>
-  <v-card class="h-screen">
-    <div class="d-flex flex-wrap">
-      <v-btn
-        variant="text"
-        icon="mdi-arrow-left"
-        class="ml-5 mt-5 me-auto"
-        @click="plan.config.step--"
-      ></v-btn>
-    </div>
-    <div class="full-scroll">
+  <v-dialog
+    v-model="plan.is.showPeopleDialog"
+    :scrim="false"
+    transition="dialog-bottom-transition"
+    persistent
+    fullscreen
+    :close-on-back="false"
+  >
+    <v-card class="h-screen">
+      <div class="d-flex flex-wrap">
+        <v-btn
+          variant="text"
+          icon="mdi-arrow-left"
+          class="ml-5 mt-5 me-auto"
+          @click="router.back()"
+        ></v-btn>
+      </div>
+
       <div class="text-h4 me-auto ml-5 mt-5">旅客</div>
       <div class="text-subtitle-2 me-auto ml-5 mb-5">
         哪些人会加入这场旅途？
@@ -54,24 +62,27 @@
         </v-chip-group>
       </div>
       <div class="mb-5"></div>
-    </div>
-
-    <v-btn
-      class="bom-btn bg-black"
-      @click="
-        plan.config.step++;
-        getTags();
-      "
-      width="300"
-      >下一步</v-btn
-    >
-  </v-card>
+      <div class="d-flex justify-center align-center mt-5 mb-5">
+        <v-btn
+          class="bg-black"
+          @click="
+            router.push('/plan/date');
+            getTags();
+          "
+          width="300"
+          >下一步</v-btn
+        >
+      </div>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onActivated, onDeactivated } from "vue";
+import { RouterView, useRouter } from "vue-router";
 import { usePlanViewStore } from "@/stores/planView";
 
+const router = useRouter();
 const plan = usePlanViewStore();
 
 const items = ref([
@@ -105,17 +116,13 @@ function getTags() {
   });
   plan.temp.people = data;
 }
+
+onActivated(() => {
+  plan.is.showPeopleDialog = true;
+});
+onDeactivated(() => {
+  plan.is.showPeopleDialog = false;
+});
 </script>
 
-<style scoped>
-.bom-btn {
-  position: absolute;
-  left: 50%;
-  bottom: 5px;
-  transform: translate(-50%, -50%);
-}
-.full-scroll {
-  overflow-y: scroll;
-  height: 85%;
-}
-</style>
+<style scoped></style>

@@ -5,6 +5,7 @@
     :scrim="false"
     transition="dialog-bottom-transition"
     persistent
+    :close-on-back="false"
   >
     <v-card class="h-screen"
       ><div class="d-flex flex-wrap align-center mt-5">
@@ -12,7 +13,7 @@
           variant="text"
           icon="mdi-close"
           class="ml-5 mr-5"
-          @click="plan.is.showChatDialog = false"
+          @click="router.back()"
         ></v-btn>
         <div class="text-h5">云栖</div>
       </div>
@@ -41,9 +42,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onActivated, onDeactivated } from "vue";
+import { RouterView, useRouter } from "vue-router";
 import { usePlanViewStore } from "@/stores/planView";
 
+const router = useRouter();
 const plan = usePlanViewStore();
 const items = [
   { title: "Click Me" },
@@ -56,6 +59,13 @@ const fileInput = ref(null);
 function update() {
   fileInput.value.click();
 }
+
+onActivated(() => {
+  plan.is.showChatDialog = true;
+});
+onDeactivated(() => {
+  plan.is.showChatDialog = false;
+});
 </script>
 
 <style scoped>

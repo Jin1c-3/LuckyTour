@@ -3,24 +3,29 @@ import { defineStore } from "pinia";
 
 export const usePlanViewStore = defineStore("planView", () => {
   let is = reactive({
-    showBuilderDialog: false,
+    showAllDialog: false,
+    showCityDialog: false,
+    showCityInfoDialog: false,
+    showPeopleDialog: false,
+    showDateDialog: false,
+    showMoneyDialog: false,
+    showTrafficDialog: false,
+    showHobbyDialog: false,
+    showCreateModelDialog: false,
     showShowDialog: false,
     showChatDialog: false,
     showActionSheet: false,
     showCitySheet: false,
   });
-  let config = reactive({
-    step: 1,
-    mode: "",
-  });
+  let config = reactive({});
   let temp = reactive({
     city: "",
     peopleModelActive: "",
     people: [],
     hobbies: [],
     toHobbies: [],
-    beginDate: null,
-    endDate: null,
+    beginDate: new Date(),
+    endDate: new Date(),
     costModelActive: "经济",
     cost: 0,
     trafficModelActive: "",

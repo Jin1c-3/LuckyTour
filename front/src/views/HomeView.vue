@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-start align-center mt-5">
-    <div class="text-h3 me-auto ml-4">首页</div>
+    <div class="text-h3 me-auto ml-4 title">首页</div>
     <v-avatar
       color="grey-darken-3"
       image="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
@@ -97,4 +97,8 @@ const cards = ref([
 ]);
 </script>
 
-<style scoped></style>
+<style scoped>
+.title {
+  color: var(--firstLevel-head-color);
+}
+</style>

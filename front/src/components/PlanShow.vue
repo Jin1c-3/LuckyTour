@@ -5,6 +5,7 @@
     :scrim="false"
     transition="dialog-bottom-transition"
     persistent
+    :close-on-back="false"
   >
     <v-card class="h-screen"
       ><div class="d-flex flex-wrap">
@@ -12,7 +13,7 @@
           variant="text"
           icon="mdi-close"
           class="ml-5 mt-5 mr-5"
-          @click="plan.is.showShowDialog = false"
+          @click="router.back()"
         ></v-btn>
       </div>
       <div class="d-flex justify-start align-center">
@@ -82,19 +83,19 @@
       <v-btn
         class="bom-btn"
         icon="mdi-forum"
-        @click="plan.is.showChatDialog = true"
+        @click="router.push('/plan/chat')"
       ></v-btn>
     </v-card>
-
-    <PlanChat />
   </v-dialog>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onActivated, onDeactivated } from "vue";
+import { RouterView, useRouter } from "vue-router";
 import { usePlanViewStore } from "@/stores/planView";
 import PlanChat from "@/components/PlanChat.vue";
 
+const router = useRouter();
 const plan = usePlanViewStore();
 let tab = ref("");
 
@@ -252,6 +253,13 @@ for (let key in plan.data.activePlanInfo.all) {
   all.value.push(plan.data.activePlanInfo.all[key]);
 }
 plan.data.activePlanInfo.all = all.value;
+
+onActivated(() => {
+  plan.is.showShowDialog = true;
+});
+onDeactivated(() => {
+  plan.is.showShowDialog = false;
+});
 </script>
 
 <style scoped>

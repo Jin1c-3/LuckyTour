@@ -25,13 +25,3 @@ app.use(router);
 app.use(vuetify);
 
 app.mount("#app");
-
-// document.addEventListener("plusready", function () {
-//   plus.key.addEventListener(
-//     "backbutton",
-//     function () {
-//       window.history.go(-1);
-//     },
-//     false
-//   );
-// });

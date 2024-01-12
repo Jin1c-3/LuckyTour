@@ -1,11 +1,14 @@
 <template>
   <div class="d-flex justify-start align-center mt-5">
-    <div class="text-h3 me-auto ml-4">计划</div>
+    <div class="text-h3 me-auto ml-4 title">计划</div>
     <v-btn
       variant="text"
       icon="mdi-plus"
       class="mr-5"
-      @click="plan.is.showBuilderDialog = true"
+      @click="
+        router.push('/plan/createModel');
+        console.log(router.currentRoute.value.name);
+      "
     ></v-btn>
     <v-avatar
       color="grey-darken-3"
@@ -47,54 +50,41 @@
     </v-card>
   </v-container>
 
-  <v-bottom-sheet v-model="plan.is.showActionSheet">
-    <v-list>
-      <v-list-subheader>操作</v-list-subheader>
-
-      <v-list-item
-        v-for="tile in tiles"
-        :key="tile.title"
-        :title="tile.title"
-        @click="plan.is.showActionSheet = false"
-      >
-        <template #prepend>
-          <v-icon :icon="tile.icon" />
-        </template>
-      </v-list-item>
-    </v-list>
-  </v-bottom-sheet>
-
-  <v-snackbar v-model="snackbar" :timeout="2000" class="snackbar">
+  <v-snackbar
+    v-model="snackbar"
+    :timeout="2000"
+    class="snackbar"
+    color="blue-grey"
+    rounded="pill"
+  >
     计划生成中，请稍后
   </v-snackbar>
 
-  <PlanBuilder />
-
-  <PlanShow />
+  <router-view v-slot="{ Component }">
+    <keep-alive>
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import PlanBuilder from "@/components/PlanBuilder.vue";
-import PlanShow from "@/components/PlanShow.vue";
+import { ref, KeepAlive } from "vue";
+import { RouterView, useRouter } from "vue-router";
 import { usePlanViewStore } from "@/stores/planView";
 
+const router = useRouter();
 const plan = usePlanViewStore();
-const tiles = ref([
-  { icon: "mdi-calendar-edit", title: "修改计划" },
-  { icon: "mdi-delete", title: "删除计划" },
-  { icon: "mdi-share-variant", title: "分享计划" },
-]);
+
 let snackbar = ref(false);
 
-const handleSpanClick = (e) => {
+function handleSpanClick(e) {
   e.stopPropagation();
-  plan.is.showActionSheet = true;
-};
+  router.push("/plan/config");
+}
 
 function openCard(time) {
   if (time >= 100) {
-    plan.is.showShowDialog = true;
+    router.push("/plan/show");
   } else {
     snackbar.value = true;
   }
@@ -108,6 +98,9 @@ function openCard(time) {
   right: 10px;
 }
 .snackbar {
-  transform: translateY(-850px);
+  transform: translateY(-70px);
+}
+.title {
+  color: var(--firstLevel-head-color);
 }
 </style>

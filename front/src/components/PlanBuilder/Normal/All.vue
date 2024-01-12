@@ -1,14 +1,21 @@
 <template>
-  <v-card class="h-screen">
-    <div class="d-flex flex-wrap">
-      <v-btn
-        variant="text"
-        icon="mdi-arrow-left"
-        class="ml-5 mt-5 me-auto"
-        @click="plan.config.step--"
-      ></v-btn>
-    </div>
-    <div class="full-scroll">
+  <v-dialog
+    v-model="plan.is.showAllDialog"
+    :scrim="false"
+    transition="dialog-bottom-transition"
+    persistent
+    fullscreen
+    :close-on-back="false"
+  >
+    <v-card class="h-screen">
+      <div class="d-flex flex-wrap">
+        <v-btn
+          variant="text"
+          icon="mdi-arrow-left"
+          class="ml-5 mt-5 me-auto"
+          @click="router.back()"
+        ></v-btn>
+      </div>
       <div class="text-h4 me-auto ml-5 mt-5">预览</div>
       <div class="text-subtitle-2 me-auto ml-5 mb-5">确认创建信息是否正确</div>
       <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
@@ -46,10 +53,16 @@
       </div>
       <div class="ml-12">
         <div class="ml-3 mb-3">开始</div>
-        <div class="ml-9 mb-3">{{ plan.temp.beginDate }}</div>
+        <div class="ml-9 mb-3">
+          {{ plan.temp.beginDate.getFullYear() }}-{{
+            plan.temp.beginDate.getMonth() + 1
+          }}-{{ plan.temp.beginDate.getDate() }}
+        </div>
         <div class="ml-3 mb-3">结束</div>
         <div class="ml-9 mb-3">
-          {{ plan.temp.endDate }}
+          {{ plan.temp.beginDate.getFullYear() }}-{{
+            plan.temp.beginDate.getMonth() + 1
+          }}-{{ plan.temp.beginDate.getDate() }}
         </div>
       </div>
       <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
@@ -84,19 +97,22 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <v-btn class="bom-btn bg-black" @click="create" width="300"
-      >创建我的旅行计划</v-btn
-    >
-  </v-card>
+      <div class="d-flex justify-center align-center mt-5 mb-5">
+        <v-btn class="bg-black" @click="create" width="300"
+          >创建我的旅行计划</v-btn
+        >
+      </div>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onActivated, onDeactivated } from "vue";
+import { RouterView, useRouter } from "vue-router";
 import { usePlanViewStore } from "@/stores/planView";
 import axios from "axios";
 
+const router = useRouter();
 const plan = usePlanViewStore();
 
 function create() {
@@ -135,32 +151,29 @@ function create() {
   reset();
 }
 function reset() {
-  plan.is.showBuilderDialog = false;
-  plan.config.step = 1;
+  console.log(window.history.length);
+  window.history.go(-(window.history.length - 1));
+  router.push("/plan");
   plan.temp = {
     city: "",
     peopleModelActive: "",
     people: [],
     hobbies: [],
     toHobbies: [],
-    beginDate: null,
-    endDate: null,
+    beginDate: new Date(),
+    endDate: new Date(),
     costModelActive: "经济",
     cost: 0,
     trafficModelActive: "",
   };
 }
+
+onActivated(() => {
+  plan.is.showAllDialog = true;
+});
+onDeactivated(() => {
+  plan.is.showAllDialog = false;
+});
 </script>
 
-<style scoped>
-.bom-btn {
-  position: absolute;
-  left: 50%;
-  bottom: 5px;
-  transform: translate(-50%, -50%);
-}
-.full-scroll {
-  overflow-y: scroll;
-  height: 85%;
-}
-</style>
+<style scoped></style>
