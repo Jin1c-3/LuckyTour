@@ -32,7 +32,7 @@ public class AopLogger4Controller {
 	/**
 	 * 定义controller的切点
 	 */
-	@Pointcut("execution(public * com.yutech.goodtemplate.controller.*.*(..))")
+	@Pointcut("execution(public * com.luckytour.server.controller.*.*(..))")
 	public void controllerPointcut() {
 	}
 

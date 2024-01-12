@@ -167,6 +167,13 @@
             <artifactId>velocity-engine-core</artifactId>
             <version>2.3</version>
         </dependency>
+
+        <!--极光消息推送依赖-->
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jpush-client</artifactId>
+            <version>3.7.3</version>
+        </dependency>
     </dependencies>
 
     <build>

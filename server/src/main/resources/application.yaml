@@ -57,3 +57,9 @@ knife4j:
   setting:
     language: zh_cn
     swagger-model-name: 实体类
+
+jpush:
+  appkey: ENC(JOZyeqml0xGl6kVIaw3ilf1DNS3ZVJy+LpcpEFdZEXziFPibhPoWxl/o4ZbzV4Vw2arciaZIFSoFqp7SDvl6Lw==)
+  master-secret: ENC(6poJJitFL8XJlkXrPU2BaZ3vC8C5zltq9XfTd7L9H0AL3T9S7bxcv9Y4V+L/Xbn2o1NVZ5wBSDXKeQNnNDQgzg==)
+  live-time: 1000
+  apns-production: false # 是否生产环境，true表示生产环境

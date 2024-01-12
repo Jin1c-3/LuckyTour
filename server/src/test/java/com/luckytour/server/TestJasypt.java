@@ -30,6 +30,6 @@ class TestJasypt {
 		config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
 		config.setStringOutputType("base64");
 		encryptor.setConfig(config);
-		System.out.println(encryptor.encrypt("root"));//需要修改
+		System.out.println(encryptor.encrypt("e7fecafafc5838b3a81aa3f9"));//需要修改
 	}
 }
