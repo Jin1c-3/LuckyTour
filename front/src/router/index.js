@@ -106,6 +106,11 @@ const router = createRouter({
           name: "validateCode",
           component: () => import("@/components/ValidationCode.vue"),
         },
+        {
+          path: "update",
+          name: "update",
+          component: () => import("@/components/user/UpdateUserInfo.vue"),
+        },
       ],
     },
     {

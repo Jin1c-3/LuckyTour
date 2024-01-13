@@ -7,7 +7,7 @@
     fullscreen
     :close-on-back="false"
   >
-    <v-card class="h-screen" :loading="loading" v-if="!isDone">
+    <v-card class="h-screen" :loading="loading">
       <v-container>
         <div class="text-h4 text-center mt-16">验证码已发送</div>
         <div class="text-subtitle-1 text-center h-25 mt-16 mx-7">
@@ -25,9 +25,16 @@
         </div>
       </v-container>
     </v-card>
-    <v-card class="h-screen" v-if="isDone">
-      <div>{{ content }}</div>
-    </v-card>
+
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="2000"
+      class="snackbar"
+      color="blue-grey"
+      rounded="pill"
+    >
+      {{ content }}
+    </v-snackbar>
   </v-dialog>
 </template>
 
@@ -44,26 +51,60 @@ let otp = ref("");
 let loading = ref(false);
 let disabled = ref(false);
 let error = ref(false);
-let isDone = ref(false);
 let content = ref("");
+let snackbar = ref(false);
 
 /**
- *@description 发送创建新用户的请求
+ *@description 发送请求
  */
-async function send() {
-  // await createUser({ emailOrPhone: user.loginOrRegister.emailOrPhone });
+function send() {
+  switch (user.loginOrRegister.type) {
+    case "register":
+      thenRegister();
+      break;
+    case "login":
+      thenLogin();
+      break;
+  }
+}
+
+/**
+ *@description 下一步注册
+ */
+async function thenRegister() {
+  const result = await createUser({
+    emailOrPhone: user.loginOrRegister.emailOrPhone,
+  });
   loading.value = false;
-  disabled.value = false;
-  setTimeout(() => {
-    // TODO: 注册成功后的行为, 重置路由
-    window.history.go(-(window.history.length - 1));
-    // router.push("/user");
-    // router.push("/user/login");
-    isDone.value = false;
-    content.value = "";
-  }, 3000);
-  isDone.value = true;
-  content.value = "创建成功，即将跳转到首页";
+  content.value = result.message;
+  snackbar.value = true;
+  if (result.code == 200) {
+    setTimeout(() => {
+      window.history.go(-(window.history.length - 1));
+      disabled.value = false;
+      content.value = "";
+      otp.value = "";
+    }, 2000);
+    content.value = result.message;
+  } else {
+    setTimeout(() => {
+      router.back();
+      disabled.value = false;
+      content.value = "";
+      otp.value = "";
+    }, 2000);
+  }
+}
+
+/**
+ *@description 下一步登录
+ */
+async function thenLogin() {
+  const result = await login({
+    emailOrPhone: user.loginOrRegister.emailOrPhone,
+    jrid: user.info.jrid,
+    rememberMe: user.loginOrRegister.rememberMe,
+  });
 }
 
 /**

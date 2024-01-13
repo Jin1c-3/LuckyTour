@@ -6,20 +6,23 @@ const user = useUserViewStore();
 /**
  * @description 用户登录
  * @param {object} data 用户登录输入的数据
+ * @returns {object} result 返回结果
  */
 async function login(data) {
-  const response = await service.post("/user/login", data);
+  const response = await service.post("/auth/login", data);
   const result = response.data;
-  //TODO 对返回结果进行处理
+  return result;
 }
 
 /**
  * @description 获取用户信息
+ * @returns {object} result 返回结果
  */
 async function getUserInfo() {
-  const response = await service.post("/user/getInfo", data);
+  //TODO 后端接口问题
+  const response = await service.get("/user/getinfo");
   const result = response.data;
-  //TODO 对返回结果进行处理
+  return result;
 }
 
 /**
@@ -45,21 +48,25 @@ async function getValidateCode(params) {
 /**
  * @description 创建新用户
  * @param {object} data 用户注册相关信息
+ * @returns {object} result 返回结果
  */
-async function createUser(data) {
-  const response = await service.post("/user/new", data);
+async function createUser(params) {
+  const response = await service.get("/user/new", { params });
   const result = response.data;
-  //TODO 对返回结果进行处理
+  return result;
 }
 
 /**
  * @description 用户修改信息
  * @param {object} data 用户修改信息输入的数据
  */
-async function updateUserInfo(data) {
-  const response = await service.post("/user/update", data);
+async function updateUserInfo(params, data) {
+  const response = await service.post("/user/update", {
+    Headers: { "Content-Type": "multipart/form-data" },
+    params: params,
+    data: data,
+  });
   const result = response.data;
-  //TODO 对返回结果进行处理
 }
 
 export {

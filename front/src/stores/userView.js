@@ -6,8 +6,23 @@ export const useUserViewStore = defineStore("userView", () => {
     showLoginDialog: false,
     showRegisterDialog: false,
     showValidateDialog: false,
+    showUpdateDialog: false,
+  });
+  let status = reactive({
+    login: false,
   });
   let info = reactive({
+    id: "",
+    nickname: "",
+    password: "",
+    phone: "",
+    email: "",
+    birthday: "",
+    sex: "",
+    avatar: "",
+    jrid: "",
+  });
+  let temp = reactive({
     id: "",
     nickname: "",
     password: "",
@@ -22,9 +37,12 @@ export const useUserViewStore = defineStore("userView", () => {
     emailOrPhone: "",
     password: "",
     validateCode: "",
+    rememberMe: false,
   });
   return {
     is,
+    temp,
+    status,
     info,
     loginOrRegister,
   };

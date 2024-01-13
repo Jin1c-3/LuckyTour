@@ -34,8 +34,11 @@
 <script setup>
 import { RouterLink, RouterView, useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
+import { useUserViewStore } from "@/stores/userView";
 
 const router = useRouter();
+const user = useUserViewStore();
+
 const root = ["plan", "discover", "user", "home"];
 let active = ref(0);
 let value = ref(1);
@@ -62,6 +65,16 @@ onMounted(() => {
       if (flag) return;
       window.history.go(-1);
     });
+    if (localStorage.getItem("deviceId")) {
+      user.info.jrid = localStorage.getItem("deviceId");
+    } else {
+      plus.device.getInfo({
+        success: function (e) {
+          user.info.jrid = e.uuid;
+        },
+      });
+      localStorage.setItem("deviceId", user.info.jrid);
+    }
   });
 });
 </script>
@@ -69,6 +82,7 @@ onMounted(() => {
 <style>
 :root {
   --firstLevel-head-color: #00cfda;
+  --bottom-navigation-color: #00cfda;
 }
 * {
   margin: 0;

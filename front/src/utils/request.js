@@ -8,7 +8,7 @@ const service = axios.create({
 service.interceptors.request.use(
   (config) => {
     if (localStorage.getItem("token")) {
-      config.headers["x-token"] = localStorage.getItem("token");
+      config.headers["X-token"] = localStorage.getItem("token");
     }
     return config;
   },
@@ -26,4 +26,8 @@ service.interceptors.response.use(
   }
 );
 
+const service_ = axios.create({
+  baseURL: import.meta.env.VITE_SEVER_API_URL,
+  timeout: 5000,
+});
 export default service;
