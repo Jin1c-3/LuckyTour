@@ -36,3 +36,5 @@ build/
 
 *.baiduyun.*.cfg
 
+/static
+
