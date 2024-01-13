@@ -33,8 +33,13 @@ public class AopLoggerUtil {
 		args = Arrays.stream(args)
 				.map(arg -> {
 					if (!(arg instanceof Serializable)) {
-						log.debug("{}方法参数{}不可序列化，已经用toString()替代", getClassMethod(joinPoint), arg);
-						return arg.toString(); // 使用toString()代替
+						log.debug("{} 方法参数 {} 不可序列化，尝试用 toString() 替代", getClassMethod(joinPoint), arg);
+						try {
+							return arg.toString(); // 使用toString()代替
+						} catch (Exception e) {
+							log.warn("{} 方法参数 {} 无法用 toString() 替代", getClassMethod(joinPoint), arg);
+							return null;
+						}
 					} else {
 						return arg;
 					}

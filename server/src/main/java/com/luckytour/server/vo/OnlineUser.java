@@ -2,10 +2,11 @@ package com.luckytour.server.vo;
 
 import com.luckytour.server.common.constant.Consts;
 import com.luckytour.server.entity.User;
-import com.luckytour.server.mapstruct.IUserMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 
@@ -15,13 +16,14 @@ import java.io.Serializable;
  */
 @Data
 @Schema(name = "OnlineUser", description = "前端显示的用户信息")
+@Slf4j
 public class OnlineUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "用户id，使用uuid标识")
-	private Long id;
+	private String id;
 
-	@Schema(description = "用户昵称，允许汉字，允许相同姓名，长度6~16")
+	@Schema(description = "用户昵称，允许汉字，允许相同姓名，长度3~16")
 	private String nickname;
 
 	@Schema(description = "用户手机号码，中间几位会变成*")
@@ -47,8 +49,15 @@ public class OnlineUser implements Serializable {
 
 	public static OnlineUser create(User user) {
 		// 脱敏
-		user.setPhone(StringUtils.overlay(user.getPhone(), Consts.SYMBOL_ASTERISK, 3, 7));
-		user.setEmail(StringUtils.overlay(user.getEmail(), Consts.SYMBOL_ASTERISK, 1, StringUtils.indexOfIgnoreCase(user.getEmail(), Consts.SYMBOL_EMAIL)));
-		return IUserMapper.INSTANCE.User2OnlineUser(user);
+		if (StringUtils.isNotBlank(user.getPhone())) {
+			user.setPhone(StringUtils.overlay(user.getPhone(), Consts.SYMBOL_ASTERISK, 3, 7));
+		}
+		if (StringUtils.isNotBlank(user.getEmail())) {
+			user.setEmail(StringUtils.overlay(user.getEmail(), Consts.SYMBOL_ASTERISK, 1, StringUtils.indexOfIgnoreCase(user.getEmail(), Consts.SYMBOL_EMAIL)));
+		}
+		OnlineUser onlineUser = new OnlineUser();
+		BeanUtils.copyProperties(user, onlineUser);
+		log.debug("onlineUser: {} user: {}", onlineUser, user);
+		return onlineUser;
 	}
 }

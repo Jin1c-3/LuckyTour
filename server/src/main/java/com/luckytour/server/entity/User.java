@@ -25,15 +25,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 public class User extends Model<User> implements Serializable {
-
 	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "用户id，使用uuid标识")
 	@TableId("id")
 	private String id;
 
-	@Schema(description = "用户昵称，默认值是“匿名用户”，允许汉字，允许相同姓名，长度6~16",defaultValue = "匿名用户")
+	@Schema(description = "用户昵称，默认值是“匿名用户”，允许汉字，允许相同姓名，长度3~16",defaultValue = "匿名用户")
 	@TableField("nickname")
 	private String nickname;
 

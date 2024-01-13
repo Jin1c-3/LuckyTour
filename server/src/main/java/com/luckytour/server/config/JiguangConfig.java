@@ -1,5 +1,6 @@
 package com.luckytour.server.config;
 
+import cn.jiguang.common.ClientConfig;
 import cn.jpush.api.JPushClient;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +34,9 @@ public class JiguangConfig {
 	 */
 	@PostConstruct
 	public void initJPushClient() {
-		jPushClient = new JPushClient(masterSecret, appkey, apnsProduction, liveTime);
+		ClientConfig config = ClientConfig.getInstance();
+		config.setGlobalPushSetting(apnsProduction, liveTime);
+		jPushClient = new JPushClient(masterSecret, appkey, null, config);
 	}
 
 	/**

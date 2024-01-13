@@ -7,12 +7,14 @@ import com.luckytour.server.common.constant.IApiStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
 @NoArgsConstructor
 @Schema(name = "ApiResponse", description = "统一响应体")
 @Getter
+@ToString
 public class ApiResponse<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 

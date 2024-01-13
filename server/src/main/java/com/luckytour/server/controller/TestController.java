@@ -100,6 +100,7 @@ public class TestController {
 		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
 		jiguangPushService.updateDeviceTagAlias("160a3797c90471c3a54", "yjy", null, null);
 		jiguangPushService.sendPushByAlias(notification, "yjy");
+		jiguangPushService.sendPushToAll(notification);
 //		System.out.println(pushResult.getResponseCode());
 		//log.info(String.valueOf(pushResult.statusCode));
 //		log.info(String.valueOf(pushResult.sendno));

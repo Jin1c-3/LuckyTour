@@ -1,6 +1,7 @@
 package com.luckytour.server.config;
 
 import com.luckytour.server.interceptor.TokenInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -15,6 +16,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+	@Value("${storage.static.path}")
+	private String staticPath;
+
 	private final String[] EXCLUDED_PATH_PATTERNS = {
 			"/**/doc.html",
 			"/**/login",
@@ -26,6 +30,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			"/**/*.woff",
 			"/**/*.ttf",
 			"/**/*.jpg",
+			"/**/*.png",
 			"/css/**",
 			"/js/**",
 			"/img/**",
@@ -73,6 +78,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/", "file:static/");
+		registry.addResourceHandler("/%s/**".formatted(staticPath)).addResourceLocations("classpath:/%s/".formatted(staticPath), "file:%s/".formatted(staticPath));
 	}
 }

@@ -60,4 +60,9 @@ public interface Consts {
 	 * 保存的key
 	 */
 	String TOKEN_KEY = "X-token";
+
+	/**
+	 * 文件系统分隔符
+	 */
+	String FILE_SEPARATOR = System.getProperty("file.separator");
 }

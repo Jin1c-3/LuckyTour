@@ -40,8 +40,10 @@ public class TokenInterceptor implements HandlerInterceptor {
 		}
 		if (Boolean.TRUE.equals(claims.get("rememberMe", Boolean.class))) {
 			// 如果是记住我，更新过期时间，更新session中的token
-			String jwt = JwtUtil.create(claims.getId(), claims.getSubject(), true);
-			request.setAttribute(Consts.TOKEN_KEY, jwt);
+			/*String jwt = JwtUtil.create(claims.getId(), claims.getSubject(), true);
+			request.setAttribute(Consts.TOKEN_KEY, jwt);*/
+			// 更新redis中的token
+			JwtUtil.renew(request);
 		}
 		// 如果不是，直接过
 		return true;

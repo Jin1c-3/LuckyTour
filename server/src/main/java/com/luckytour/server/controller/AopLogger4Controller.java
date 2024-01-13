@@ -8,9 +8,7 @@ import com.luckytour.server.util.UserAgentUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -68,12 +66,16 @@ public class AopLogger4Controller {
 				.userAgent(header)
 				.browser(userAgent.getBrowser().toString())
 				.operatingSystem(userAgent.getOperatingSystem().toString()).build();
-
-		log.info("Request Log Info : {}", new ObjectMapper().writeValueAsString(l));
+		try {
+			log.info("Request Log Info : {}", new ObjectMapper().writeValueAsString(l));
+		} catch (Exception e) {
+			log.info("AopLogger记录失败");
+		}
 
 		return result;
 	}
 
+	//与全局异常处理函数功能重复，暂时注释掉
 	/**
 	 * controller异常捕捉打印日志
 	 *
@@ -81,12 +83,12 @@ public class AopLogger4Controller {
 	 * @param e
 	 * @throws JsonProcessingException
 	 */
-	@AfterThrowing(value = "controllerPointcut()", throwing = "e")
+	/*@AfterThrowing(value = "controllerPointcut()", throwing = "e")
 	public void controllerThrowLogger(JoinPoint point, Throwable e) throws JsonProcessingException {
 		log.error("{} 发生了异常...，相关参数是 {}",
 				AopLoggerUtil.getClassMethod(point),
 				new ObjectMapper().writeValueAsString(AopLoggerUtil.getNameAndValue(point)),
 				e);
-	}
+	}*/
 
 }

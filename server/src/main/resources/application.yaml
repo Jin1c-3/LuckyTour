@@ -1,5 +1,5 @@
 server:
-  port: 8087
+  port: 58087
 
 database-name: luckytour
 
@@ -81,3 +81,23 @@ jpush:
   master-secret: ENC(6poJJitFL8XJlkXrPU2BaZ3vC8C5zltq9XfTd7L9H0AL3T9S7bxcv9Y4V+L/Xbn2o1NVZ5wBSDXKeQNnNDQgzg==)
   live-time: 1000
   apns-production: true # 是否生产环境，true表示生产环境
+
+mybatis-plus:
+  global-config:
+    db-config:
+      update-strategy: not_empty
+
+jwt:
+  config:
+    secret-key: luckytour
+    short-ttl: 600000
+    long-ttl: 604800000
+
+storage:
+  folder:
+    default-format: yyyy/MM/dd
+  static:
+    path: static
+    avatar:
+      path: avatar
+      default: https://cdn.jsdelivr.net/gh/Jin1c-3/picx-images-hosting@master/20240110/luckytour-logo-round.1w2sagoaz074.webp

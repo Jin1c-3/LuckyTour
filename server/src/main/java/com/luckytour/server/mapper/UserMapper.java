@@ -2,7 +2,7 @@ package com.luckytour.server.mapper;
 
 import com.luckytour.server.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.mapstruct.Mapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>

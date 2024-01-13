@@ -28,6 +28,11 @@ public enum ApiStatus implements IApiStatus {
 	LOGIN_SUCCESS(200, "登录成功！"),
 
 	/**
+	 * 注册成功
+	 */
+	REGISTRY_SUCCESS(200, "注册成功，即将返回首页"),
+
+	/**
 	 * 退出成功！
 	 */
 	LOGOUT(200, "退出成功！"),
@@ -96,6 +101,11 @@ public enum ApiStatus implements IApiStatus {
 	 * SMS短信异常
 	 */
 	SMS_ERROR(516, "sms短信异常"),
+
+	/**
+	 * 文件系统异常
+	 */
+	FILE_ERROR(517, "文件系统异常"),
 
 	/**
 	 * 用户名或密码错误！
