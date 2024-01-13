@@ -1,5 +1,6 @@
 package com.luckytour.server.service.serviceImpl;
 
+import com.luckytour.server.common.constant.EMailTemplate;
 import com.luckytour.server.service.EMailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,10 +47,10 @@ public class EMailServiceImpl implements EMailService {
 		// 发送邮件
 		try {
 			javaMailSender.send(simpleMailMessage);
-			log.debug("邮件发送成功:from: {} === to: {}", from, to);
+			log.debug("邮件发送成功:from: {} to: {}", from, to);
 			return true;
 		} catch (Exception e) {
-			log.error("邮件发送失败:from: {} === to: {}", from, to);
+			log.error("邮件发送失败:from: {} to: {}", from, to);
 			log.error(e.getMessage());
 			return false;
 		}
@@ -63,11 +64,11 @@ public class EMailServiceImpl implements EMailService {
 	 */
 	@Override
 	public Boolean sendVerificationCode(String to, String code) {
-		if (sendSimpleMail(from, to, "[网络鱼科技]验证码", "您的验证码为:" + code + "，5分钟内有效，请勿将验证码告诉他人。")) {
-			log.info("验证码邮件发送成功:from: {} ======= to: {} ,with code {}", from, to, code);
+		if (sendSimpleMail(from, to, EMailTemplate.VERIFICATION_CODE.getSubject(), EMailTemplate.VERIFICATION_CODE.getVerificationCodeTemplate(code))) {
+			log.info("验证码邮件发送成功:from: {} to: {} ,with code {}", from, to, code);
 			return true;
 		} else {
-			log.error("验证码邮件发送失败:from: {} ======= to: {} ,with code {}", from, to, code);
+			log.error("验证码邮件发送失败:from: {} to: {} ,with code {}", from, to, code);
 			return false;
 		}
 	}
@@ -79,7 +80,7 @@ public class EMailServiceImpl implements EMailService {
 	 * @param name 用户名
 	 */
 	public Boolean sendGreetings(String to, String name) {
-		if (sendSimpleMail(from, to, "[网络鱼科技]欢迎邮件", "欢迎您的加入，" + name + "！祝您使用愉快！")) {
+		if (sendSimpleMail(from, to, EMailTemplate.GREETINGS.getSubject(), EMailTemplate.GREETINGS.getGreetingsTemplate(name))) {
 			log.debug("欢迎邮件发送成功:from: {} === to: {} ,with name {}", from, to, name);
 			return true;
 		} else {

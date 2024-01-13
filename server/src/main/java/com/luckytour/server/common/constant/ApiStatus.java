@@ -131,19 +131,18 @@ public enum ApiStatus implements IApiStatus {
 	 * 注册时用户已存在
 	 */
 	USER_ALREADY_EXIST(5004, "用户已存在！");
-	;
 
 	/**
 	 * 状态码
 	 */
 	@Schema(name = "code", description = "状态码")
-	private Integer code;
+	private final Integer code;
 
 	/**
 	 * 返回信息
 	 */
 	@Schema(name = "message", description = "状态码描述")
-	private String message;
+	private final String message;
 
 	public static ApiStatus fromCode(int code) {
 		for (ApiStatus status : ApiStatus.values()) {
