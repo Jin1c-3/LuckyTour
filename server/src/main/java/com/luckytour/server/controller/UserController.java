@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -77,6 +78,16 @@ public class UserController {
 	public <T> ApiResponse<T> update(@Valid UserUpdateRequest userUpdateRequest, MultipartFile avatarPic, HttpServletRequest request) throws MysqlException {
 		User newUser = new User();
 		BeanUtils.copyProperties(userUpdateRequest, newUser);
+		if (StringUtils.isNotBlank(newUser.getPassword())) {
+			newUser.setPassword(JwtUtil.encrypt(newUser.getPassword()));
+		}
+		if (StringUtils.isNotBlank(userUpdateRequest.getSex())) {
+			if (Consts.MALE_STR.equals(userUpdateRequest.getSex())) {
+				newUser.setSex(Consts.MALE_INT);
+			} else if (Consts.FEMALE_STR.equals(userUpdateRequest.getSex())) {
+				newUser.setSex(Consts.FEMALE_INT);
+			}
+		}
 		if (avatarPic != null) {
 			String avatarUrl = FileUploadUtil.storeAvatar(request, newUser.getId(), avatarPic);
 			newUser.setAvatar(avatarUrl);

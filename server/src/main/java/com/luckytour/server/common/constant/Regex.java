@@ -13,7 +13,11 @@ public interface Regex {
 	String MOBILE_OR_BLANK_REGEX = "^$|" + MOBILE_REGEX;
 	String NICKNAME_REGEX = "^[\u4e00-\u9fa5a-zA-Z0-9_-]{3,16}$";
 	String NICKNAME_OR_BLANK_REGEX = "^$|" + NICKNAME_REGEX;
-	String PASSWORD_REGEX = "^[a-zA-Z0-9]{30}$";
+	String PASSWORD_REGEX = "^[a-zA-Z0-9]{6,30}$";
 	String PASSWORD_OR_BLANK_REGEX = "^$|" + PASSWORD_REGEX;
 	String MOBILE_OR_EMAIL_REGEX = "^(" + MOBILE_REGEX + ")|(" + EMAIL_REGEX + ")$";
+	String MALE_FEMALE_REGEX = "^[男女]$";
+	String MALE_FEMALE_OR_BLANK_REGEX = "^$|" + MALE_FEMALE_REGEX;
+	String DATE_REGEX = "^\\d{4}-\\d{2}-\\d{2}$";
+	String DATE_OR_BLANK_REGEX = "^$|" + DATE_REGEX;
 }

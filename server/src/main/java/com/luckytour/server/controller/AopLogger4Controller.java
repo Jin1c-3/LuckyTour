@@ -67,7 +67,7 @@ public class AopLogger4Controller {
 				.browser(userAgent.getBrowser().toString())
 				.operatingSystem(userAgent.getOperatingSystem().toString()).build();
 		try {
-			log.info("Request Log Info : {}", new ObjectMapper().writeValueAsString(l));
+			log.info("请求日志: {}", new ObjectMapper().writeValueAsString(l));
 		} catch (Exception e) {
 			log.info("AopLogger记录失败");
 		}

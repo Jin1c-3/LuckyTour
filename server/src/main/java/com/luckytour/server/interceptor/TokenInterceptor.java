@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -22,6 +23,10 @@ public class TokenInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+		//拦截器取到请求先进行判断，如果是OPTIONS请求，则放行
+		if (RequestMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
+			return true;
+		}
 		String token = request.getHeader(Consts.TOKEN_KEY);
 		if (StringUtils.isBlank(token)) {
 			// 返回请求未登录
@@ -45,6 +50,7 @@ public class TokenInterceptor implements HandlerInterceptor {
 			// 更新redis中的token
 			JwtUtil.renew(request);
 		}
+		log.debug("token校验通过");
 		// 如果不是，直接过
 		return true;
 

@@ -6,9 +6,9 @@ import com.luckytour.server.exception.SecurityException;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -62,7 +62,7 @@ public class JwtUtil {
 	 * @param subject    用户名
 	 * @return JWT
 	 */
-	public static String create(String id, String subject, Boolean rememberMe) {
+	public static String createToken(String id, String subject, Boolean rememberMe) {
 		Date now = new Date();
 		JwtBuilder builder = Jwts.builder()
 				.setId(id)
@@ -88,6 +88,29 @@ public class JwtUtil {
 		log.debug("存储的redis是：{}", RedisUtil.get(key));
 		RedisUtil.expire(key, ttl, TimeUnit.MILLISECONDS);
 		return jwt;
+	}
+
+	/**
+	 * 加密普通字符串
+	 *
+	 * @param raw 原始字符串
+	 * @return 加密后字符串
+	 */
+	public static String encrypt(String raw) {
+		return Jwts.builder()
+				.setSubject(raw)
+				.signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+				.compact();
+	}
+
+	/**
+	 * 解密
+	 *
+	 * @param encrypted 加密后字符串
+	 * @return 原始字符串
+	 */
+	public static boolean matches(String raw, String encrypted) {
+		return encrypt(raw).equals(encrypted);
 	}
 
 	/**

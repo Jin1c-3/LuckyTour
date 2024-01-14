@@ -89,7 +89,7 @@ mybatis-plus:
 
 jwt:
   config:
-    secret-key: luckytour
+    secret-key: ENC(h5csKS/XZMLdC0VfTS1a4anNg5T/YJheWMyLG9v3reH7yyaU/QfL7CegB8+DjqL/)
     short-ttl: 600000
     long-ttl: 604800000
 

@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * @author qing
@@ -39,8 +38,10 @@ public class UserUpdateRequest implements Serializable {
 	private String email;
 
 	@Schema(description = "用户生日，采用时间戳")
-	private LocalDateTime birthday;
+	@Pattern(regexp = Regex.DATE_OR_BLANK_REGEX, message = "生日格式不正确")
+	private String birthday;
 
 	@Schema(description = "用户性别，1-男、2-女")
-	private Integer sex;
+	@Pattern(regexp = Regex.MALE_FEMALE_OR_BLANK_REGEX, message = "性别格式不正确")
+	private String sex;
 }

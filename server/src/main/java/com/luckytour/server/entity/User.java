@@ -51,7 +51,7 @@ public class User extends Model<User> implements Serializable {
 
 	@Schema(description = "用户生日，采用时间戳")
 	@TableField("birthday")
-	private LocalDateTime birthday;
+	private String birthday;
 
 	@Schema(description = "用户被首次创建的时间，创建时自动填充")
 	@TableField("create_time")

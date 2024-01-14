@@ -1,12 +1,13 @@
 package com.luckytour.server.exception.handler;
 
-import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.common.BaseException;
 import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.controller.AopLogger4Controller;
+import com.luckytour.server.payload.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,6 +54,8 @@ public class GlobalExceptionHandler {
 			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_MATCH);
 		} else if (e instanceof HttpMessageNotReadableException) {
 			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_NULL);
+		} else if (e instanceof RedisConnectionFailureException) {
+			return ApiResponse.ofStatus(ApiStatus.REDIS_ERROR);
 		} else if (e instanceof BaseException) {
 			return ApiResponse.ofException(e);
 		}

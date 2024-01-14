@@ -65,4 +65,24 @@ public interface Consts {
 	 * 文件系统分隔符
 	 */
 	String FILE_SEPARATOR = System.getProperty("file.separator");
+
+	/**
+	 * 男
+	 */
+	Integer MALE_INT = 1;
+
+	/**
+	 * 女
+	 */
+	Integer FEMALE_INT = 2;
+
+	/**
+	 * 男
+	 */
+	String MALE_STR = "男";
+
+	/**
+	 * 女
+	 */
+	String FEMALE_STR = "女";
 }

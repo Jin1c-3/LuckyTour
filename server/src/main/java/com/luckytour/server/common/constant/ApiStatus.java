@@ -130,7 +130,12 @@ public enum ApiStatus implements IApiStatus {
 	/**
 	 * 注册时用户已存在
 	 */
-	USER_ALREADY_EXIST(5004, "用户已存在！");
+	USER_ALREADY_EXIST(5004, "用户已存在！"),
+
+	/**
+	 * 注册时用户已存在
+	 */
+	USER_NOT_EXIST(5005, "用户不存在！");
 
 	/**
 	 * 状态码

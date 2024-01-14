@@ -64,7 +64,7 @@ public class EMailServiceImpl implements EMailService {
 	 */
 	@Override
 	public Boolean sendVerificationCode(String to, String code) {
-		if (sendSimpleMail(from, to, EMailTemplate.VERIFICATION_CODE.getSubject(), EMailTemplate.VERIFICATION_CODE.getVerificationCodeTemplate(code))) {
+		if (sendSimpleMail(from, to, EMailTemplate.VERIFICATION_CODE.getSubject(), EMailTemplate.VERIFICATION_CODE.fillOneParam(code))) {
 			log.info("验证码邮件发送成功:from: {} to: {} ,with code {}", from, to, code);
 			return true;
 		} else {
@@ -80,7 +80,7 @@ public class EMailServiceImpl implements EMailService {
 	 * @param name 用户名
 	 */
 	public Boolean sendGreetings(String to, String name) {
-		if (sendSimpleMail(from, to, EMailTemplate.GREETINGS.getSubject(), EMailTemplate.GREETINGS.getGreetingsTemplate(name))) {
+		if (sendSimpleMail(from, to, EMailTemplate.GREETINGS.getSubject(), EMailTemplate.GREETINGS.fillOneParam(name))) {
 			log.debug("欢迎邮件发送成功:from: {} === to: {} ,with name {}", from, to, name);
 			return true;
 		} else {

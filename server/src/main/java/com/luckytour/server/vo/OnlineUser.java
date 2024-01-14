@@ -32,11 +32,11 @@ public class OnlineUser implements Serializable {
 	@Schema(description = "用户邮箱，中间几位会变成*")
 	private String email;
 
-	@Schema(description = "用户生日，采用时间戳")
-	private Long birthday;
+	@Schema(description = "用户生日,yyyy-MM-dd")
+	private String birthday;
 
 	@Schema(description = "用户性别，1-男、2-女")
-	private Integer sex;
+	private String sex;
 
 	@Schema(description = "用户头像，存储一个网址")
 	private String avatar;
@@ -48,15 +48,13 @@ public class OnlineUser implements Serializable {
 	private Integer level;
 
 	public static OnlineUser create(User user) {
-		// 脱敏
-		if (StringUtils.isNotBlank(user.getPhone())) {
-			user.setPhone(StringUtils.overlay(user.getPhone(), Consts.SYMBOL_ASTERISK, 3, 7));
-		}
-		if (StringUtils.isNotBlank(user.getEmail())) {
-			user.setEmail(StringUtils.overlay(user.getEmail(), Consts.SYMBOL_ASTERISK, 1, StringUtils.indexOfIgnoreCase(user.getEmail(), Consts.SYMBOL_EMAIL)));
-		}
 		OnlineUser onlineUser = new OnlineUser();
 		BeanUtils.copyProperties(user, onlineUser);
+		if (user.getSex().equals(Consts.MALE_INT)) {
+			onlineUser.setSex("男");
+		} else if (user.getSex().equals(Consts.FEMALE_INT)) {
+			onlineUser.setSex("女");
+		}
 		log.debug("onlineUser: {} user: {}", onlineUser, user);
 		return onlineUser;
 	}
