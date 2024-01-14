@@ -2,7 +2,7 @@
   <v-app>
     <RouterView />
     <div style="width: 100%; height: 50px"></div>
-    <v-bottom-navigation mode="shift">
+    <v-bottom-navigation mode="shift" class="bottom-navigation">
       <v-btn @click="router.replace('/')" max-width="50px">
         <v-icon icon="mdi-home" />
         <span>首页</span>
@@ -82,7 +82,8 @@ onMounted(() => {
 <style>
 :root {
   --firstLevel-head-color: #00cfda;
-  --bottom-navigation-color: #00cfda;
+  --bottom-navigation-bg-color: #00cfda;
+  --bottom-navigation-color: #ffffff;
 }
 * {
   margin: 0;
@@ -94,5 +95,9 @@ body {
 }
 .snackbar {
   transform: translateY(-70px) !important;
+}
+.bottom-navigation {
+  background-color: var(--bottom-navigation-bg-color) !important;
+  color: var(--bottom-navigation-color) !important;
 }
 </style>

@@ -102,6 +102,7 @@ async function Login() {
     getValidateCode({
       emailOrPhone: user.loginOrRegister.emailOrPhone,
     });
+    mode.value = false;
   } else {
     if (validate() == true) {
       loading.value = true;
@@ -113,14 +114,16 @@ async function Login() {
       });
       loading.value = false;
       content.value = result.message;
-      snackbar.value = true;
       if (result.code == 200) {
+        user.status.login = true;
         localStorage.setItem("token", result.data.token);
         const userInfo = await getUserInfo();
         user.info = userInfo.data;
         setTimeout(() => {
           router.back();
         }, 2000);
+      } else {
+        snackbar.value = true;
       }
     }
   }

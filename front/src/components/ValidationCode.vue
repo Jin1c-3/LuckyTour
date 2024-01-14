@@ -42,7 +42,12 @@
 import { ref, onActivated, onDeactivated, watch } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import { useUserViewStore } from "@/stores/userView";
-import { getValidateCode, createUser } from "@/utils/request/user";
+import {
+  getValidateCode,
+  createUser,
+  getUserInfo,
+  login,
+} from "@/utils/request/user";
 
 const router = useRouter();
 const user = useUserViewStore();
@@ -81,17 +86,12 @@ async function thenRegister() {
   if (result.code == 200) {
     setTimeout(() => {
       window.history.go(-(window.history.length - 1));
-      disabled.value = false;
-      content.value = "";
-      otp.value = "";
+      reset();
     }, 2000);
-    content.value = result.message;
   } else {
     setTimeout(() => {
       router.back();
-      disabled.value = false;
-      content.value = "";
-      otp.value = "";
+      reset();
     }, 2000);
   }
 }
@@ -105,6 +105,32 @@ async function thenLogin() {
     jrid: user.info.jrid,
     rememberMe: user.loginOrRegister.rememberMe,
   });
+  content.value = result.message;
+  snackbar.value = true;
+  if (result.code == 200) {
+    user.status.login = true;
+    localStorage.setItem("token", result.data.token);
+    const userInfo = await getUserInfo();
+    user.info = userInfo.data;
+    setTimeout(() => {
+      window.history.go(-(window.history.length - 1));
+      reset();
+    }, 2000);
+  } else {
+    setTimeout(() => {
+      router.back();
+      reset();
+    }, 2000);
+  }
+}
+
+/**
+ *@description 重置
+ */
+function reset() {
+  disabled.value = false;
+  content.value = "";
+  otp.value = "";
 }
 
 /**

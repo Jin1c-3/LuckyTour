@@ -7,23 +7,7 @@
     fullscreen
     :close-on-back="false"
   >
-    <v-card class="h-screen">
-      <v-list density="comfortable">
-        <!-- <v-list-subheader>REPORTS</v-list-subheader> -->
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :value="item"
-          height="60"
-        >
-          <template v-slot:append>
-            <v-icon> mdi-chevron-right </v-icon>
-          </template>
-          <v-list-item-title v-text="item.text"></v-list-item-title>
-        </v-list-item>
-      </v-list>
-      <v-btn @click="send" block size="large" class="mt-4"> 发送 </v-btn>
-    </v-card>
+    <v-card class="h-screen"> </v-card>
   </v-dialog>
 </template>
 
