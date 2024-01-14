@@ -9,14 +9,16 @@
   >
     <v-card class="h-screen">
       <v-container>
-        <div class="text-h2 text-center mt-16">云 栖</div>
+        <div class="text-h2 text-center mt-16 text-teal-accent-4">云 栖</div>
         <v-text-field
           v-model="user.loginOrRegister.emailOrPhone"
           label="邮箱/手机号"
           variant="outlined"
-          class="mt-5"
+          class="mt-5 input"
           clearable
           :rules="[isEmailOrPhone]"
+          base-color="teal-lighten-2"
+          color="teal-darken-1"
         ></v-text-field>
         <v-text-field
           v-model="user.loginOrRegister.password"
@@ -25,10 +27,12 @@
           :type="visible ? 'text' : 'password'"
           label="密码"
           variant="outlined"
-          class="mt-5"
+          class="mt-5 input"
           clearable
           :rules="[requirePassword]"
           @click:append-inner="visible = !visible"
+          base-color="teal-lighten-2"
+          color="teal-darken-1"
         ></v-text-field>
         <div class="d-flex justify-end align-center">
           <v-btn
@@ -39,6 +43,7 @@
             variant="plain"
             :ripple="false"
             append-icon="mdi-refresh"
+            color="teal-accent-3"
           >
             邮箱/短信验证码登录
           </v-btn>
@@ -49,6 +54,7 @@
           size="large"
           :loading="loading"
           class="mt-4"
+          color="teal-accent-4"
         >
           {{ mode ? "获取验证码" : "登录" }}
         </v-btn>
@@ -58,6 +64,7 @@
             append-icon="mdi-chevron-right"
             variant="plain"
             :ripple="false"
+            color="teal-accent-3"
           >
             还未注册？立即注册
           </v-btn>
@@ -70,7 +77,7 @@
     v-model="snackbar"
     :timeout="2000"
     class="snackbar"
-    color="blue-grey"
+    color="teal-accent-4"
     rounded="pill"
   >
     {{ content }}
@@ -114,16 +121,20 @@ async function Login() {
       });
       loading.value = false;
       content.value = result.message;
+      snackbar.value = true;
       if (result.code == 200) {
         user.status.login = true;
         localStorage.setItem("token", result.data.token);
         const userInfo = await getUserInfo();
         user.info = userInfo.data;
+        if (user.info.birthday) {
+          user.info.year = userInfo.data.birthday.split("-")[0];
+          user.info.month = userInfo.data.birthday.split("-")[1];
+          user.info.day = userInfo.data.birthday.split("-")[2];
+        }
         setTimeout(() => {
           router.back();
         }, 2000);
-      } else {
-        snackbar.value = true;
       }
     }
   }

@@ -36,7 +36,13 @@
   </v-card>
   <v-list density="comfortable">
     <!-- <v-list-subheader>REPORTS</v-list-subheader> -->
-    <v-list-item v-for="(item, i) in items" :key="i" :value="item" height="60">
+    <v-list-item
+      v-for="(item, i) in items"
+      :key="i"
+      :value="item"
+      height="60"
+      @click="router.push(item.to)"
+    >
       <template v-slot:prepend>
         <v-icon :icon="item.icon" :size="35"></v-icon>
       </template>
@@ -63,7 +69,7 @@ const router = useRouter();
 const user = useUserViewStore();
 
 const items = [
-  { text: "我的账户", icon: "mdi-clock" },
+  { text: "我的账户", icon: "mdi-clock", to: "/user/update" },
   { text: "帮助", icon: "mdi-account" },
   { text: "设置", icon: "mdi-cog" },
 ];

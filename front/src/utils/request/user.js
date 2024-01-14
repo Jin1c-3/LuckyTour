@@ -19,7 +19,6 @@ async function login(data) {
  * @returns {object} result 返回结果
  */
 async function getUserInfo() {
-  //TODO 后端接口问题
   const response = await service.get("/user/getinfo");
   const result = response.data;
   return result;
@@ -59,14 +58,18 @@ async function createUser(params) {
 /**
  * @description 用户修改信息
  * @param {object} data 用户修改信息输入的数据
+ * @returns {object} result 返回结果
  */
 async function updateUserInfo(params, data) {
-  const response = await service.post("/user/update", {
-    Headers: { "Content-Type": "multipart/form-data" },
-    params: params,
-    data: data,
+  const response = await service({
+    url: "/user/update",
+    method: "post",
+    headers: { "Content-Type": "multipart/form-data" },
+    params,
+    data,
   });
   const result = response.data;
+  return result;
 }
 
 export {

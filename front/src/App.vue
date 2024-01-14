@@ -81,8 +81,8 @@ onMounted(() => {
 
 <style>
 :root {
-  --firstLevel-head-color: #00cfda;
-  --bottom-navigation-bg-color: #00cfda;
+  --firstLevel-head-color: #00bfa5;
+  --bottom-navigation-bg-color: #00bfa5;
   --bottom-navigation-color: #ffffff;
 }
 * {

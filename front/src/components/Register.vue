@@ -9,7 +9,7 @@
   >
     <v-card class="h-screen">
       <v-container>
-        <div class="text-h2 text-center mt-16">云 栖</div>
+        <div class="text-h2 text-center mt-16 text-teal-accent-4">云 栖</div>
         <v-text-field
           v-model="user.loginOrRegister.emailOrPhone"
           :rules="[isEmailOrPhone]"
@@ -17,15 +17,26 @@
           variant="outlined"
           class="mt-5"
           clearable
+          base-color="teal-lighten-2"
+          color="teal-darken-1"
         ></v-text-field>
 
-        <v-btn @click="Register" block size="large" class="mt-4"> 注册 </v-btn>
+        <v-btn
+          @click="Register"
+          block
+          size="large"
+          class="mt-4"
+          color="teal-accent-4"
+        >
+          注册
+        </v-btn>
         <div class="d-flex justify-center align-center my-2">
           <v-btn
             @click="router.replace('/user/login')"
             append-icon="mdi-chevron-right"
             variant="plain"
             :ripple="false"
+            color="teal-accent-3"
           >
             已有账号？立即登录
           </v-btn>
