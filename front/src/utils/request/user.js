@@ -1,4 +1,4 @@
-import service from "../request";
+import { service } from "../request";
 import { useUserViewStore } from "@/stores/userView";
 
 const user = useUserViewStore();

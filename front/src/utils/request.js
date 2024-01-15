@@ -27,7 +27,8 @@ service.interceptors.response.use(
 );
 
 const service_ = axios.create({
-  baseURL: import.meta.env.VITE_SEVER_API_URL,
-  timeout: 5000,
+  baseURL: import.meta.env.VITE_COMPUTE_API_URL,
+  timeout: 10000,
 });
-export default service;
+
+export { service, service_ };

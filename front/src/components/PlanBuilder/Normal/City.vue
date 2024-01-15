@@ -18,15 +18,14 @@
       </div>
       <div class="text-h4 me-auto ml-5 mt-5">城市</div>
       <div class="text-subtitle-2 me-auto ml-5 mb-5">你想去哪个城市？</div>
-      <v-autocomplete
-        clearable
-        label="城市"
-        variant="outlined"
-        class="w-75 mx-auto"
-        prepend-inner-icon="mdi-magnify"
-        theme="light"
-      ></v-autocomplete>
       <v-container>
+        <v-autocomplete
+          clearable
+          label="城市"
+          variant="outlined"
+          prepend-inner-icon="mdi-magnify"
+          theme="light"
+        ></v-autocomplete>
         <v-card
           v-ripple
           variant="outlined"

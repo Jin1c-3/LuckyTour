@@ -55,24 +55,12 @@
           label="性别"
           variant="solo"
         ></v-text-field>
-        <div class="d-flex justify-center align-center ga-3">
-          <v-text-field
-            v-model="user.info.year"
-            label="年"
-            variant="solo"
-          ></v-text-field>
-          <v-text-field
-            v-model="user.info.month"
-            label="月"
-            variant="solo"
-          ></v-text-field>
-          <v-text-field
-            v-model="user.info.day"
-            label="日"
-            variant="solo"
-          ></v-text-field>
-        </div>
-        <div>{{ photo }}</div>
+        <v-text-field
+          v-model="user.info.birthday"
+          label="出生日期"
+          variant="solo"
+          type="date"
+        ></v-text-field>
       </v-container>
     </v-card>
   </v-dialog>
@@ -80,7 +68,6 @@
   <v-snackbar
     v-model="snackbar"
     :timeout="2000"
-    class="snackbar"
     color="teal-accent-4"
     rounded="pill"
   >
@@ -116,15 +103,8 @@ async function send() {
   loading.value = true;
   let data = new FormData();
   data.append("avatarPic", photo.value);
-  user.temp.id = user.info.id;
-  user.temp.nickname = user.info.nickname;
-  user.temp.password = user.info.password;
-  user.temp.phone = user.info.phone;
-  user.temp.email = user.info.email;
-  user.temp.sex = user.info.sex;
-  user.temp.birthday = `${user.info.year || "2000"}-${
-    user.info.month || "01"
-  }-${user.info.day || "01"}`;
+  Object.assign(user.temp, user.info);
+  console.log(user.temp);
   const result = await updateUserInfo(user.temp, data);
   reset();
   content.value = result.message;
@@ -132,12 +112,8 @@ async function send() {
   loading.value = false;
   if (result.code == 200) {
     const userInfo = await getUserInfo();
-    user.info = userInfo.data;
-    if (user.info.birthday) {
-      user.info.year = userInfo.data.birthday.split("-")[0];
-      user.info.month = userInfo.data.birthday.split("-")[1];
-      user.info.day = userInfo.data.birthday.split("-")[2];
-    }
+    Object.assign(user.info, userInfo.data);
+    router.back();
   }
 }
 

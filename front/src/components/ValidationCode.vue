@@ -29,7 +29,6 @@
     <v-snackbar
       v-model="snackbar"
       :timeout="2000"
-      class="snackbar"
       color="teal-accent-4"
       rounded="pill"
     >
@@ -111,12 +110,7 @@ async function thenLogin() {
     user.status.login = true;
     localStorage.setItem("token", result.data.token);
     const userInfo = await getUserInfo();
-    user.info = userInfo.data;
-    if (user.info.birthday) {
-      user.info.year = userInfo.data.birthday.split("-")[0];
-      user.info.month = userInfo.data.birthday.split("-")[1];
-      user.info.day = userInfo.data.birthday.split("-")[2];
-    }
+    Object.assign(user.info, userInfo.data);
     setTimeout(() => {
       window.history.go(-(window.history.length - 1));
       reset();

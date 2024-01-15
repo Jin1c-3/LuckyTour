@@ -22,9 +22,6 @@ export const useUserViewStore = defineStore("userView", () => {
     sex: "",
     avatar: "",
     jrid: "",
-    year: "",
-    month: "",
-    day: "",
   });
   let temp = reactive({
     id: "",

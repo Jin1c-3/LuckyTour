@@ -53,8 +53,7 @@
   <v-snackbar
     v-model="snackbar"
     :timeout="2000"
-    class="snackbar"
-    color="blue-grey"
+    color="teal-accent-4"
     rounded="pill"
   >
     计划生成中，请稍后
@@ -96,9 +95,6 @@ function openCard(time) {
   position: absolute;
   top: 10px;
   right: 10px;
-}
-.snackbar {
-  transform: translateY(-70px);
 }
 .title {
   color: var(--firstLevel-head-color);

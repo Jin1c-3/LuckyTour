@@ -26,7 +26,7 @@
           v-ripple
           variant="outlined"
           class="mx-auto mb-5"
-          title="普通模式"
+          title="标签模式"
           text="你需要做出一系列选择，我们会根据你的选择信息为你生成旅行计划"
           @click="router.push('/plan/city')"
         >

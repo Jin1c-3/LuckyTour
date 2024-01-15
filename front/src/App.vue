@@ -85,6 +85,9 @@ onMounted(() => {
   --bottom-navigation-bg-color: #00bfa5;
   --bottom-navigation-color: #ffffff;
 }
+::-webkit-scrollbar {
+  display: none;
+}
 * {
   margin: 0;
   padding: 0;
