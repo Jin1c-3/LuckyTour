@@ -1,0 +1,103 @@
+server:
+  port: 58087
+
+database-name: luckytour
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: server
+  data:
+    # Redis数据源配置
+    redis:
+      # database: 0
+      host: localhost
+      port: 6379
+      # password: ENC(zWGPPt/b2zYru5q6HuFG6kHCbf6/RR8ESY169Dig0r2QRF+xXPpZg1jRq1t8wWtZ)
+      lettuce:
+        pool:
+          # 连接池最大连接数（使用负值表示没有限制） 默认 8
+          max-active: 8
+          # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+          max-wait: -1ms
+          # 连接池中的最大空闲连接 默认 8
+          max-idle: 8
+          # 连接池中的最小空闲连接 默认 0
+          min-idle: 0
+  datasource:
+    username: root
+    password: ENC(shaNgVEISbAUfrwFSbKmds6O9Z581sXrgvuYGHlUeWxTlNAgdUU3zx1lf4Mtsujz)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/${database-name}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+  mail:
+    default-encoding: UTF-8
+    protocol: smtp
+    host: smtp.qq.com
+    port: 587
+    username: pleasuretour@qq.com
+    password: ENC(kZJ4QjNx5MuBi6JudYdJAOJ/UTZ4Nf3/cDke09/GgaVUrVCsEfmw7PrubfVs2cFuPTupHhr6knKdKFBdLZgAeQ==)
+    test-connection: false
+    properties:
+      mail:
+        smtp:
+          auth: false
+        debug: false
+        mime:
+          splitlongparameters: false
+
+logging:
+  config: classpath:logback-spring.xml
+
+#springdoc相关配置
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  group-configs:
+    - group: 'luckytour'
+      paths-to-match: '/**'
+      packages-to-scan: com.luckytour.server  #改成你自己的包名，一般到启动类的包名
+  packages-to-scan:
+    - com.luckytour.server.controller
+    - com.luckytour.server.entity
+    - com.luckytour.server.vo
+    - com.luckytour.server.payload
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    # 开启动态请求参数，true-开启，false-关闭
+    enable-dynamic-parameter: true
+
+jpush:
+  appkey: ENC(JOZyeqml0xGl6kVIaw3ilf1DNS3ZVJy+LpcpEFdZEXziFPibhPoWxl/o4ZbzV4Vw2arciaZIFSoFqp7SDvl6Lw==)
+  master-secret: ENC(6poJJitFL8XJlkXrPU2BaZ3vC8C5zltq9XfTd7L9H0AL3T9S7bxcv9Y4V+L/Xbn2o1NVZ5wBSDXKeQNnNDQgzg==)
+  live-time: 1000
+  apns-production: true # 是否生产环境，true表示生产环境
+
+mybatis-plus:
+  global-config:
+    db-config:
+      update-strategy: not_empty
+
+jwt:
+  config:
+    secret-key: ENC(h5csKS/XZMLdC0VfTS1a4anNg5T/YJheWMyLG9v3reH7yyaU/QfL7CegB8+DjqL/)
+    short-ttl: 600000
+    long-ttl: 604800000
+
+storage:
+  folder:
+    default-format: yyyy/MM/dd
+  static:
+    path: static
+    avatar:
+      path: avatar
+      default: https://cdn.jsdelivr.net/gh/Jin1c-3/picx-images-hosting@master/20240110/luckytour-logo-round.1w2sagoaz074.webp
