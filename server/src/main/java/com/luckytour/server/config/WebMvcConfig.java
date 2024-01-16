@@ -51,6 +51,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			"/auth/**",
 			"/plan/check/**",
 			"/plan/saveOrUpdate/**",
+			"/data/**"
 	};
 
 	@Bean

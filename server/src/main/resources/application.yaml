@@ -23,6 +23,9 @@ spring:
           max-idle: 8
           # 连接池中的最小空闲连接 默认 0
           min-idle: 0
+    mongodb:
+        uri: mongodb://localhost:27017/luckytour
+
   datasource:
     username: root
     password: ENC(shaNgVEISbAUfrwFSbKmds6O9Z581sXrgvuYGHlUeWxTlNAgdUU3zx1lf4Mtsujz)
