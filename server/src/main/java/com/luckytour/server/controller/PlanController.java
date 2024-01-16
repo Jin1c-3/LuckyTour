@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.luckytour.server.entity.Plan;
 import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.payload.ApiResponse;
+import com.luckytour.server.payload.Spot;
 import com.luckytour.server.service.PlanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author qing
@@ -26,14 +29,20 @@ import java.util.List;
 @Slf4j
 @CrossOrigin
 @Validated
+
 public class PlanController {
 	@Autowired
 	private PlanService planService;
 
 	@PostMapping("/check")
 	@Operation(summary = "计划验证")
-	public boolean check() {
-		return true;
+	public <T> ApiResponse<T> check(@RequestBody Map<String, List<Spot>> data) {
+		List<Spot> spots = new ArrayList<>();
+		for (Map.Entry<String, List<Spot>> entry : data.entrySet()) {
+			spots.addAll(entry.getValue());
+		}
+		log.debug("spots: {}", spots);
+		return ApiResponse.ofSuccess();
 	}
 
 	@PostMapping("/saveOrUpdate")

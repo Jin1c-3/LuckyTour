@@ -2,6 +2,7 @@ package com.luckytour.server.util;
 
 import com.luckytour.server.common.constant.ApiAddr;
 import com.luckytour.server.payload.ApiResponse;
+import com.luckytour.server.payload.SimpleChatRequest;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,11 +43,11 @@ public class ApiRequestUtil {
 	 * @param params 请求参数
 	 * @return 返回聊天结果
 	 */
-	public static String chatRequest(Map<String, Object> params) {
+	public static String chatRequest(SimpleChatRequest params) {
 		// 构建请求头
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(params, headers);
+		HttpEntity<SimpleChatRequest> requestEntity = new HttpEntity<>(params, headers);
 		// 发送 POST 请求
 		ResponseEntity<ApiResponse> responseEntity = restTemplate.postForEntity(FLASK_URL + ApiAddr.FLASK_CHAT, requestEntity, ApiResponse.class);
 		return responseEntity.getBody().getData().toString();

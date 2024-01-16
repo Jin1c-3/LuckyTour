@@ -49,6 +49,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			"/user/getcode/**",
 			"/user/new/**",
 			"/auth/**",
+			"/plan/check/**",
+			"/plan/saveOrUpdate/**",
 	};
 
 	@Bean

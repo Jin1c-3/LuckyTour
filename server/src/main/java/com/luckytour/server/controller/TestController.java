@@ -5,6 +5,7 @@ import cn.jiguang.common.resp.APIRequestException;
 import com.luckytour.server.common.constant.Consts;
 import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.payload.ApiResponse;
+import com.luckytour.server.payload.SimpleChatRequest;
 import com.luckytour.server.service.JiguangPushService;
 import com.luckytour.server.util.ApiRequestUtil;
 import com.luckytour.server.vo.JiguangNotification;
@@ -24,6 +25,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.script.SimpleBindings;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,6 +121,6 @@ public class TestController {
 	@Operation(summary = "测试flask-chat接口调用")
 	@GetMapping("/getapi")
 	public ApiResponse<String> getApi() {
-		return ApiResponse.ofSuccess(ApiRequestUtil.chatRequest(Map.of("ask", "你好，你叫什么名字")));
+		return ApiResponse.ofSuccess(ApiRequestUtil.chatRequest(new SimpleChatRequest("你好，你叫什么名字？")));
 	}
 }
