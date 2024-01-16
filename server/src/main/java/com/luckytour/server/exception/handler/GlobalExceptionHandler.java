@@ -3,6 +3,7 @@ package com.luckytour.server.exception.handler;
 import com.luckytour.server.common.BaseException;
 import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.controller.AopLogger4Controller;
+import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.payload.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,8 @@ public class GlobalExceptionHandler {
 			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_MATCH);
 		} else if (e instanceof HttpMessageNotReadableException) {
 			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_NULL);
+		} else if (e instanceof MysqlException) {
+			return ApiResponse.ofStatus(ApiStatus.MYSQL_ERROR);
 		} else if (e instanceof RedisConnectionFailureException) {
 			return ApiResponse.ofStatus(ApiStatus.REDIS_ERROR);
 		} else if (e instanceof BaseException) {

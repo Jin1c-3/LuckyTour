@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JiguangConfig {
 
-	@Value("${jpush.appkey}")
-	private String appkey;
+	@Value("${jpush.app-key}")
+	private String appKey;
 
 	@Value("${jpush.master-secret}")
 	private String masterSecret;
@@ -36,7 +36,7 @@ public class JiguangConfig {
 	public void initJPushClient() {
 		ClientConfig config = ClientConfig.getInstance();
 		config.setGlobalPushSetting(apnsProduction, liveTime);
-		jPushClient = new JPushClient(masterSecret, appkey, null, config);
+		jPushClient = new JPushClient(masterSecret, appKey, null, config);
 	}
 
 	/**

@@ -5,7 +5,6 @@ import com.luckytour.server.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
@@ -22,6 +21,9 @@ public class OnlineUser implements Serializable {
 
 	@Schema(description = "用户id，使用uuid标识")
 	private String id;
+
+	@Schema(description = "登录密码，30位字母或数字长度，允许为空")
+	private String password;
 
 	@Schema(description = "用户昵称，允许汉字，允许相同姓名，长度3~16")
 	private String nickname;

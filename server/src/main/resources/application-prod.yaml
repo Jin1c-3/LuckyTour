@@ -1,0 +1,4 @@
+api:
+  # 内网的flask服务地址
+  flask:
+  front:

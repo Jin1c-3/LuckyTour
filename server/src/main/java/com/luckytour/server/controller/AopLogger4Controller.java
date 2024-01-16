@@ -69,7 +69,7 @@ public class AopLogger4Controller {
 		try {
 			log.info("请求日志: {}", new ObjectMapper().writeValueAsString(l));
 		} catch (Exception e) {
-			log.info("AopLogger记录失败");
+			log.warn("AopLogger记录失败", e);
 		}
 
 		return result;

@@ -28,12 +28,11 @@ class TestDBGenerator {
 	 * 需要生成的表
 	 */
 	private final String[] includedTables = {
-			"user"
+			"plan"
 	};
 
 	@Test
 	void generate() {
-		System.out.format("url: %s, username: %s, password: %s", url, username, password);
 		// 代码生成器
 		FastAutoGenerator.create(url, username, password)
 				.globalConfig(builder -> {
@@ -48,7 +47,7 @@ class TestDBGenerator {
 							.mapper("mapper")
 							.service("service")
 							.serviceImpl("service.serviceImpl")
-//							.controller("controller")
+							.controller("controller")
 							.xml("mapper.xml");
 				})
 				.strategyConfig(builder -> {

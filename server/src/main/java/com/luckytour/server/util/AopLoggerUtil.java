@@ -5,6 +5,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -40,6 +41,12 @@ public class AopLoggerUtil {
 							log.warn("{} 方法参数 {} 无法用 toString() 替代", getClassMethod(joinPoint), arg);
 							return null;
 						}
+					} else if (arg instanceof MultipartFile file) {
+						// File保存在内存中，处理完毕后会引起jackson找不到文件的异常，所以需要特殊处理
+						return file.getOriginalFilename();
+					} else if (arg instanceof String s && s.length() > 30) {
+						// 字符串太长了，截取一部分
+						return s.substring(0, 30) + "(..." + (s.length() - 30) + " more)";
 					} else {
 						return arg;
 					}

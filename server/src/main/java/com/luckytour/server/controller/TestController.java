@@ -2,9 +2,11 @@ package com.luckytour.server.controller;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
-import com.luckytour.server.payload.ApiResponse;
+import com.luckytour.server.common.constant.Consts;
 import com.luckytour.server.exception.JsonException;
+import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.service.JiguangPushService;
+import com.luckytour.server.util.ApiRequestUtil;
 import com.luckytour.server.vo.JiguangNotification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,9 +14,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +36,7 @@ import java.util.Map;
 @CrossOrigin
 @Slf4j
 @RequestMapping("/test")
+@Profile({"test", "dev"})
 public class TestController {
 
 	@Autowired
@@ -105,5 +114,11 @@ public class TestController {
 		//log.info(String.valueOf(pushResult.statusCode));
 //		log.info(String.valueOf(pushResult.sendno));
 		//设置、更新、设备的 tag, alias 信息。140fe1da9e38e9efd3e
+	}
+
+	@Operation(summary = "测试flask-chat接口调用")
+	@GetMapping("/getapi")
+	public ApiResponse<String> getApi() {
+		return ApiResponse.ofSuccess(ApiRequestUtil.chatRequest(Map.of("ask", "你好，你叫什么名字")));
 	}
 }

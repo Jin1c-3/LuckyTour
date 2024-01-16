@@ -1,11 +1,9 @@
 server:
   port: 58087
 
-database-name: luckytour
-
 spring:
-  profiles:
-    active: dev
+  # profiles:
+  #   active: dev
   application:
     name: server
   data:
@@ -29,7 +27,8 @@ spring:
     username: root
     password: ENC(shaNgVEISbAUfrwFSbKmds6O9Z581sXrgvuYGHlUeWxTlNAgdUU3zx1lf4Mtsujz)
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/${database-name}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    database-name: luckytour
+    url: jdbc:mysql://localhost:3306/${spring.datasource.database-name}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
   mail:
     default-encoding: UTF-8
     protocol: smtp
@@ -77,7 +76,7 @@ knife4j:
     enable-dynamic-parameter: true
 
 jpush:
-  appkey: ENC(JOZyeqml0xGl6kVIaw3ilf1DNS3ZVJy+LpcpEFdZEXziFPibhPoWxl/o4ZbzV4Vw2arciaZIFSoFqp7SDvl6Lw==)
+  app-key: ENC(JOZyeqml0xGl6kVIaw3ilf1DNS3ZVJy+LpcpEFdZEXziFPibhPoWxl/o4ZbzV4Vw2arciaZIFSoFqp7SDvl6Lw==)
   master-secret: ENC(6poJJitFL8XJlkXrPU2BaZ3vC8C5zltq9XfTd7L9H0AL3T9S7bxcv9Y4V+L/Xbn2o1NVZ5wBSDXKeQNnNDQgzg==)
   live-time: 1000
   apns-production: true # 是否生产环境，true表示生产环境

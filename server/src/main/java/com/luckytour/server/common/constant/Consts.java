@@ -85,4 +85,5 @@ public interface Consts {
 	 * 女
 	 */
 	String FEMALE_STR = "女";
+
 }
