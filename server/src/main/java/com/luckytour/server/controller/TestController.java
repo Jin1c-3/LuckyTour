@@ -2,7 +2,6 @@ package com.luckytour.server.controller;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
-import com.luckytour.server.common.constant.Consts;
 import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.payload.SimpleChatRequest;
@@ -16,16 +15,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import javax.script.SimpleBindings;
 import java.util.HashMap;
 import java.util.Map;
 

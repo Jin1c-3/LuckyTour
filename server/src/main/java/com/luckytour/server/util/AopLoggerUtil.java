@@ -1,5 +1,6 @@
 package com.luckytour.server.util;
 
+import com.luckytour.server.common.constant.Consts;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.JoinPoint;
@@ -44,9 +45,9 @@ public class AopLoggerUtil {
 					} else if (arg instanceof MultipartFile file) {
 						// File保存在内存中，处理完毕后会引起jackson找不到文件的异常，所以需要特殊处理
 						return file.getOriginalFilename();
-					} else if (arg instanceof String s && s.length() > 30) {
+					} else if (arg instanceof String s && s.length() > Consts.AOP_LOG_MAX_LENGTH) {
 						// 字符串太长了，截取一部分
-						return s.substring(0, 30) + "(..." + (s.length() - 30) + " more)";
+						return s.substring(0, Consts.AOP_LOG_MAX_LENGTH) + "(..." + (s.length() - Consts.AOP_LOG_MAX_LENGTH) + " more)";
 					} else {
 						return arg;
 					}

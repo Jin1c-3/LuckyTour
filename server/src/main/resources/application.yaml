@@ -103,3 +103,6 @@ storage:
     avatar:
       path: avatar
       default: https://cdn.jsdelivr.net/gh/Jin1c-3/picx-images-hosting@master/20240110/luckytour-logo-round.1w2sagoaz074.webp
+
+api:
+  gaode-key: ENC(yMFeHgGQGfRIcNMZHoaKZW/4mUiIK8+52+ScrMOvqYGKMt6g7Y6Lmo7ph4/XWKAerCOG6SNqi91vHcM3pvCdOeZaIhnNk4sX6LFBWve9aP0=)

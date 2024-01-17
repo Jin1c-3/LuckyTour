@@ -86,4 +86,9 @@ public interface Consts {
 	 */
 	String FEMALE_STR = "女";
 
+	/**
+	 * AopLog字段的最大值限制数
+	 */
+	int AOP_LOG_MAX_LENGTH = 100;
+
 }

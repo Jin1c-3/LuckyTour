@@ -4,6 +4,8 @@ import com.luckytour.server.entity.CityDescription;
 import com.luckytour.server.payload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -33,7 +35,7 @@ public class DataController {
 
 	@GetMapping("/getCityDescription")
 	@Operation(summary = "获取城市描述")
-	public ApiResponse<List<CityDescription>> getCityDescription(String character) {
+	public ApiResponse<List<CityDescription>> getCityDescription(@Valid @NotBlank(message = "城市不能为空") String character) {
 		return ApiResponse.ofSuccess(mongoTemplate.find(new Query(Criteria.where("city").regex(character)), CityDescription.class));
 	}
 }

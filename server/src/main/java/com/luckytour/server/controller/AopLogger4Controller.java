@@ -3,6 +3,7 @@ package com.luckytour.server.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luckytour.server.common.AopLog;
+import com.luckytour.server.common.constant.Consts;
 import com.luckytour.server.util.AopLoggerUtil;
 import com.luckytour.server.util.UserAgentUtil;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -61,7 +62,7 @@ public class AopLogger4Controller {
 						point.getSignature().getName()))
 				.httpMethod(request.getMethod())
 				.requestParams(AopLoggerUtil.getNameAndValue(point))
-				.result(result)
+				.result(result.toString().length() > Consts.AOP_LOG_MAX_LENGTH ? result.toString().substring(0, Consts.AOP_LOG_MAX_LENGTH) + "(... %s more)".formatted(result.toString().length() - Consts.AOP_LOG_MAX_LENGTH) : result.toString())
 				.timeCost(System.currentTimeMillis() - startTime)
 				.userAgent(header)
 				.browser(userAgent.getBrowser().toString())
