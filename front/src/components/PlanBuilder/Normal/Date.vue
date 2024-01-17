@@ -8,44 +8,28 @@
     :close-on-back="false"
   >
     <v-card class="h-screen">
-      <div class="d-flex flex-wrap">
+      <v-container>
         <v-btn
           variant="text"
           icon="mdi-arrow-left"
-          class="ml-5 mt-5 me-auto"
           @click="router.back()"
         ></v-btn>
-      </div>
-
-      <div class="text-h4 me-auto ml-5 mt-5">日期</div>
-      <div class="text-subtitle-2 me-auto ml-5 mb-5">什么时候开始旅程？</div>
-      <v-container>
-        <div class="text-h5 ml-5">起始日期</div>
-        <v-date-picker
-          class="mx-auto"
-          show-adjacent-months
-          v-model="plan.temp.beginDate"
-        ></v-date-picker>
-        <div class="text-h5 ml-5">结束日期</div>
-        <v-date-picker
-          class="mx-auto"
-          show-adjacent-months
-          v-model="plan.temp.endDate"
-          :allowed-dates="allowedDates"
-        ></v-date-picker>
+        <div class="text-h4 mt-5">日期</div>
+        <div class="text-subtitle-2 mb-5">什么时候来一场旅行？</div>
+        <VDatePicker
+          transparent
+          borderless
+          color="green"
+          expanded
+          title-position="left"
+          :rows="3"
+          :step="1"
+          :min-date="new Date()"
+          v-model.range.string="plan.selected.range"
+          :masks="masks"
+        />
+        <v-btn @click="next" block color="teal-accent-4">下一步</v-btn>
       </v-container>
-
-      <div class="d-flex justify-center align-center mt-5 mb-5">
-        <v-btn
-          class="bg-black"
-          @click="
-            router.push('/plan/money');
-            changeTime();
-          "
-          width="300"
-          >下一步</v-btn
-        >
-      </div>
     </v-card>
   </v-dialog>
 </template>
@@ -58,10 +42,33 @@ import { usePlanViewStore } from "@/stores/planView";
 const router = useRouter();
 const plan = usePlanViewStore();
 
-function allowedDates(date) {
-  if (plan.temp.beginDate != null) {
-    return date.getTime() >= plan.temp.beginDate.getTime();
+const masks = ref({
+  modelValue: "YYYY-MM-DD",
+});
+
+/**
+ * @description: 设置日期
+ */
+function date() {
+  plan.temp.startDate = plan.selected.range.start;
+  plan.temp.endDate = plan.selected.range.end;
+}
+
+/**
+ * @description: 最大日期
+ */
+function maxDate() {
+  if (plan.selected.range.start) {
   }
+}
+
+/**
+ * @description: 跳转到下一步
+ */
+function next() {
+  if (plan.selected.range.start == "" || plan.selected.range.end == "") return;
+  date();
+  router.push("/plan/money");
 }
 
 onActivated(() => {

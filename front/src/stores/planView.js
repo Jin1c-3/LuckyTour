@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 
 export const usePlanViewStore = defineStore("planView", () => {
   let is = reactive({
+    planGenerating: false,
     showAllDialog: false,
     showCityDialog: false,
     showCityInfoDialog: false,
@@ -19,18 +20,28 @@ export const usePlanViewStore = defineStore("planView", () => {
   });
   let config = reactive({});
   let temp = reactive({
-    city: "",
-    peopleModelActive: "",
-    people: [],
-    hobbies: [],
-    toHobbies: [],
-    beginDate: new Date(),
-    endDate: new Date(),
-    costModelActive: "经济",
-    cost: 0,
-    trafficModelActive: "",
-    time: 0,
-    interval: null,
+    destination: "",
+    customerType: "",
+    tag: [],
+    startDate: "",
+    endDate: "",
+    budget: "",
+    traffic: "",
+  });
+  let selected = reactive({
+    customerType: "",
+    range: {
+      start: "",
+      end: "",
+    },
+    count: {
+      children: 0,
+      adult: 0,
+    },
+    budget: "",
+    traffic: "",
+    tag: [],
+    activeCityInfo: {},
   });
   let data = reactive({
     plans: [],
@@ -38,12 +49,12 @@ export const usePlanViewStore = defineStore("planView", () => {
       dates: [],
       all: {},
     },
-    createPlanList: [],
   });
   return {
     is,
     temp,
     config,
     data,
+    selected,
   };
 });

@@ -18,11 +18,6 @@ const router = createRouter({
       component: () => import("@/views/PlanView.vue"),
       children: [
         {
-          path: "createModel",
-          name: "createModel",
-          component: () => import("@/components/PlanBuilder/CreateModel.vue"),
-        },
-        {
           path: "city",
           name: "city",
           component: () => import("@/components/PlanBuilder/Normal/City.vue"),

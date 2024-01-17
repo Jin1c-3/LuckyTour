@@ -8,100 +8,98 @@
     :close-on-back="false"
   >
     <v-card class="h-screen">
-      <div class="d-flex flex-wrap">
+      <v-container>
         <v-btn
           variant="text"
           icon="mdi-arrow-left"
-          class="ml-5 mt-5 me-auto"
           @click="router.back()"
         ></v-btn>
-      </div>
-      <div class="text-h4 me-auto ml-5 mt-5">预览</div>
-      <div class="text-subtitle-2 me-auto ml-5 mb-5">确认创建信息是否正确</div>
-      <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
-        <v-icon size="30" class="ml-5 mr-1">mdi-map-marker</v-icon>
-        <div class="text-h6 ml-1 mr-5">城市</div>
-      </div>
-      <div class="d-flex flex-wrap justify-start align-center ml-12">
-        <v-avatar class="ma-3" size="50" rounded="0">
-          <v-img
-            src="https://cdn.vuetifyjs.com/images/cards/halcyon.png"
-          ></v-img>
-        </v-avatar>
-        <div>
-          <div class="text-h4 mb-3">威海</div>
-          <div>山东省 威海市</div>
+        <div class="text-h4 mt-5">预览</div>
+        <div class="text-subtitle-2 mb-5">确认创建信息是否正确</div>
+        <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
+          <v-icon
+            size="30"
+            icon="mdi-map-marker-radius-outline"
+            color="teal-accent-4"
+          />
+          <div class="text-h6 ml-1 mr-5">城市</div>
         </div>
-      </div>
-      <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
-        <v-icon size="30" class="ml-5 mr-1">mdi-account</v-icon>
-        <div class="text-h6 ml-1 mr-5">旅客</div>
-      </div>
-      <div class="ml-12">
-        <div class="ml-3 mb-3">类型</div>
-        <div class="ml-9 mb-3">{{ plan.temp.peopleModelActive }}</div>
-        <div class="ml-3 mb-3">包含</div>
-        <div class="d-flex ml-9">
-          <div v-for="item in plan.temp.people" class="mr-2 mb-3">
-            {{ item }}
+        <v-container>
+          <div class="d-flex flex-wrap justify-start align-center">
+            <v-avatar class="ma-3" size="50" rounded="0">
+              <v-img :src="plan.selected.activeCityInfo.photos[0]"></v-img>
+            </v-avatar>
+            <div>
+              <div class="text-h5">{{ plan.selected.activeCityInfo.city }}</div>
+              <div>
+                {{ plan.selected.activeCityInfo.province }},{{
+                  plan.selected.activeCityInfo.city
+                }}
+              </div>
+            </div>
           </div>
+        </v-container>
+        <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
+          <v-icon size="30" icon="mdi-account" color="teal-accent-4" />
+          <div class="text-h6 ml-1 mr-5">旅客</div>
         </div>
-      </div>
-      <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
-        <v-icon size="30" class="ml-5 mr-1">mdi-calendar-range</v-icon>
-        <div class="text-h6 ml-1 mr-5">日期</div>
-      </div>
-      <div class="ml-12">
-        <div class="ml-3 mb-3">开始</div>
-        <div class="ml-9 mb-3">
-          {{ plan.temp.beginDate.getFullYear() }}-{{
-            plan.temp.beginDate.getMonth() + 1
-          }}-{{ plan.temp.beginDate.getDate() }}
+        <v-container>
+          <div class="mb-3">类型</div>
+          <div class="ml-6">{{ plan.temp.customerType }}</div>
+          <!-- <div class="mb-3">包含</div> -->
+        </v-container>
+        <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
+          <v-icon size="30" icon="mdi-calendar-range" color="teal-accent-4" />
+          <div class="text-h6 ml-1 mr-5">日期</div>
         </div>
-        <div class="ml-3 mb-3">结束</div>
-        <div class="ml-9 mb-3">
-          {{ plan.temp.beginDate.getFullYear() }}-{{
-            plan.temp.beginDate.getMonth() + 1
-          }}-{{ plan.temp.beginDate.getDate() }}
+        <v-container>
+          <v-timeline side="end" align="start" class="justify-start">
+            <v-timeline-item dot-color="green" size="small">
+              <div class="text-subtitle-1">开始时间</div>
+              <div class="text-subtitle-2">{{ plan.temp.startDate }}</div>
+            </v-timeline-item>
+            <v-timeline-item dot-color="pink" size="small">
+              <div class="text-subtitle-1">结束时间</div>
+              <div class="text-subtitle-2">{{ plan.temp.endDate }}</div>
+            </v-timeline-item>
+          </v-timeline>
+        </v-container>
+        <div class="d-flex flex-wrap justify-start align-center">
+          <v-icon size="30" icon="mdi-currency-usd" color="teal-accent-4" />
+          <div class="text-h6 ml-1 mr-5">预算</div>
         </div>
-      </div>
-      <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
-        <v-icon size="30" class="ml-5 mr-1">mdi-currency-usd</v-icon>
-        <div class="text-h6 ml-1 mr-5">预算</div>
-      </div>
-      <div class="ml-12">
-        <div class="ml-3 mb-3">类型</div>
-        <div class="ml-9 mb-3">{{ plan.temp.costModelActive }}</div>
-        <div class="ml-3 mb-3">价位</div>
-        <div class="ml-9 mb-3">{{ plan.temp.cost }}</div>
-      </div>
-      <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
-        <v-icon size="30" class="ml-5 mr-1"
-          >mdi-transit-connection-variant</v-icon
-        >
-        <div class="text-h6 ml-1 mr-5">交通工具</div>
-      </div>
-      <div class="ml-12">
-        <div class="d-flex ml-3">
-          {{ plan.temp.trafficModelActive }}
+        <v-container>
+          <div class="ml-6">{{ plan.temp.budget }}</div>
+        </v-container>
+        <div class="d-flex flex-wrap justify-start align-center">
+          <v-icon
+            size="30"
+            icon="mdi-transit-connection-variant"
+            color="teal-accent-4"
+          />
+          <div class="text-h6 ml-1 mr-5">交通工具</div>
         </div>
-      </div>
-      <div class="d-flex flex-wrap justify-start align-center mb-3 mt-3">
-        <v-icon size="30" class="ml-5 mr-1">mdi-star</v-icon>
-        <div class="text-h6 ml-1 mr-5">兴趣爱好</div>
-      </div>
-      <div class="ml-12">
-        <div class="d-flex ml-3">
-          <div v-for="item in plan.temp.hobbies" class="mr-2 mb-3">
-            {{ item }}
+        <v-container>
+          <div class="ml-6">
+            {{ plan.temp.traffic }}
           </div>
+        </v-container>
+        <div class="d-flex flex-wrap justify-start align-center">
+          <v-icon size="30" icon="mdi-star" color="teal-accent-4" />
+          <div class="text-h6 ml-1 mr-5">兴趣爱好</div>
+          <v-container>
+            <v-chip-group column :disabled="true">
+              <v-chip v-for="tag in plan.temp.tag" :key="tag">
+                {{ tag.name }}
+              </v-chip>
+            </v-chip-group>
+          </v-container>
         </div>
-      </div>
-      <div class="d-flex justify-center align-center mt-5 mb-5">
-        <v-btn class="bg-black" @click="create" width="300"
+        <v-container> </v-container>
+        <v-btn class="bg-black" @click="create" block color="teal-accent-4"
           >创建我的旅行计划</v-btn
         >
-      </div>
+      </v-container>
     </v-card>
   </v-dialog>
 </template>
@@ -110,61 +108,52 @@
 import { ref, onActivated, onDeactivated } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import { usePlanViewStore } from "@/stores/planView";
+import { generatePlan } from "@/utils/request/plan";
 import axios from "axios";
 
 const router = useRouter();
 const plan = usePlanViewStore();
 
-function create() {
-  //发送请求
-  // axios
-  //   .post("http://localhost:8080/api/plan", {
-  //     city: plan.temp.city,
-  //     peopleModelActive: plan.temp.peopleModelActive,
-  //     people: plan.temp.people,
-  //     hobbies: plan.temp.hobbies,
-  //     toHobbies: plan.temp.toHobbies,
-  //     beginDate: plan.temp.beginDate,
-  //     endDate: plan.temp.endDate,
-  //     costModelActive: plan.temp.costModelActive,
-  //     cost: plan.temp.cost,
-  //     trafficModelActive: plan.temp.trafficModelActive,
-  //   })
-  //   .then((res) => {
-  //     console.log(res);
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
-  plan.data.createPlanList.push(plan.temp);
-  plan.data.createPlanList[plan.data.createPlanList.length - 1].interval =
-    setInterval(() => {
-      if (
-        plan.data.createPlanList[plan.data.createPlanList.length - 1].time > 100
-      ) {
-        clearInterval(
-          plan.data.createPlanList[plan.data.createPlanList.length - 1].interval
-        );
-      }
-      plan.data.createPlanList[plan.data.createPlanList.length - 1].time++;
-    }, 500);
-  reset();
-}
-function reset() {
-  console.log(window.history.length);
+/**
+ * @description 创建旅行计划
+ */
+async function create() {
   window.history.go(-(window.history.length - 1));
   router.push("/plan");
+  plan.is.planGenerating = true;
+  console.log(plan.is.planGenerating);
+  await generatePlan(plan.temp);
+  plan.is.planGenerating = false;
+  reset();
+}
+
+/**
+ * @description 重置数据
+ */
+function reset() {
   plan.temp = {
-    city: "",
-    peopleModelActive: "",
-    people: [],
-    hobbies: [],
-    toHobbies: [],
-    beginDate: new Date(),
-    endDate: new Date(),
-    costModelActive: "经济",
-    cost: 0,
-    trafficModelActive: "",
+    destination: "",
+    customerType: "",
+    tag: [],
+    startDate: "",
+    endDate: "",
+    budget: "",
+    traffic: "",
+  };
+  plan.selected = {
+    customerType: "",
+    range: {
+      start: "",
+      end: "",
+    },
+    count: {
+      children: 0,
+      adult: 0,
+    },
+    budget: "",
+    traffic: "",
+    tag: [],
+    activeCityInfo: {},
   };
 }
 

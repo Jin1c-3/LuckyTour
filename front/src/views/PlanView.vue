@@ -3,12 +3,17 @@
     <div class="text-h3 me-auto ml-4 title">计划</div>
     <v-btn
       variant="text"
-      icon="mdi-plus"
-      class="mr-5"
-      @click="
-        router.push('/plan/createModel');
-        console.log(router.currentRoute.value.name);
-      "
+      icon="mdi-message-text"
+      class="mr-3"
+      color="teal-accent-4"
+      @click=""
+    ></v-btn>
+    <v-btn
+      variant="text"
+      icon="mdi-clipboard-edit-outline"
+      class="mr-3"
+      color="teal-accent-4"
+      @click="router.push('/plan/city')"
     ></v-btn>
     <v-avatar
       color="grey-darken-3"
@@ -18,15 +23,23 @@
   </div>
   <v-container>
     <v-card
+      color="teal-accent-3"
+      v-if="plan.is.planGenerating"
+      :loading="plan.is.planGenerating"
+      class="pa-2"
+    >
+      <v-card-title class="text-h5"
+        >{{ plan.selected.activeCityInfo.city }}
+      </v-card-title>
+      <v-card-subtitle>请稍后，你的计划正在火速出炉中</v-card-subtitle>
+    </v-card>
+    <v-card
       class="mx-auto mt-4 mb-4"
       style="position: relative"
-      image="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
-      color="#3C87CD"
       @click="openCard(item.time)"
-      v-for="item in plan.data.createPlanList"
     >
       <v-card-title class="text-h5">我的旅行</v-card-title>
-      <v-card-subtitle>{{ item.city.city }}</v-card-subtitle>
+      <v-card-subtitle>城市</v-card-subtitle>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
@@ -36,17 +49,31 @@
         >
         </v-btn>
       </v-card-actions>
-      <v-progress-circular
-        v-if="item.time <= 100"
-        :rotate="360"
-        :size="60"
-        :width="10"
-        :model-value="item.time"
-        color="white"
-        class="progress-circular"
-      >
-        {{ item.time }}
-      </v-progress-circular>
+      <v-expand-transition>
+        <div v-show="show">
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              variant="text"
+              prepend-icon="mdi-calendar-edit"
+              stacked
+              @click=""
+              >修改计划</v-btn
+            >
+            <v-btn variant="text" prepend-icon="mdi-delete" stacked @click=""
+              >删除计划</v-btn
+            >
+            <v-btn
+              variant="text"
+              prepend-icon="mdi-share-variant"
+              stacked
+              @click=""
+              >分享计划</v-btn
+            >
+          </v-card-actions>
+        </div>
+      </v-expand-transition>
     </v-card>
   </v-container>
 
@@ -75,12 +102,20 @@ const router = useRouter();
 const plan = usePlanViewStore();
 
 let snackbar = ref(false);
+let show = ref(false);
 
+/**
+ * @description: 展开附加信息
+ */
 function handleSpanClick(e) {
   e.stopPropagation();
-  router.push("/plan/config");
+  // router.push("/plan/config");
+  show.value = !show.value;
 }
 
+/**
+ * @description: 跳转到计划展示页面
+ */
 function openCard(time) {
   if (time >= 100) {
     router.push("/plan/show");

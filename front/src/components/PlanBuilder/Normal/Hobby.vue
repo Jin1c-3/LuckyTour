@@ -8,40 +8,37 @@
     :close-on-back="false"
   >
     <v-card class="h-screen">
-      <div class="d-flex flex-wrap">
+      <v-container>
         <v-btn
           variant="text"
           icon="mdi-arrow-left"
-          class="ml-5 mt-5 me-auto"
           @click="router.back()"
         ></v-btn>
-      </div>
-      <div class="text-h4 me-auto ml-5 mt-5">兴趣</div>
-      <div class="text-subtitle-2 me-auto ml-5 mb-5">选择你感兴趣的标签</div>
-      <div class="w-75 mx-auto">
+        <div class="text-h4 mt-5">兴趣</div>
+        <div class="text-subtitle-2 mb-5">选择你感兴趣的标签</div>
         <v-chip-group
           multiple
           selected-class="select-chip"
           column
           filter
-          v-model="plan.temp.toHobbies"
+          v-model="plan.selected.tag"
+          class="mb-5"
+          variant="outlined"
         >
-          <v-chip v-for="tag in tags" variant="outlined" :key="tag">
-            {{ tag }}
+          <v-chip v-for="tag in tags" :key="tag" :append-avatar="tag.url">
+            {{ tag.name }}
           </v-chip>
         </v-chip-group>
-      </div>
-      <div class="d-flex justify-center align-center mt-5 mb-5">
         <v-btn
-          class="bg-black"
           @click="
             router.push('/plan/all');
             getTags();
           "
-          width="300"
+          block
+          color="teal-accent-4"
           >下一步</v-btn
         >
-      </div>
+      </v-container>
     </v-card>
   </v-dialog>
 </template>
@@ -54,23 +51,50 @@ import { usePlanViewStore } from "@/stores/planView";
 const router = useRouter();
 const plan = usePlanViewStore();
 const tags = [
-  "美食",
-  "购物",
-  "自然",
-  "历史",
-  "文化",
-  "艺术",
-  "音乐",
-  "运动",
-  "户外",
-  "夜生活",
+  {
+    name: "美食",
+    url: new URL("@/assets/images/tag/food.svg", import.meta.url).href,
+  },
+  {
+    name: "购物",
+    url: new URL("@/assets/images/tag/shopping.svg", import.meta.url).href,
+  },
+  {
+    name: "自然",
+    url: new URL("@/assets/images/tag/nature.svg", import.meta.url).href,
+  },
+  {
+    name: "历史",
+    url: new URL("@/assets/images/tag/culture.svg", import.meta.url).href,
+  },
+  {
+    name: "艺术",
+    url: new URL("@/assets/images/tag/art.svg", import.meta.url).href,
+  },
+  {
+    name: "音乐",
+    url: new URL("@/assets/images/tag/music.svg", import.meta.url).href,
+  },
+  {
+    name: "运动",
+    url: new URL("@/assets/images/tag/sport.svg", import.meta.url).href,
+  },
+  {
+    name: "户外",
+    url: new URL("@/assets/images/tag/outdoor.svg", import.meta.url).href,
+  },
+  {
+    name: "夜生活",
+    url: new URL("@/assets/images/tag/beer.svg", import.meta.url).href,
+  },
 ];
+
 function getTags() {
   let data = [];
-  plan.temp.toHobbies.forEach((tag) => {
+  plan.selected.tag.forEach((tag) => {
     data.push(tags[tag]);
   });
-  plan.temp.hobbies = data;
+  plan.temp.tag = data;
 }
 
 onActivated(() => {
@@ -83,7 +107,7 @@ onDeactivated(() => {
 
 <style scoped>
 .select-chip {
-  color: rgb(255, 255, 255);
-  background-color: rgb(0, 0, 0);
+  color: #26a69a;
+  background-color: rgb(255, 255, 255);
 }
 </style>

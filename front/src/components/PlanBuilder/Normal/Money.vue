@@ -8,85 +8,45 @@
     :close-on-back="false"
   >
     <v-card class="h-screen">
-      <div class="d-flex flex-wrap">
+      <v-container>
         <v-btn
           variant="text"
           icon="mdi-arrow-left"
-          class="ml-5 mt-5 me-auto"
           @click="router.back()"
         ></v-btn>
-      </div>
-      <div class="text-h4 me-auto ml-5 mt-5">预算</div>
-      <div class="text-subtitle-2 me-auto ml-5 mb-5">
-        你想花费多少为这次旅行
-      </div>
-      <div class="text-h6 ml-5">形式</div>
-      <v-item-group selected-class="bg-black" class="w-75 mx-auto">
-        <v-item v-slot="{ selectedClass, toggle }" v-for="item in items">
-          <v-card
-            :class="['d-flex align-center mt-5 mb-5', selectedClass]"
-            dark
-            height="100"
-            @click="
-              plan.temp.costModelActive = item.name;
-              toggle();
-            "
-            variant="outlined"
-          >
-            <div>
-              <div class="text-h5 ml-5">
-                {{ item.name }}
-              </div>
-              <div class="text-subtitle-2 ml-5">
-                {{ item.description }}
-              </div>
-            </div>
-            <v-icon size="50" class="ml-auto mr-5">{{ item.icon }}</v-icon>
-          </v-card>
-        </v-item>
-      </v-item-group>
-      <div class="text-h6 ml-5 mb-4">区间</div>
-      <div class="w-75 mx-auto d-flex flex-wrap justify-center align-start">
-        <v-slider
-          v-if="plan.temp.costModelActive === '经济'"
-          v-model="plan.temp.cost"
-          :min="500"
-          :max="2000"
-          :step="100"
-          ticks
-          tick-size="10"
-          thumb-label
-        ></v-slider>
-        <v-slider
-          v-if="plan.temp.costModelActive === '舒适'"
-          v-model="plan.temp.cost"
-          :min="2000"
-          :max="5000"
-          :step="100"
-          ticks
-          tick-size="10"
-          thumb-label
-        ></v-slider>
-        <v-slider
-          v-if="plan.temp.costModelActive === '豪华'"
-          v-model="plan.temp.cost"
-          :min="5000"
-          :max="10000"
-          :step="100"
-          ticks
-          tick-size="10"
-          thumb-label
-        ></v-slider>
-        <div class="text-h5">{{ plan.temp.cost }}</div>
-      </div>
-      <div class="d-flex justify-center align-center mt-5 mb-5">
-        <v-btn
-          class="bg-black"
-          @click="router.push('/plan/traffic')"
-          width="300"
-          >下一步</v-btn
+        <div class="text-h4 mt-5">预算</div>
+        <div class="text-subtitle-2 mb-5">你想花费多少为这次旅行</div>
+        <v-item-group
+          selected-class="card-active"
+          v-model="plan.selected.budget"
         >
-      </div>
+          <v-item v-slot="{ selectedClass, toggle }" v-for="item in items">
+            <v-card
+              :class="['d-flex align-center mt-5 mb-5', selectedClass]"
+              height="100"
+              @click="
+                toggle();
+                plan.temp.budget = item.name;
+              "
+              :elevation="selectedClass ? 5 : 1"
+            >
+              <div>
+                <div class="text-h5 ml-5">
+                  {{ item.name }}
+                </div>
+                <div class="text-subtitle-2 ml-5">
+                  {{ item.description }}
+                </div>
+              </div>
+              <v-avatar class="mr-6 ms-auto" size="50" rounded="0">
+                <v-img :src="item.url"></v-img>
+              </v-avatar>
+            </v-card>
+          </v-item>
+        </v-item-group>
+
+        <v-btn @click="next" block color="teal-accent-4">下一步</v-btn>
+      </v-container>
     </v-card>
   </v-dialog>
 </template>
@@ -102,19 +62,27 @@ const items = ref([
   {
     name: "经济",
     description: "最低的价格最高的性价比",
-    icon: "mdi-currency-usd",
+    url: new URL("@/assets/images/budget/cheap.svg", import.meta.url).href,
   },
   {
     name: "舒适",
     description: "用适当的价格换取最舒适的旅行",
-    icon: "mdi-cash",
+    url: new URL("@/assets/images/budget/moderate.svg", import.meta.url).href,
   },
   {
     name: "豪华",
     description: "将旅行服务拉到最满意的程度",
-    icon: "mdi-cash-multiple",
+    url: new URL("@/assets/images/budget/luxury.svg", import.meta.url).href,
   },
 ]);
+
+/**
+ * @description: 跳转到下一步
+ */
+function next() {
+  if (plan.temp.budget == "") return;
+  router.push("/plan/traffic");
+}
 
 onActivated(() => {
   plan.is.showMoneyDialog = true;
@@ -124,4 +92,9 @@ onDeactivated(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.card-active {
+  border: 2px solid #26a69a !important;
+  background-color: #e0f2f1;
+}
+</style>

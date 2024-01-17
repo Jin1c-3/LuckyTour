@@ -28,7 +28,7 @@ service.interceptors.response.use(
 
 const service_ = axios.create({
   baseURL: import.meta.env.VITE_COMPUTE_API_URL,
-  timeout: 10000,
+  timeout: 60000,
 });
 
 export { service, service_ };

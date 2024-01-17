@@ -31,28 +31,30 @@
         icon="mdi-power"
       >
       </v-btn>
-      <div class="mt-3">登录后可查看更多信息</div>
+      <div class="mt-3 text-medium-emphasis">登录后可查看更多信息</div>
     </div>
   </v-card>
-  <v-list density="comfortable">
-    <!-- <v-list-subheader>REPORTS</v-list-subheader> -->
-    <v-list-item
-      v-for="(item, i) in items"
-      :key="i"
-      :value="item"
-      height="60"
-      @click="router.push(item.to)"
-    >
-      <template v-slot:prepend>
-        <v-icon :icon="item.icon" :size="35"></v-icon>
-      </template>
+  <v-container>
+    <v-list density="comfortable">
+      <v-list-item
+        v-for="(item, i) in items"
+        :key="i"
+        :value="item"
+        height="60"
+        @click="router.push(item.to)"
+      >
+        <template v-slot:prepend>
+          <v-icon :icon="item.icon" :size="35"></v-icon>
+        </template>
 
-      <template v-slot:append>
-        <v-icon> mdi-chevron-right </v-icon>
-      </template>
-      <v-list-item-title v-text="item.text"></v-list-item-title>
-    </v-list-item>
-  </v-list>
+        <template v-slot:append>
+          <v-icon> mdi-chevron-right </v-icon>
+        </template>
+        <v-list-item-title v-text="item.text"></v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-container>
+
   <router-view v-slot="{ Component }">
     <keep-alive>
       <component :is="Component" />
