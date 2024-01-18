@@ -46,7 +46,7 @@
         <template v-slot:prepend>
           <v-icon :icon="item.icon" :size="35"></v-icon>
         </template>
-
+        <div></div>
         <template v-slot:append>
           <v-icon> mdi-chevron-right </v-icon>
         </template>
