@@ -8,7 +8,7 @@ public interface Judgment {
 	/**
 	 * 直线距离过远，单位米
 	 */
-	int STRAIGHT_DISTANCE_TOO_FAR = 100000;
+	int STRAIGHT_DISTANCE_TOO_FAR = 1000 * 1000;
 
 	/**
 	 * 直线距离过远提示

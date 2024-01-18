@@ -17,11 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 /**
@@ -42,29 +41,26 @@ public class PlanController {
 	@PostMapping("/check")
 	@Operation(summary = "计划验证")
 	public ApiResponse<String> check(@RequestBody Map<String, List<Spot>> data) {
-		List<Spot> spots = new ArrayList<>();
-		for (Map.Entry<String, List<Spot>> entry : data.entrySet()) {
-			spots.addAll(entry.getValue());
-		}
+		List<Spot> spots = data.values().stream()
+				.flatMap(List::stream)
+				.toList();
 		log.debug("spots: {}", spots);
-		List<Spot> notNullSpots = spots.stream().filter(spot -> spot.getLocation() != null).toList();
-		AtomicBoolean result = new AtomicBoolean(true);
-		AtomicReference<String> prompt = new AtomicReference<>("");
-		IntStream.range(0, spots.size() - 1)
-				.anyMatch(i -> {
-					if (ApiRequestUtil.getStraightDistance(notNullSpots.get(i).getLocation(), notNullSpots.get(i + 1).getLocation()).get(0)
+		List<Spot> notNullSpots = spots.stream()
+				.filter(spot -> spot.getLocation() != null)
+				.toList();
+		Optional<String> prompt = IntStream.range(0, notNullSpots.size() - 1)
+				.mapToObj(i -> {
+					if (ApiRequestUtil.getStraightDistance(List.of(notNullSpots.get(i).getLocation()), notNullSpots.get(i + 1).getLocation()).get(0)
 							> Judgment.STRAIGHT_DISTANCE_TOO_FAR) {
-						result.set(false);
-						prompt.set(String.format(Judgment.STRAIGHT_DISTANCE_TOO_FAR_PROMPT, notNullSpots.get(i).getName(), notNullSpots.get(i + 1).getName()));
-						return true;
+						return String.format(Judgment.STRAIGHT_DISTANCE_TOO_FAR_PROMPT, notNullSpots.get(i).getName(), notNullSpots.get(i + 1).getName());
 					}
-					return false;
-				});
-		if(result.get()) {
-			return ApiResponse.ofSuccess("true");
-		}
-		return ApiResponse.ofSuccess(prompt.get());
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.findFirst();
+		return ApiResponse.ofSuccess(prompt.orElse("true"));
 	}
+
 
 	@PostMapping("/saveOrUpdate")
 	@Operation(summary = "计划存储更新")

@@ -20,4 +20,5 @@ public interface Regex {
 	String MALE_FEMALE_OR_BLANK_REGEX = "^$|" + MALE_FEMALE_REGEX;
 	String DATE_REGEX = "^\\d{4}-\\d{2}-\\d{2}$";
 	String DATE_OR_BLANK_REGEX = "^$|" + DATE_REGEX;
+	String CHINESE_REGEX = "^[\u4e00-\u9fa5]{1,}$";
 }

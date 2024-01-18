@@ -2,9 +2,9 @@ package com.luckytour.server.util;
 
 import com.luckytour.server.common.constant.ApiAddr;
 import com.luckytour.server.payload.ApiResponse;
-import com.luckytour.server.payload.GaodeResponse;
 import com.luckytour.server.payload.SimpleChatRequest;
 import jakarta.annotation.PostConstruct;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -49,6 +49,13 @@ public class ApiRequestUtil {
 
 	private static RestTemplate restTemplate = new RestTemplate();
 
+	@Data
+	static class GaodeResponse {
+		private String status;
+		private String info;
+		private List<Map<String, String>> results;
+	}
+
 	/**
 	 * 调用flask chat接口
 	 *
@@ -69,24 +76,30 @@ public class ApiRequestUtil {
 	 * 调用高德api获取两地直线距离
 	 * <a href="https://lbs.amap.com/api/webservice/guide/api/direction#distance">高德文档</a>
 	 *
-	 * @param origin      起点经纬度
+	 * @param origins     起点经纬度
 	 * @param destination 终点经纬度
 	 * @return 返回两地直线距离，单位是米
 	 */
-	public static List<Integer> getStraightDistance(String origin, String destination) {
-		if (!origin.contains(",") || !destination.contains(",") || origin.equals(destination) || GAODE_KEY == null) {
-			log.warn("请检查参数：origin: {}, destination: {}, GAODE_KEY: {}", origin, destination, GAODE_KEY);
-			return null;
+	public static List<Integer> getStraightDistance(List<String> origins, String destination) {
+		if (origins.isEmpty() || !destination.contains(",") || GAODE_KEY == null) {
+			log.warn("请检查参数：origins: {}, destination: {}, GAODE_KEY: {}", origins, destination, GAODE_KEY);
+			return List.of(0);
 		}
-		Map<String, String> params = Map.of("origins", origin, "destination", destination, "key", GAODE_KEY);
+		String originStr = null;
+		if (origins.size() > 1) {
+			originStr = String.join("|", origins);
+		} else {
+			originStr = origins.get(0);
+		}
+		Map<String, String> params = Map.of("origins", originStr, "destination", destination, "key", GAODE_KEY);
 		GaodeResponse gdResponse = restTemplate.getForObject(ApiAddr.GAODE_DISTANCE, GaodeResponse.class, params);
 		if (gdResponse == null) {
 			log.warn("高德api调用失败，返回空");
-			return null;
+			return List.of(0);
 		}
 		if ("0".equals(gdResponse.getStatus())) {
 			log.warn("高德api调用失败：{} info:{}", Objects.requireNonNull(gdResponse).getInfo(), gdResponse.getInfo());
-			return null;
+			return List.of(0);
 		}
 		log.debug("高德api调用成功，返回结果：{}", gdResponse);
 		return gdResponse.getResults().stream().map(result -> Integer.parseInt(result.get("distance"))).toList();

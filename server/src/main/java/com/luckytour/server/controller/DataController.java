@@ -1,5 +1,6 @@
 package com.luckytour.server.controller;
 
+import com.luckytour.server.common.constant.Regex;
 import com.luckytour.server.entity.CityDescription;
 import com.luckytour.server.payload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +37,9 @@ public class DataController {
 	@GetMapping("/getCityDescription")
 	@Operation(summary = "获取城市描述")
 	public ApiResponse<List<CityDescription>> getCityDescription(@Valid @NotBlank(message = "城市不能为空") String character) {
+		if (!character.matches(Regex.CHINESE_REGEX)) {
+			return ApiResponse.ofSuccess();
+		}
 		return ApiResponse.ofSuccess(mongoTemplate.find(new Query(Criteria.where("city").regex(character)), CityDescription.class));
 	}
 }
