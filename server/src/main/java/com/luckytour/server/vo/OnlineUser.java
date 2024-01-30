@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author qing
@@ -21,9 +22,6 @@ public class OnlineUser implements Serializable {
 
 	@Schema(description = "用户id，使用uuid标识")
 	private String id;
-
-	@Schema(description = "登录密码，30位字母或数字长度，允许为空")
-	private String password;
 
 	@Schema(description = "用户昵称，允许汉字，允许相同姓名，长度3~16")
 	private String nickname;
@@ -52,10 +50,12 @@ public class OnlineUser implements Serializable {
 	public static OnlineUser create(User user) {
 		OnlineUser onlineUser = new OnlineUser();
 		BeanUtils.copyProperties(user, onlineUser);
-		if (user.getSex().equals(Consts.MALE_INT)) {
-			onlineUser.setSex("男");
-		} else if (user.getSex().equals(Consts.FEMALE_INT)) {
-			onlineUser.setSex("女");
+		if (Objects.nonNull(user.getSex())) {
+			if (user.getSex().equals(Consts.MALE_INT)) {
+				onlineUser.setSex("男");
+			} else if (user.getSex().equals(Consts.FEMALE_INT)) {
+				onlineUser.setSex("女");
+			}
 		}
 		log.debug("onlineUser: {} user: {}", onlineUser, user);
 		return onlineUser;

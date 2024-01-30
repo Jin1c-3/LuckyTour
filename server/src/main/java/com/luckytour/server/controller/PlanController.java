@@ -1,6 +1,7 @@
 package com.luckytour.server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.luckytour.server.common.constant.CaiyunWeather;
 import com.luckytour.server.common.constant.Judgment;
 import com.luckytour.server.entity.Plan;
 import com.luckytour.server.exception.MysqlException;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,32 +35,50 @@ import java.util.stream.IntStream;
 @Slf4j
 @CrossOrigin
 @Validated
-
 public class PlanController {
 	@Autowired
 	private PlanService planService;
 
+	/**
+	 * 计划验证
+	 *
+	 * @return true: 通过验证 prompt: 未通过验证返回响应提示词
+	 */
 	@PostMapping("/check")
 	@Operation(summary = "计划验证")
 	public ApiResponse<String> check(@RequestBody Map<String, List<Spot>> data) {
-		List<Spot> spots = data.values().stream()
-				.flatMap(List::stream)
+		// 拿出有日期且有经纬度的景点
+		List<Map.Entry<Spot, String>> datedLocatedSpots = data.entrySet().stream()
+				.flatMap(entry -> entry.getValue().stream()
+						.filter(spot -> spot.getLocation() != null)
+						.map(spot -> Map.entry(spot, entry.getKey())))
 				.toList();
-		log.debug("spots: {}", spots);
-		List<Spot> notNullSpots = spots.stream()
-				.filter(spot -> spot.getLocation() != null)
-				.toList();
-		Optional<String> prompt = IntStream.range(0, notNullSpots.size() - 1)
-				.mapToObj(i -> {
-					if (ApiRequestUtil.getStraightDistance(List.of(notNullSpots.get(i).getLocation()), notNullSpots.get(i + 1).getLocation()).get(0)
-							> Judgment.STRAIGHT_DISTANCE_TOO_FAR) {
-						return String.format(Judgment.STRAIGHT_DISTANCE_TOO_FAR_PROMPT, notNullSpots.get(i).getName(), notNullSpots.get(i + 1).getName());
-					}
-					return null;
+
+		// prompt用作直接返回给AI的提示词
+		Optional<String> badWeatherPrompt = datedLocatedSpots.stream()
+				.map(entry -> {
+					String weather = ApiRequestUtil.getWeather(entry.getKey().getLocation(), entry.getValue());
+					String caiyunWeatherExplanation = CaiyunWeather.WEATHER_MAP.get(weather);
+					return Judgment.GOOD_CAIYUN_WEATHER.stream()
+							.noneMatch(caiyunWeatherExplanation::equals)
+							? Judgment.getBadWeatherPrompt(String.valueOf(LocalDate.parse(entry.getValue()).getDayOfMonth()), entry.getKey().getCityname() + entry.getKey().getName(), caiyunWeatherExplanation)
+							: null;
 				})
 				.filter(Objects::nonNull)
 				.findFirst();
-		return ApiResponse.ofSuccess(prompt.orElse("true"));
+		if (badWeatherPrompt.isPresent()) {
+			return ApiResponse.ofSuccess(badWeatherPrompt.get());
+		}
+		Optional<String> tooFarPrompt = IntStream.range(0, datedLocatedSpots.size() - 1)
+				.mapToObj(i -> {
+					double distance = ApiRequestUtil.getStraightDistance(List.of(datedLocatedSpots.get(i).getKey().getLocation()), datedLocatedSpots.get(i + 1).getKey().getLocation()).get(0);
+					return distance > Judgment.STRAIGHT_DISTANCE_TOO_FAR
+							? Judgment.getTooFarPrompt(datedLocatedSpots.get(i).getKey().getName(), datedLocatedSpots.get(i + 1).getKey().getName())
+							: null;
+				})
+				.filter(Objects::nonNull)
+				.findFirst();
+		return tooFarPrompt.map(ApiResponse::ofSuccess).orElseGet(() -> ApiResponse.ofSuccess("true"));
 	}
 
 

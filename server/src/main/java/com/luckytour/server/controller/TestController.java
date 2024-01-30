@@ -60,7 +60,8 @@ public class TestController {
 	/**
 	 * 测试websocket心跳检测
 	 */
-	@MessageMapping("/queue/test")
+	@MessageMapping("/queue/test" +
+			"")
 	@SendTo("/topic/queuetest")
 	@Operation(summary = "测试websocket心跳检测")
 	public <T> ApiResponse<T> queueTest() {

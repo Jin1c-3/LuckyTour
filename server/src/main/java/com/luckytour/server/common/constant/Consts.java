@@ -91,4 +91,9 @@ public interface Consts {
 	 */
 	int AOP_LOG_MAX_LENGTH = 100;
 
+	/**
+	 * 彩云天气可查询的最大天数
+	 */
+	int CAIYUN_MAX_DAYS = 15;
+
 }

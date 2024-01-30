@@ -104,7 +104,7 @@ public class JwtUtil {
 	}
 
 	/**
-	 * 解密
+	 * 验证密码
 	 *
 	 * @param encrypted 加密后字符串
 	 * @return 原始字符串

@@ -14,4 +14,9 @@ public interface ApiAddr {
 	 * 高德距离api
 	 */
 	String GAODE_DISTANCE = "https://restapi.amap.com/v3/distance?origins={origins}&destination={destination}&key={key}";
+
+	/**
+	 * 彩云天气api
+	 */
+	String CAIYUN_DAILY_WEATHER = "https://api.caiyunapp.com/v2.6/{key}/%s/daily?dailysteps=15";
 }
