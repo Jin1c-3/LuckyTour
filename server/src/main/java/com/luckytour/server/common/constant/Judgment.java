@@ -20,7 +20,7 @@ public class Judgment {
 	/**
 	 * 定义彩云天气中的好天气
 	 */
-	public static final List<String> GOOD_CAIYUN_WEATHER = List.of("晴（白天）", "晴（夜间）", "多云（白天）", "多云（夜间）", "阴");
+	public static final List<String> GOOD_CAIYUN_WEATHER = List.of("晴（白天）", "晴（夜间）", "多云（白天）", "多云（夜间）", "阴", "小雪");
 
 	/**
 	 * 天气不佳提示

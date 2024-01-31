@@ -1,4 +1,9 @@
 api:
   # 内网的flask服务地址
-  flask: http://172.29.20.72:5000
-  front: http://172.29.30.121:4000
+  flask:
+    base: http://172.29.20.72:5000
+  front:
+    base: http://172.29.30.121:4000
+
+jpush:
+  apns-production: true # 是否生产环境，true表示生产环境

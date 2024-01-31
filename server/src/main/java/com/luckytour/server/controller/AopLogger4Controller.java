@@ -16,6 +16,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
@@ -42,18 +43,16 @@ public class AopLogger4Controller {
 	 */
 	@Around("controllerPointcut()")
 	public Object controllerAroundLogger(ProceedingJoinPoint point) throws Throwable {
-		// 开始打印请求日志
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
 
-		// 打印请求相关参数
 		long startTime = System.currentTimeMillis();
 		Object result = point.proceed();
 		String header = request.getHeader("User-Agent");
 		UserAgent userAgent = UserAgent.parseUserAgentString(header);
 
 		final AopLog l = AopLog.builder()
-				.threadId(Long.toString(Thread.currentThread().threadId()))
+				.threadId(Long.toString(Thread.currentThread().getId()))
 				.threadName(Thread.currentThread().getName())
 				.ip(UserAgentUtil.getIp(request))
 				.url(request.getRequestURL().toString())
@@ -62,22 +61,41 @@ public class AopLogger4Controller {
 						point.getSignature().getName()))
 				.httpMethod(request.getMethod())
 				.requestParams(AopLoggerUtil.getNameAndValue(point))
-				.result(result == null ? "结果为空" :
-						result.toString().length() > Consts.AOP_LOG_MAX_LENGTH ?
-								result.toString().substring(0, Consts.AOP_LOG_MAX_LENGTH) +
-										"(... %s more)".formatted(result.toString().length() - Consts.AOP_LOG_MAX_LENGTH) :
-								result.toString())
 				.timeCost(System.currentTimeMillis() - startTime)
 				.userAgent(header)
 				.browser(userAgent.getBrowser().toString())
 				.operatingSystem(userAgent.getOperatingSystem().toString()).build();
+
+		if (result instanceof Mono<?> monoResult) {
+			return monoResult.doOnNext(item -> logResult(item, l))
+					.doOnSuccess(item -> logInfo(l));
+		} else {
+			logResult(result, l);
+			logInfo(l);
+			return result;
+		}
+	}
+
+	private void logResult(Object result, AopLog l) {
+		try {
+			String resultString = new ObjectMapper().writeValueAsString(result);
+			if (resultString.length() > Consts.AOP_LOG_MAX_LENGTH) {
+				l.setResult(resultString.substring(0, Consts.AOP_LOG_MAX_LENGTH) +
+						"(... %s more)".formatted(resultString.length() - Consts.AOP_LOG_MAX_LENGTH));
+			} else {
+				l.setResult(resultString);
+			}
+		} catch (JsonProcessingException e) {
+			log.warn("AopLogger记录失败", e);
+		}
+	}
+
+	private void logInfo(AopLog l) {
 		try {
 			log.info("请求日志: {}", new ObjectMapper().writeValueAsString(l));
 		} catch (Exception e) {
 			log.warn("AopLogger记录失败", e);
 		}
-
-		return result;
 	}
 
 	//与全局异常处理函数功能重复，暂时注释掉

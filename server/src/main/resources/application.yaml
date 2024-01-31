@@ -79,10 +79,9 @@ knife4j:
     enable-dynamic-parameter: true
 
 jpush:
-  app-key: ENC(JOZyeqml0xGl6kVIaw3ilf1DNS3ZVJy+LpcpEFdZEXziFPibhPoWxl/o4ZbzV4Vw2arciaZIFSoFqp7SDvl6Lw==)
-  master-secret: ENC(6poJJitFL8XJlkXrPU2BaZ3vC8C5zltq9XfTd7L9H0AL3T9S7bxcv9Y4V+L/Xbn2o1NVZ5wBSDXKeQNnNDQgzg==)
+  app-key: ENC(Ys1XyqrhmGTCsrtrsNCwo0Z5eC5oknrhSqMjHYNkC/roWnhIAp/Lvzi+xkCs8V2I/nZw3qumv7iO0TNBq+i38w==)
+  master-secret: ENC(zv1qC94mu453kP8fsc3o3qHa61wt7K07SygaFdeTiiyYIhfDH/tUYcTvU1oCIqEZ7ONhb84LLdnZrI9JbtTdAg==)
   live-time: 1000
-  apns-production: true # 是否生产环境，true表示生产环境
 
 mybatis-plus:
   global-config:
@@ -105,5 +104,13 @@ storage:
       default: https://cdn.jsdelivr.net/gh/Jin1c-3/picx-images-hosting@master/20240110/luckytour-logo-round.1w2sagoaz074.webp
 
 api:
+  gaode:
+    key: ENC(yMFeHgGQGfRIcNMZHoaKZW/4mUiIK8+52+ScrMOvqYGKMt6g7Y6Lmo7ph4/XWKAerCOG6SNqi91vHcM3pvCdOeZaIhnNk4sX6LFBWve9aP0=)
+    straight-distance: https://restapi.amap.com/v3/distance
+  caiyun:
+    key: ENC(rA9BtN+2c2RQpC+o8nhHFUZCWN6KqpcPwjzGK0MxiiqyX5tDpDjIcxMvf3WZBBcpDOwJf9IOknYdBmGPAQRDkA==)
+    daily-weather: https://api.caiyunapp.com/v2.6/%s/%s/daily?dailysteps=15
+  flask:
+    chat: /chat
   gaode-key: ENC(yMFeHgGQGfRIcNMZHoaKZW/4mUiIK8+52+ScrMOvqYGKMt6g7Y6Lmo7ph4/XWKAerCOG6SNqi91vHcM3pvCdOeZaIhnNk4sX6LFBWve9aP0=)
   caiyun-key: ENC(rA9BtN+2c2RQpC+o8nhHFUZCWN6KqpcPwjzGK0MxiiqyX5tDpDjIcxMvf3WZBBcpDOwJf9IOknYdBmGPAQRDkA==)

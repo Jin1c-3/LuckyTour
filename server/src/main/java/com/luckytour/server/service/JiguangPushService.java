@@ -4,7 +4,6 @@ import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
 import cn.jpush.api.push.PushResult;
 import com.luckytour.server.vo.JiguangNotification;
-import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
@@ -13,6 +12,15 @@ import java.util.Set;
  * @date Created in 2024/1/11 20:31
  */
 public interface JiguangPushService {
+
+	/**
+	 * 发送验证码
+	 *
+	 * @param phone
+	 * @param code
+	 * @return
+	 */
+	public boolean sendVerificationCode(String phone, String code);
 
 	/**
 	 * 推送全部android

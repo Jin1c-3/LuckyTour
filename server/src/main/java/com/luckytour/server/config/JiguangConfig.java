@@ -2,7 +2,9 @@ package com.luckytour.server.config;
 
 import cn.jiguang.common.ClientConfig;
 import cn.jpush.api.JPushClient;
+import cn.jsms.api.common.SMSClient;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,7 +27,11 @@ public class JiguangConfig {
 	@Value("${jpush.apns-production}")
 	private Boolean apnsProduction;
 
+	@Getter
 	private JPushClient jPushClient;
+
+	@Getter
+	private SMSClient smsClient;
 
 	/**
 	 * 推送客户端
@@ -37,14 +43,7 @@ public class JiguangConfig {
 		ClientConfig config = ClientConfig.getInstance();
 		config.setGlobalPushSetting(apnsProduction, liveTime);
 		jPushClient = new JPushClient(masterSecret, appKey, null, config);
+		smsClient = new SMSClient(masterSecret, appKey);
 	}
 
-	/**
-	 * 获取推送客户端
-	 *
-	 * @return
-	 */
-	public JPushClient getJPushClient() {
-		return jPushClient;
-	}
 }

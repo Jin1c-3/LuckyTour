@@ -166,11 +166,18 @@
             <version>2.3</version>
         </dependency>
 
-        <!--极光消息推送依赖-->
+        <!--极光通知栏消息推送依赖-->
         <dependency>
             <groupId>cn.jpush.api</groupId>
             <artifactId>jpush-client</artifactId>
             <version>3.7.3</version>
+        </dependency>
+
+        <!--极光短信推送依赖-->
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jsms-client</artifactId>
+            <version>1.2.10</version>
         </dependency>
 
         <!--以下两项是支持发送邮件功能-->

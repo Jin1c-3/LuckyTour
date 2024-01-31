@@ -6,10 +6,12 @@ import com.luckytour.server.entity.User;
 import com.luckytour.server.exception.EMailException;
 import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.exception.SecurityException;
+import com.luckytour.server.exception.SmsException;
 import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.payload.JwtResponse;
 import com.luckytour.server.payload.LoginRequest;
 import com.luckytour.server.service.EMailService;
+import com.luckytour.server.service.JiguangPushService;
 import com.luckytour.server.service.UserService;
 import com.luckytour.server.util.JwtUtil;
 import com.luckytour.server.util.ValidationUtil;
@@ -48,9 +50,16 @@ public class AuthController {
 	@Autowired
 	private EMailService eMailService;
 
+	@Autowired
+	private JiguangPushService jiguangPushService;
+
 	private boolean sendVerificationCode(String emailOrPhone, String code) {
 		if (ValidationUtil.isMobile(emailOrPhone)) {
-			//TODO: 发送短信验证码
+			try {
+				return jiguangPushService.sendVerificationCode(emailOrPhone, code);
+			} catch (Exception e) {
+				throw new SmsException("短信发送失败", e);
+			}
 		} else if (ValidationUtil.isEmail(emailOrPhone)) {
 			try {
 				return eMailService.sendVerificationCode(emailOrPhone, code);

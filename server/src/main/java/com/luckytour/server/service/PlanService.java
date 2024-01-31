@@ -2,6 +2,11 @@ package com.luckytour.server.service;
 
 import com.github.jeffreyning.mybatisplus.service.IMppService;
 import com.luckytour.server.entity.Plan;
+import com.luckytour.server.payload.Spot;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -13,4 +18,5 @@ import com.luckytour.server.entity.Plan;
  */
 public interface PlanService extends IMppService<Plan> {
 
+	Mono<String> check(List<Map.Entry<Spot, String>> datedLocatedSpots);
 }

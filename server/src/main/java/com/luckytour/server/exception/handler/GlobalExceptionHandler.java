@@ -1,5 +1,7 @@
 package com.luckytour.server.exception.handler;
 
+import cn.jiguang.common.resp.APIConnectionException;
+import cn.jiguang.common.resp.APIRequestException;
 import com.luckytour.server.common.BaseException;
 import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.controller.AopLogger4Controller;
@@ -53,6 +55,10 @@ public class GlobalExceptionHandler {
 					null);
 		} else if (e instanceof MethodArgumentTypeMismatchException) {
 			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_MATCH);
+		} else if (e instanceof APIConnectionException) {
+			return ApiResponse.ofStatus(ApiStatus.JIGUANG_CONNECTION_ERROR);
+		} else if (e instanceof APIRequestException) {
+			return ApiResponse.ofStatus(ApiStatus.JIGUANG_REQUEST_ERROR);
 		} else if (e instanceof HttpMessageNotReadableException) {
 			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_NULL);
 		} else if (e instanceof MysqlException) {

@@ -1,14 +1,11 @@
 package com.luckytour.server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.luckytour.server.common.constant.CaiyunWeather;
-import com.luckytour.server.common.constant.Judgment;
 import com.luckytour.server.entity.Plan;
 import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.payload.ApiResponse;
 import com.luckytour.server.payload.Spot;
 import com.luckytour.server.service.PlanService;
-import com.luckytour.server.util.ApiRequestUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -17,13 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.IntStream;
 
 /**
  * @author qing
@@ -46,7 +40,7 @@ public class PlanController {
 	 */
 	@PostMapping("/check")
 	@Operation(summary = "计划验证")
-	public ApiResponse<String> check(@RequestBody Map<String, List<Spot>> data) {
+	/*public ApiResponse<String> check(@RequestBody Map<String, List<Spot>> data) {
 		// 拿出有日期且有经纬度的景点
 		List<Map.Entry<Spot, String>> datedLocatedSpots = data.entrySet().stream()
 				.flatMap(entry -> entry.getValue().stream()
@@ -58,6 +52,9 @@ public class PlanController {
 		Optional<String> badWeatherPrompt = datedLocatedSpots.stream()
 				.map(entry -> {
 					String weather = ApiRequestUtil.getWeather(entry.getKey().getLocation(), entry.getValue());
+					if (weather == null) {
+						return null;
+					}
 					String caiyunWeatherExplanation = CaiyunWeather.WEATHER_MAP.get(weather);
 					return Judgment.GOOD_CAIYUN_WEATHER.stream()
 							.noneMatch(caiyunWeatherExplanation::equals)
@@ -79,8 +76,19 @@ public class PlanController {
 				.filter(Objects::nonNull)
 				.findFirst();
 		return tooFarPrompt.map(ApiResponse::ofSuccess).orElseGet(() -> ApiResponse.ofSuccess("true"));
-	}
+	}*/
+	public Mono<ApiResponse<String>> check(@RequestBody Map<String, List<Spot>> data) {
+		// 拿出有日期且有经纬度的景点
+		List<Map.Entry<Spot, String>> datedLocatedSpots = data.entrySet().stream()
+				.flatMap(entry -> entry.getValue().stream()
+						.filter(spot -> spot.getLocation() != null)
+						.map(spot -> Map.entry(spot, entry.getKey())))
+				.toList();
 
+		// prompt用作直接返回给AI的提示词
+		return planService.check(datedLocatedSpots)
+				.map(ApiResponse::ofSuccess);
+	}
 
 	@PostMapping("/saveOrUpdate")
 	@Operation(summary = "计划存储更新")

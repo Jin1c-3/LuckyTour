@@ -108,6 +108,16 @@ public enum ApiStatus implements IApiStatus {
 	FILE_ERROR(517, "文件系统异常"),
 
 	/**
+	 * 连接极光异常
+	 */
+	JIGUANG_CONNECTION_ERROR(518, "连接极光异常"),
+
+	/**
+	 * 向极光发送请求异常
+	 */
+	JIGUANG_REQUEST_ERROR(518, "向极光发送请求异常"),
+
+	/**
 	 * 用户名或密码错误！
 	 */
 	USERNAME_PASSWORD_ERROR(5001, "用户名或密码错误！"),

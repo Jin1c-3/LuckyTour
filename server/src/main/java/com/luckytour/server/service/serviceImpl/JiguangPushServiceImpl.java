@@ -8,6 +8,8 @@ import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.AndroidNotification;
 import cn.jpush.api.push.model.notification.Notification;
+import cn.jsms.api.SendSMSResult;
+import cn.jsms.api.common.model.SMSPayload;
 import com.luckytour.server.config.JiguangConfig;
 import com.luckytour.server.service.JiguangPushService;
 import com.luckytour.server.vo.JiguangNotification;
@@ -16,10 +18,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author qing
@@ -31,6 +30,37 @@ public class JiguangPushServiceImpl implements JiguangPushService {
 
 	@Autowired
 	private JiguangConfig jPushConfig;
+
+	public boolean sendVerificationCode(String phone, String code) {
+		try {
+			Map<String, String> data = new HashMap<>();
+			data.put("code", code);
+			return sendSMSTemplate(phone, 1, data);
+		} catch (APIConnectionException | APIRequestException e) {
+			log.error("sendVerificationCode error", e);
+			return false;
+		}
+	}
+
+	/**
+	 * 发送一条模板短信
+	 *
+	 * @param phone
+	 * @param templateId
+	 * @param data
+	 * @return
+	 * @throws APIConnectionException
+	 * @throws APIRequestException
+	 */
+	private boolean sendSMSTemplate(String phone, int templateId, Map<String, String> data) throws APIConnectionException, APIRequestException {
+		SMSPayload payload = SMSPayload.newBuilder()
+				.setMobileNumber(phone)
+				.setTempId(templateId)
+				.setTempPara(data)
+				.build();
+		SendSMSResult res = jPushConfig.getSmsClient().sendTemplateSMS(payload);
+		return res.isResultOK();
+	}
 
 	/**
 	 * 推送全部android
@@ -99,7 +129,6 @@ public class JiguangPushServiceImpl implements JiguangPushService {
 				.build());
 	}
 
-
 	/**
 	 * 根据标签推送消息
 	 */
@@ -136,7 +165,7 @@ public class JiguangPushServiceImpl implements JiguangPushService {
 		}
 		//批量删除数组中的空元素
 		String[] rids = removeArrayEmptyElement(registrationID);
-		return jPushConfig.getJPushClient().sendMessageWithRegistrationID(notification.getTitle(), notification.getContent(), rids);
+		return jPushConfig.getJPushClient().sendAndroidNotificationWithRegistrationID(notification.getTitle(), notification.getContent(), notification.getExtras(), rids);
 	}
 
 	/**
