@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @NoArgsConstructor
@@ -16,6 +17,8 @@ import java.io.Serializable;
 @Getter
 @ToString
 public class ApiResponse<T> implements Serializable {
+
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@JsonProperty("code")

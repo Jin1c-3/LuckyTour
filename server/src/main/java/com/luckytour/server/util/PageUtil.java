@@ -1,7 +1,7 @@
 package com.luckytour.server.util;
 
 
-import com.luckytour.server.common.constant.Consts;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.payload.PageCondition;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.cglib.core.ReflectUtils;
@@ -29,10 +29,10 @@ public class PageUtil {
 		}
 		// 校验分页参数
 		if (ObjectUtils.isEmpty(condition.getCurrentPage())) {
-			condition.setCurrentPage(Consts.PAGE_DEFAULT_CURRENT);
+			condition.setCurrentPage(ConstsPool.PAGE_DEFAULT_CURRENT);
 		}
 		if (ObjectUtils.isEmpty(condition.getPageSize())) {
-			condition.setPageSize(Consts.PAGE_DEFAULT_SIZE);
+			condition.setPageSize(ConstsPool.PAGE_DEFAULT_SIZE);
 		}
 	}
 

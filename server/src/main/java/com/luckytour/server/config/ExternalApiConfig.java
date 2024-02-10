@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -26,7 +25,8 @@ public class ExternalApiConfig {
 	@Setter
 	public static class Gaode {
 		private String key;
-		private String straightDistance;
+		private String distance;
+		private String geocode;
 	}
 
 	@Getter
@@ -41,10 +41,18 @@ public class ExternalApiConfig {
 	public static class Flask {
 		private String chat;
 		private String base;
+		private PlanGenerator planGenerator;
+
+		@Getter
+		@Setter
+		public static class PlanGenerator {
+			private String url;
+			private Integer counter;
+			private String promptField;
+		}
 	}
 
 	private HttpClient httpClient = HttpClient.create()
 			.resolver(DefaultAddressResolverGroup.INSTANCE);
 
-	private RestTemplate restTemplate = new RestTemplate();
 }

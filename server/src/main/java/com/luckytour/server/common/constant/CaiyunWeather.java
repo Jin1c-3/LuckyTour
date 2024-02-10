@@ -7,7 +7,10 @@ import java.util.Map;
  * @author qing
  * @date Created in 2024/1/29 22:08
  */
-public class CaiyunWeather {
+public final class CaiyunWeather {
+	private CaiyunWeather() {
+	}
+
 	public static final Map<String, String> WEATHER_MAP = new HashMap<>();
 
 	static {

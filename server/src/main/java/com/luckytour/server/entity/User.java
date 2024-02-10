@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -26,7 +27,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-public class User extends Model<User> implements Serializable {
+public class User implements Serializable {
+
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "用户id，使用uuid标识")
@@ -63,7 +66,7 @@ public class User extends Model<User> implements Serializable {
 
 	@Schema(description = "用户性别，1-男、2-女")
 	@TableField("sex")
-	private Integer sex;
+	private Byte sex;
 
 	@Schema(description = "用户头像，存储一个网址")
 	@TableField("avatar")

@@ -19,7 +19,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Value("${storage.static.path}")
 	private String staticPath;
 
-	private final String[] EXCLUDED_PATH_PATTERNS = {
+	private static final String[] EXCLUDED_PATH_PATTERNS = {
 			"/**/doc.html",
 			"/**/login",
 			"/**/login.html",
@@ -67,6 +67,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				// 需要拦截的路径
 				.addPathPatterns("/**");
 	}
+
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")

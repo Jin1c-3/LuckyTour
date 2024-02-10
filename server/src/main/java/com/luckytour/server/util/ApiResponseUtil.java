@@ -21,6 +21,12 @@ import java.io.IOException;
 public class ApiResponseUtil {
 
 	/**
+	 * 私有构造函数
+	 */
+	private ApiResponseUtil() {
+	}
+
+	/**
 	 * 往 Response 中写入 Json 数据
 	 *
 	 * @param response 响应

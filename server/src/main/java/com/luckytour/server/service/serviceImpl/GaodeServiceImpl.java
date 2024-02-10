@@ -1,6 +1,5 @@
 package com.luckytour.server.service.serviceImpl;
 
-import com.luckytour.server.common.constant.ApiAddr;
 import com.luckytour.server.config.ExternalApiConfig;
 import com.luckytour.server.payload.GaodeResponse;
 import com.luckytour.server.service.GaodeService;
@@ -20,8 +19,13 @@ import java.util.List;
 @Service
 @Slf4j
 public class GaodeServiceImpl implements GaodeService {
+
+	private final ExternalApiConfig externalApiConfig;
+
 	@Autowired
-	private ExternalApiConfig externalApiConfig;
+	public GaodeServiceImpl(ExternalApiConfig externalApiConfig) {
+		this.externalApiConfig = externalApiConfig;
+	}
 
 	public Mono<List<Integer>> getStraightDistance(List<String> origins, String destination) {
 		if (origins.isEmpty() || !destination.contains(",") || externalApiConfig.getGaode().getKey() == null) {
@@ -37,7 +41,7 @@ public class GaodeServiceImpl implements GaodeService {
 
 		return WebClient.builder()
 				.clientConnector(new ReactorClientHttpConnector(externalApiConfig.getHttpClient()))
-				.baseUrl(externalApiConfig.getGaode().getStraightDistance())
+				.baseUrl(externalApiConfig.getGaode().getDistance())
 				.build()
 				.get()
 				.uri(url)
@@ -45,9 +49,38 @@ public class GaodeServiceImpl implements GaodeService {
 				.bodyToMono(GaodeResponse.class)
 				.map(gdResponse -> {
 					if ("0".equals(gdResponse.getStatus())) {
+						log.warn("高德接口调用失败，错误原因 {}", gdResponse.getInfo());
 						return List.of(0);
 					}
+					log.debug("高德接口调用成功，返回结果 {}", gdResponse);
 					return gdResponse.getResults().stream().map(result -> Integer.parseInt(result.get("distance"))).toList();
+				});
+	}
+
+	public Mono<String> getLocation(String address) {
+		if (address == null || externalApiConfig.getGaode().getKey() == null) {
+			log.warn("请检查参数：address: {}, GAODE_KEY: {}", address, externalApiConfig.getGaode().getKey());
+			return Mono.just("");
+		}
+
+		return WebClient.builder()
+				.clientConnector(new ReactorClientHttpConnector(externalApiConfig.getHttpClient()))
+				.baseUrl(externalApiConfig.getGaode().getGeocode())
+				.build()
+				.get()
+				.uri(uriBuilder -> uriBuilder
+						.queryParam("address", address)
+						.queryParam("key", externalApiConfig.getGaode().getKey())
+						.build())
+				.retrieve()
+				.bodyToMono(GaodeResponse.class)
+				.map(gdResponse -> {
+					if ("0".equals(gdResponse.getStatus())) {
+						log.warn("高德接口调用失败，错误原因 {}", gdResponse.getInfo());
+						return "";
+					}
+					log.debug("高德接口调用成功，返回结果 {}", gdResponse);
+					return (String) gdResponse.getGeocodes().get(0).get("location");
 				});
 	}
 }

@@ -28,18 +28,24 @@ import java.util.*;
 @Slf4j
 public class JiguangPushServiceImpl implements JiguangPushService {
 
+	private final JiguangConfig jPushConfig;
+
 	@Autowired
-	private JiguangConfig jPushConfig;
+	public JiguangPushServiceImpl(JiguangConfig jPushConfig) {
+		this.jPushConfig = jPushConfig;
+	}
 
 	public boolean sendVerificationCode(String phone, String code) {
-		try {
-			Map<String, String> data = new HashMap<>();
-			data.put("code", code);
-			return sendSMSTemplate(phone, 1, data);
-		} catch (APIConnectionException | APIRequestException e) {
-			log.error("sendVerificationCode error", e);
+		Map<String, String> data = new HashMap<>();
+		data.put("code", code);
+		if (sendTemplateSMS(phone, 1, data)) {
+			log.info("发送验证码成功:{}", phone);
+			return true;
+		} else {
+			log.error("发送验证码失败:{}", phone);
 			return false;
 		}
+
 	}
 
 	/**
@@ -52,14 +58,19 @@ public class JiguangPushServiceImpl implements JiguangPushService {
 	 * @throws APIConnectionException
 	 * @throws APIRequestException
 	 */
-	private boolean sendSMSTemplate(String phone, int templateId, Map<String, String> data) throws APIConnectionException, APIRequestException {
+	private boolean sendTemplateSMS(String phone, int templateId, Map<String, String> data) {
 		SMSPayload payload = SMSPayload.newBuilder()
 				.setMobileNumber(phone)
 				.setTempId(templateId)
 				.setTempPara(data)
 				.build();
-		SendSMSResult res = jPushConfig.getSmsClient().sendTemplateSMS(payload);
-		return res.isResultOK();
+		try {
+			SendSMSResult res = jPushConfig.getSmsClient().sendTemplateSMS(payload);
+			return res.isResultOK();
+		} catch (Exception e) {
+			log.error("发送短信失败:{}", e.getMessage());
+			return false;
+		}
 	}
 
 	/**

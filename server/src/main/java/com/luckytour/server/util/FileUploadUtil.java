@@ -1,6 +1,6 @@
 package com.luckytour.server.util;
 
-import com.luckytour.server.common.constant.Consts;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.exception.FileException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class FileUploadUtil {
 	public void init() {
 		STATIC_PATH = staticPath;
 		AVATAR_PATH = avatarPath;
-		FOLDER_FORMAT = new SimpleDateFormat(folderFormat + Consts.FILE_SEPARATOR);
+		FOLDER_FORMAT = new SimpleDateFormat(folderFormat + ConstsPool.FILE_SEPARATOR);
 	}
 
 	/**
@@ -56,12 +56,20 @@ public class FileUploadUtil {
 	 */
 	private static Format FOLDER_FORMAT;
 
+	/**
+	 * 文件上传
+	 *
+	 * @param request 请求
+	 * @param prePath 文件存储的前缀路径
+	 * @param file    文件
+	 * @return 文件的网络访问地址
+	 */
 	public static String storeFile(HttpServletRequest request, String prePath, MultipartFile file) {
 		// 在 uploadPath 文件夹中通过日期对上传的文件归类保存
 		// 比如：/2019/06/06/test.png
 		String innerFolder = FOLDER_FORMAT.format(new Date());
-		String webFolderPath = StringUtils.isBlank(prePath) ? prePath : (prePath + Consts.FILE_SEPARATOR) + innerFolder;
-		String trueFolderPath = System.getProperty("user.dir") + Consts.FILE_SEPARATOR + webFolderPath;
+		String webFolderPath = StringUtils.isBlank(prePath) ? prePath : (prePath + ConstsPool.FILE_SEPARATOR) + innerFolder;
+		String trueFolderPath = System.getProperty("user.dir") + ConstsPool.FILE_SEPARATOR + webFolderPath;
 		File folder = new File(trueFolderPath);
 		if (!folder.isDirectory()) {
 			log.debug("新建文件夹{}", folder);
@@ -77,8 +85,8 @@ public class FileUploadUtil {
 			// 文件保存
 			file.transferTo(new File(folder, newName));
 			// 返回上传文件的访问路径
-			String httpAddress = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + Consts.FILE_SEPARATOR + webFolderPath + newName;
-			log.debug("图片存储成功，真实文件位置: {} 网络文件地址: {}", folder + Consts.FILE_SEPARATOR + newName, httpAddress);
+			String httpAddress = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + ConstsPool.FILE_SEPARATOR + webFolderPath + newName;
+			log.debug("图片存储成功，真实文件位置: {} 网络文件地址: {}", folder + ConstsPool.FILE_SEPARATOR + newName, httpAddress);
 			return httpAddress;
 		} catch (IOException e) {
 			throw new FileException("文件存储发生异常", e);
@@ -86,10 +94,10 @@ public class FileUploadUtil {
 	}
 
 	public static String storeStaticFile(HttpServletRequest request, String prePath, MultipartFile file) {
-		return storeFile(request, STATIC_PATH + Consts.FILE_SEPARATOR + prePath, file);
+		return storeFile(request, STATIC_PATH + ConstsPool.FILE_SEPARATOR + prePath, file);
 	}
 
 	public static String storeAvatar(HttpServletRequest request, String userId, MultipartFile file) {
-		return storeStaticFile(request, AVATAR_PATH + Consts.FILE_SEPARATOR + userId, file);
+		return storeStaticFile(request, AVATAR_PATH + ConstsPool.FILE_SEPARATOR + userId, file);
 	}
 }

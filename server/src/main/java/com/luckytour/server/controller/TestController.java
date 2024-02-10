@@ -16,8 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -37,24 +35,28 @@ import java.util.Map;
 @Profile({"test", "dev"})
 public class TestController {
 
-	@Autowired
-	private JiguangPushService jiguangPushService;
+	private final JiguangPushService jiguangPushService;
+
+	private final GaodeService gaodeService;
+
+	private final GptService gptService;
 
 	@Autowired
-	private GaodeService gaodeService;
-
-	@Autowired
-	private GptService gptService;
+	public TestController(JiguangPushService jiguangPushService, GaodeService gaodeService, GptService gptService) {
+		this.jiguangPushService = jiguangPushService;
+		this.gaodeService = gaodeService;
+		this.gptService = gptService;
+	}
 
 	/**
 	 * 测试websocket接收简单数据并返回
 	 */
-	@MessageMapping("/websocket")
+/*	@MessageMapping("/websocket")
 	@SendTo("/topic/hello")
 	@Operation(summary = "测试websocket接收简单数据并返回")
 	public <T> ApiResponse<T> websocketHello(String message) {
 		return ApiResponse.ofSuccessMsg("websocket message: " + message);
-	}
+	}*/
 
 	/**
 	 * 测试websocket在用户url上接收简单数据并返回
@@ -69,13 +71,13 @@ public class TestController {
 	/**
 	 * 测试websocket心跳检测
 	 */
-	@MessageMapping("/queue/test" +
+	/*@MessageMapping("/queue/test" +
 			"")
 	@SendTo("/topic/queuetest")
 	@Operation(summary = "测试websocket心跳检测")
 	public <T> ApiResponse<T> queueTest() {
 		return ApiResponse.ofSuccessMsg("queue message: test");
-	}
+	}*/
 
 	/**
 	 * 测试失败返回值
@@ -118,7 +120,7 @@ public class TestController {
 		throw new JsonException();
 	}
 
-	@Operation(summary = "测试利用极光向所有安卓设备发送通知，每天只能十次")
+	@Operation(summary = "测试极光向所有安卓设备发送通知，每天只能十次")
 	@GetMapping("/notification")
 	public void testSendNotification() throws APIConnectionException, APIRequestException {
 		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
@@ -131,7 +133,7 @@ public class TestController {
 		//设置、更新、设备的 tag, alias 信息。140fe1da9e38e9efd3e
 	}
 
-	@Operation(summary = "测试利用极光的sendPushByAlias向游轩的安卓设备160a3797c903b80eda8发送通知")
+	@Operation(summary = "测试极光sendPushByAlias向游轩的安卓设备160a3797c903b80eda8发送通知")
 	@GetMapping("/notificationyxAlias")
 	public void testSendYxNotificationByAlias() throws APIConnectionException, APIRequestException {
 		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
@@ -140,7 +142,7 @@ public class TestController {
 //		jiguangPushService.sendPushToAndroid(notification);
 	}
 
-	@Operation(summary = "测试利用极光的sendPushByAlias向于靖怿的安卓设备120c83f76125b36068d发送通知")
+	@Operation(summary = "测试极光sendPushByAlias向于靖怿的安卓设备120c83f76125b36068d发送通知")
 	@GetMapping("/notificationyjyAlias")
 	public void testSendYjyNotificationByAlias() throws APIConnectionException, APIRequestException {
 		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
@@ -149,7 +151,7 @@ public class TestController {
 //		jiguangPushService.sendPushToAndroid(notification);
 	}
 
-	@Operation(summary = "测试利用极光的sendPushByRegistrationID向游轩的安卓设备160a3797c903b80eda8发送通知")
+	@Operation(summary = "测试极光sendPushByRegistrationID向游轩的安卓设备160a3797c903b80eda8发送通知")
 	@GetMapping("/notificationyxRid")
 	public void testSendYxNotificationByRid() throws APIConnectionException, APIRequestException {
 		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
@@ -157,7 +159,7 @@ public class TestController {
 //		jiguangPushService.sendPushToAndroid(notification);
 	}
 
-	@Operation(summary = "测试利用极光的sendPushByRegistrationID向于靖怿的安卓设备120c83f76125b36068d发送通知")
+	@Operation(summary = "测试极光sendPushByRegistrationID向于靖怿的安卓设备120c83f76125b36068d发送通知")
 	@GetMapping("/notificationyjyRid")
 	public void testSendYjyNotificationByRid() throws APIConnectionException, APIRequestException {
 		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());

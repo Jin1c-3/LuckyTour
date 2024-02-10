@@ -118,6 +118,26 @@ public enum ApiStatus implements IApiStatus {
 	JIGUANG_REQUEST_ERROR(518, "向极光发送请求异常"),
 
 	/**
+	 * 博客创建失败
+	 */
+	BLOG_CREATE_FAIL(519, "博客创建失败！"),
+
+	/**
+	 * 验证码发送失败
+	 */
+	SEND_CODE_FAILED(520, "验证码发送失败，请稍后重试"),
+
+	/**
+	 * 注册失败
+	 */
+	REGISTRY_FAILED(5006, "注册失败，请稍后重试"),
+
+	/**
+	 * 更新失败
+	 */
+	USER_UPDATE_FAILED(5007, "更新失败，请稍后重试"),
+
+	/**
 	 * 用户名或密码错误！
 	 */
 	USERNAME_PASSWORD_ERROR(5001, "用户名或密码错误！"),
@@ -143,9 +163,34 @@ public enum ApiStatus implements IApiStatus {
 	USER_ALREADY_EXIST(5004, "用户已存在！"),
 
 	/**
-	 * 注册时用户已存在
+	 * 查询时用户不存在
 	 */
-	USER_NOT_EXIST(5005, "用户不存在！");
+	USER_NOT_EXIST(5005, "用户不存在！"),
+
+	/**
+	 * 计划生成次数在配置文件中配置
+	 */
+	PLAN_CREATE_REACH_LIMIT(5101, "计划生成超过限制次数！"),
+
+	/**
+	 * 计划不存在
+	 */
+	PLAN_NOT_EXIST(5102, "计划不存在！"),
+
+	/**
+	 * 计划不存在
+	 */
+	BLOG_NOT_EXIST(5103, "博客不存在！"),
+
+	/**
+	 * 博客已经被喜欢
+	 */
+	BLOG_LIKED_ALREADY(5104, "博客已经被喜欢！"),
+
+	/**
+	 * 博客已经被收藏
+	 */
+	BLOG_ALREADY_FAVOR(5105, "博客已经被收藏！");
 
 	/**
 	 * 状态码

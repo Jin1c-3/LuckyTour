@@ -24,7 +24,7 @@ spring:
           # 连接池中的最小空闲连接 默认 0
           min-idle: 0
     mongodb:
-        uri: mongodb://localhost:27017/luckytour
+      uri: mongodb://localhost:27017/luckytour
 
   datasource:
     username: root
@@ -35,10 +35,10 @@ spring:
   mail:
     default-encoding: UTF-8
     protocol: smtp
-    host: smtp.qq.com
-    port: 587
-    username: pleasuretour@qq.com
-    password: ENC(kZJ4QjNx5MuBi6JudYdJAOJ/UTZ4Nf3/cDke09/GgaVUrVCsEfmw7PrubfVs2cFuPTupHhr6knKdKFBdLZgAeQ==)
+    host: smtp.yeah.net
+    port: 25
+    username: lucky_tour@yeah.net
+    password: ENC(c6dFJcZQmnZl1m1VFNvi3DfF2qcNBzBdcwtEr2qZwesXEryHZAPUafom402/om7pUg4zaWxF2NSZHWh+sndioQ==)
     test-connection: false
     properties:
       mail:
@@ -82,6 +82,7 @@ jpush:
   app-key: ENC(Ys1XyqrhmGTCsrtrsNCwo0Z5eC5oknrhSqMjHYNkC/roWnhIAp/Lvzi+xkCs8V2I/nZw3qumv7iO0TNBq+i38w==)
   master-secret: ENC(zv1qC94mu453kP8fsc3o3qHa61wt7K07SygaFdeTiiyYIhfDH/tUYcTvU1oCIqEZ7ONhb84LLdnZrI9JbtTdAg==)
   live-time: 1000
+  apns-production: false
 
 mybatis-plus:
   global-config:
@@ -89,10 +90,9 @@ mybatis-plus:
       update-strategy: not_empty
 
 jwt:
-  config:
-    secret-key: ENC(h5csKS/XZMLdC0VfTS1a4anNg5T/YJheWMyLG9v3reH7yyaU/QfL7CegB8+DjqL/)
-    short-ttl: 600000
-    long-ttl: 604800000
+  secret-key: ENC(h5csKS/XZMLdC0VfTS1a4anNg5T/YJheWMyLG9v3reH7yyaU/QfL7CegB8+DjqL/)
+  short-ttl: 600000
+  long-ttl: 604800000
 
 storage:
   folder:
@@ -106,11 +106,14 @@ storage:
 api:
   gaode:
     key: ENC(yMFeHgGQGfRIcNMZHoaKZW/4mUiIK8+52+ScrMOvqYGKMt6g7Y6Lmo7ph4/XWKAerCOG6SNqi91vHcM3pvCdOeZaIhnNk4sX6LFBWve9aP0=)
-    straight-distance: https://restapi.amap.com/v3/distance
+    distance: https://restapi.amap.com/v3/distance
+    geocode: https://restapi.amap.com/v3/geocode/geo
   caiyun:
     key: ENC(rA9BtN+2c2RQpC+o8nhHFUZCWN6KqpcPwjzGK0MxiiqyX5tDpDjIcxMvf3WZBBcpDOwJf9IOknYdBmGPAQRDkA==)
     daily-weather: https://api.caiyunapp.com/v2.6/%s/%s/daily?dailysteps=15
   flask:
     chat: /chat
-  gaode-key: ENC(yMFeHgGQGfRIcNMZHoaKZW/4mUiIK8+52+ScrMOvqYGKMt6g7Y6Lmo7ph4/XWKAerCOG6SNqi91vHcM3pvCdOeZaIhnNk4sX6LFBWve9aP0=)
-  caiyun-key: ENC(rA9BtN+2c2RQpC+o8nhHFUZCWN6KqpcPwjzGK0MxiiqyX5tDpDjIcxMvf3WZBBcpDOwJf9IOknYdBmGPAQRDkA==)
+    plan-generator:
+      url: /generatePlanner
+      prompt-field: prompt
+      counter: 3 # 计划重新生成的次数，-1表示无穷大

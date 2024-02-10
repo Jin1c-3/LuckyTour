@@ -7,11 +7,14 @@
         <id column="uid" property="uid" />
         <id column="pid" property="pid" />
         <result column="content" property="content" />
+        <result column="title" property="title" />
+        <result column="tags" property="tags" />
+        <result column="city" property="city" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        uid, pid, content
+        uid, pid, content, title, tags, city
     </sql>
 
 </mapper>

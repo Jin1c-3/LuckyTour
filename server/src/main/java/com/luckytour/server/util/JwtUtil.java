@@ -1,13 +1,15 @@
 package com.luckytour.server.util;
 
 import com.luckytour.server.common.constant.ApiStatus;
-import com.luckytour.server.common.constant.Consts;
+import com.luckytour.server.common.constant.ConstsPool;
+import com.luckytour.server.config.JwtConfig;
 import com.luckytour.server.exception.SecurityException;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,34 +25,31 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JwtUtil {
 
-	@Value("${jwt.config.secret-key}")
-	private String secretKey;
+	private final JwtConfig jwtConfig;
 
-	@Value("${jwt.config.short-ttl}")
-	private Long shortTtl;
-
-	@Value("${jwt.config.long-ttl}")
-	private Long longTtl;
+	public JwtUtil(JwtConfig jwtConfig) {
+		this.jwtConfig = jwtConfig;
+	}
 
 	@PostConstruct
 	public void init() {
-		SECRET_KEY = secretKey;
-		TTL_SHORT = shortTtl;
-		TTL_LONG = longTtl;
+		SECRET_KEY = jwtConfig.getSecretKey();
+		TTL_SHORT = jwtConfig.getShortTtl();
+		TTL_LONG = jwtConfig.getLongTtl();
 	}
 
 	/**
-	 * jwt 加密 key，默认值：yutech.
+	 * jwt 加密 key
 	 */
 	private static String SECRET_KEY;
 
 	/**
-	 * jwt 过期时间，默认值：600000 {@code 10 分钟}.
+	 * jwt 过期时间
 	 */
 	private static Long TTL_SHORT;
 
 	/**
-	 * 开启 记住我 之后 jwt 过期时间，默认值 604800000 {@code 7 天}
+	 * 开启 记住我 之后 jwt 过期时间
 	 */
 	private static Long TTL_LONG;
 
@@ -79,7 +78,7 @@ public class JwtUtil {
 		}*/
 
 		String jwt = builder.compact();
-		String key = Consts.REDIS_JWT_KEY_PREFIX + id;
+		String key = ConstsPool.REDIS_JWT_KEY_PREFIX + id;
 		// 将生成的JWT保存至Redis，先删除之前的
 		if (RedisUtil.hasKey(key)) {
 			RedisUtil.del(key);
@@ -127,7 +126,7 @@ public class JwtUtil {
 					.getBody();
 
 			String id = claims.getId();
-			String redisKey = Consts.REDIS_JWT_KEY_PREFIX + id;
+			String redisKey = ConstsPool.REDIS_JWT_KEY_PREFIX + id;
 
 			// 校验redis中的JWT是否存在
 			if (!RedisUtil.hasKey(redisKey)) {
@@ -168,7 +167,7 @@ public class JwtUtil {
 		String jwt = getJwtFromRequest(request);
 		String id = getIdFromJwt(jwt);
 		// 从redis中清除JWT
-		RedisUtil.del(Consts.REDIS_JWT_KEY_PREFIX + id);
+		RedisUtil.del(ConstsPool.REDIS_JWT_KEY_PREFIX + id);
 	}
 
 	/**
@@ -180,7 +179,7 @@ public class JwtUtil {
 		String jwt = getJwtFromRequest(request);
 		String id = getIdFromJwt(jwt);
 		// 从redis中清除JWT
-		RedisUtil.expire(Consts.REDIS_JWT_KEY_PREFIX + id, TTL_LONG, TimeUnit.MILLISECONDS);
+		RedisUtil.expire(ConstsPool.REDIS_JWT_KEY_PREFIX + id, TTL_LONG, TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -200,7 +199,7 @@ public class JwtUtil {
 	 * @return JWT
 	 */
 	private static String getJwtFromRequest(HttpServletRequest request) {
-		String jwt = request.getHeader(Consts.TOKEN_KEY);
+		String jwt = request.getHeader(ConstsPool.TOKEN_KEY);
 		if (StringUtils.isNoneBlank(jwt)) {
 			return jwt;
 		}

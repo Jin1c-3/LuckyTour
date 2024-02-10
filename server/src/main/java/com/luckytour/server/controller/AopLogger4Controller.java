@@ -3,7 +3,7 @@ package com.luckytour.server.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luckytour.server.common.AopLog;
-import com.luckytour.server.common.constant.Consts;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.util.AopLoggerUtil;
 import com.luckytour.server.util.UserAgentUtil;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -79,9 +79,9 @@ public class AopLogger4Controller {
 	private void logResult(Object result, AopLog l) {
 		try {
 			String resultString = new ObjectMapper().writeValueAsString(result);
-			if (resultString.length() > Consts.AOP_LOG_MAX_LENGTH) {
-				l.setResult(resultString.substring(0, Consts.AOP_LOG_MAX_LENGTH) +
-						"(... %s more)".formatted(resultString.length() - Consts.AOP_LOG_MAX_LENGTH));
+			if (resultString.length() > ConstsPool.AOP_LOG_MAX_LENGTH) {
+				l.setResult(resultString.substring(0, ConstsPool.AOP_LOG_MAX_LENGTH) +
+						"(... %s more)".formatted(resultString.length() - ConstsPool.AOP_LOG_MAX_LENGTH));
 			} else {
 				l.setResult(resultString);
 			}

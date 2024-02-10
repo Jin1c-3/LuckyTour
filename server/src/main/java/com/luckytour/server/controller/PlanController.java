@@ -1,9 +1,13 @@
 package com.luckytour.server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luckytour.server.entity.Plan;
+import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.payload.ApiResponse;
+import com.luckytour.server.payload.PlanCreateRequest;
 import com.luckytour.server.payload.Spot;
 import com.luckytour.server.service.PlanService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,53 +34,19 @@ import java.util.Map;
 @CrossOrigin
 @Validated
 public class PlanController {
-	@Autowired
-	private PlanService planService;
 
-	/**
-	 * 计划验证
-	 *
-	 * @return true: 通过验证 prompt: 未通过验证返回响应提示词
-	 */
+	private final PlanService planService;
+
+	private final ObjectMapper objectMapper;
+
+	@Autowired
+	public PlanController(PlanService planService, ObjectMapper objectMapper) {
+		this.planService = planService;
+		this.objectMapper = objectMapper;
+	}
+
 	@PostMapping("/check")
 	@Operation(summary = "计划验证")
-	/*public ApiResponse<String> check(@RequestBody Map<String, List<Spot>> data) {
-		// 拿出有日期且有经纬度的景点
-		List<Map.Entry<Spot, String>> datedLocatedSpots = data.entrySet().stream()
-				.flatMap(entry -> entry.getValue().stream()
-						.filter(spot -> spot.getLocation() != null)
-						.map(spot -> Map.entry(spot, entry.getKey())))
-				.toList();
-
-		// prompt用作直接返回给AI的提示词
-		Optional<String> badWeatherPrompt = datedLocatedSpots.stream()
-				.map(entry -> {
-					String weather = ApiRequestUtil.getWeather(entry.getKey().getLocation(), entry.getValue());
-					if (weather == null) {
-						return null;
-					}
-					String caiyunWeatherExplanation = CaiyunWeather.WEATHER_MAP.get(weather);
-					return Judgment.GOOD_CAIYUN_WEATHER.stream()
-							.noneMatch(caiyunWeatherExplanation::equals)
-							? Judgment.getBadWeatherPrompt(String.valueOf(LocalDate.parse(entry.getValue()).getDayOfMonth()), entry.getKey().getCityname() + entry.getKey().getName(), caiyunWeatherExplanation)
-							: null;
-				})
-				.filter(Objects::nonNull)
-				.findFirst();
-		if (badWeatherPrompt.isPresent()) {
-			return ApiResponse.ofSuccess(badWeatherPrompt.get());
-		}
-		Optional<String> tooFarPrompt = IntStream.range(0, datedLocatedSpots.size() - 1)
-				.mapToObj(i -> {
-					double distance = ApiRequestUtil.getStraightDistance(List.of(datedLocatedSpots.get(i).getKey().getLocation()), datedLocatedSpots.get(i + 1).getKey().getLocation()).get(0);
-					return distance > Judgment.STRAIGHT_DISTANCE_TOO_FAR
-							? Judgment.getTooFarPrompt(datedLocatedSpots.get(i).getKey().getName(), datedLocatedSpots.get(i + 1).getKey().getName())
-							: null;
-				})
-				.filter(Objects::nonNull)
-				.findFirst();
-		return tooFarPrompt.map(ApiResponse::ofSuccess).orElseGet(() -> ApiResponse.ofSuccess("true"));
-	}*/
 	public Mono<ApiResponse<String>> check(@RequestBody Map<String, List<Spot>> data) {
 		// 拿出有日期且有经纬度的景点
 		List<Map.Entry<Spot, String>> datedLocatedSpots = data.entrySet().stream()
@@ -93,8 +63,7 @@ public class PlanController {
 	@PostMapping("/saveOrUpdate")
 	@Operation(summary = "计划存储更新")
 	public boolean saveOrUpdate(@Valid @RequestBody Plan plan) throws MysqlException {
-		planService.saveOrUpdateByMultiId(plan);
-		return true;
+		return planService.saveOrUpdateByMultiId(plan);
 	}
 
 	@GetMapping("/getByUid")
@@ -104,5 +73,21 @@ public class PlanController {
 			return ApiResponse.ofSuccessMsg("暂时没有计划哟~");
 		}
 		return ApiResponse.ofSuccess(planService.list(new QueryWrapper<Plan>().eq("uid", uid)));
+	}
+
+	@PostMapping("/create")
+	@Operation(summary = "生成旅行计划")
+	public Mono<ApiResponse<Map<String, List<Object>>>> create(@Valid @RequestBody PlanCreateRequest planCreateRequest) throws MysqlException{
+		// 这里没有错误处理，没有考虑计划生成问题，认为一定有计划返回
+		// 没有返回认为会报错，代码不会执行到这里
+		Plan plan = new Plan().createByPlanCreateRequest(planCreateRequest);
+		return planService.create(planCreateRequest.getPrompt()).doOnNext(monoPlan -> {
+			try {
+				plan.setContent(objectMapper.writeValueAsString(monoPlan));
+			} catch (JsonProcessingException e) {
+				throw new JsonException();
+			}
+			planService.save(plan);
+		}).map(ApiResponse::ofSuccess);
 	}
 }

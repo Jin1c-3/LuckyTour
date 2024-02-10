@@ -2,6 +2,7 @@ package com.luckytour.server;
 
 import com.github.jeffreyning.mybatisplus.conf.EnableMPP;
 import com.luckytour.server.config.ExternalApiConfig;
+import com.luckytour.server.config.JwtConfig;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,7 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @SpringBootApplication
 @MapperScan("com.luckytour.server.mapper")
-@EnableConfigurationProperties(ExternalApiConfig.class)
+@EnableConfigurationProperties({ExternalApiConfig.class, JwtConfig.class})
 @EnableMPP
 public class ServerApplication {
 

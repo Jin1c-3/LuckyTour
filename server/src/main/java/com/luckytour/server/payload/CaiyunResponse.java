@@ -15,9 +15,11 @@ public class CaiyunResponse {
 	@Getter
 	@Setter
 	public static class Result {
+
 		@Getter
 		@Setter
 		public static class Daily {
+
 			@Getter
 			@Setter
 			public static class Skycon {

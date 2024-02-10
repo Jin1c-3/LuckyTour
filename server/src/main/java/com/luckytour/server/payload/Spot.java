@@ -2,6 +2,7 @@ package com.luckytour.server.payload;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -10,6 +11,7 @@ import java.io.Serializable;
  */
 @Data
 public class Spot implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 1L;
 	/**
 	 * 景点名称

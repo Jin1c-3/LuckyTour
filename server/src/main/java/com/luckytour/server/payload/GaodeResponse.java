@@ -14,4 +14,5 @@ public class GaodeResponse {
 	private String status;
 	private String info;
 	private List<Map<String, String>> results;
+	private List<Map<String, Object>> geocodes;
 }

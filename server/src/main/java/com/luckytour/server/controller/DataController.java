@@ -3,6 +3,7 @@ package com.luckytour.server.controller;
 import com.luckytour.server.common.constant.Regex;
 import com.luckytour.server.entity.CityDescription;
 import com.luckytour.server.payload.ApiResponse;
+import com.luckytour.server.service.GaodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -31,15 +33,32 @@ import java.util.List;
 @CrossOrigin
 @Validated
 public class DataController {
+
+	private final MongoTemplate mongoTemplate;
+
+	private final GaodeService gaodeService;
+
 	@Autowired
-	private MongoTemplate mongoTemplate;
+	public DataController(MongoTemplate mongoTemplate, GaodeService gaodeService) {
+		this.mongoTemplate = mongoTemplate;
+		this.gaodeService = gaodeService;
+	}
 
 	@GetMapping("/getCityDescription")
 	@Operation(summary = "获取城市描述")
-	public ApiResponse<List<CityDescription>> getCityDescription(@Valid @NotBlank(message = "城市不能为空") String character) {
+	public ApiResponse<List<CityDescription>> getCityDescription(/*@Valid @NotBlank(message = "城市不能为空") */String character) {
+		// 保护机制
 		if (!character.matches(Regex.CHINESE_REGEX)) {
 			return ApiResponse.ofSuccess();
 		}
 		return ApiResponse.ofSuccess(mongoTemplate.find(new Query(Criteria.where("city").regex(character)), CityDescription.class));
 	}
+
+	@GetMapping("/getGeoCode")
+	@Operation(summary = "获取地址的经纬度")
+	public Mono<ApiResponse<String>> getGeoCode(@Valid @NotBlank(message = "地址不能为空") String address) {
+		return gaodeService.getLocation(address)
+				.map(ApiResponse::ofSuccess);
+	}
+
 }

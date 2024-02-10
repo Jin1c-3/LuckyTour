@@ -21,14 +21,16 @@ class TestDBGenerator {
 	@Value("${spring.datasource.username}")
 	private String username;
 
-//	@Value("${spring.datasource.password}")
-	private String password="root";
+	//	@Value("${spring.datasource.password}")
+	private String password = "root";
 
 	/**
 	 * 需要生成的表
 	 */
 	private final String[] includedTables = {
-			"plan"
+			"favorite",
+			"follow",
+			"liked",
 	};
 
 	@Test
@@ -54,22 +56,23 @@ class TestDBGenerator {
 					builder.addInclude(includedTables)
 //							.addTablePrefix("t_") // 配置此项可以忽略有该前缀的表
 							.entityBuilder()
+							.enableFileOverride() // 覆盖实体类
 							.enableLombok()
 							.enableTableFieldAnnotation()
 //							.logicDeleteColumnName("deleted") // 逻辑删除字段指定
-							.enableActiveRecord()
+//							.enableActiveRecord()
 							.naming(NamingStrategy.underline_to_camel) // 数据表与实体类名之间映射的策略
 							.columnNaming(NamingStrategy.underline_to_camel) // 数据表的字段与实体类的属性名之间映射的策略
-							//不自动生成controller
-//							.controllerBuilder()
-//							.enableRestStyle() // 开启生成@RestController控制器
-//							.formatFileName("%sController")
-//							.enableHyphenStyle() // 开启驼峰转连字符
+							.controllerBuilder()
+							.enableRestStyle() // 开启生成@RestController控制器
+							.formatFileName("%sController")
+							.enableHyphenStyle() // 开启驼峰转连字符
 							.serviceBuilder()
 							.formatServiceFileName("%sService")
 							.superServiceClass(IService.class)
 							.formatServiceImplFileName("%sServiceImpl")
 							.mapperBuilder()
+							.enableFileOverride() // 覆盖Mapper
 							.superClass(BaseMapper.class)
 							.enableBaseColumnList()
 							.enableBaseResultMap()

@@ -1,6 +1,6 @@
 package com.luckytour.server.service.serviceImpl;
 
-import com.luckytour.server.common.constant.Consts;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.config.ExternalApiConfig;
 import com.luckytour.server.payload.CaiyunResponse;
 import com.luckytour.server.service.CaiyunService;
@@ -22,16 +22,22 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class CaiyunServiceImpl implements CaiyunService {
 
+	private final ExternalApiConfig externalApiConfig;
+
 	@Autowired
-	private ExternalApiConfig externalApiConfig;
+	public CaiyunServiceImpl(ExternalApiConfig externalApiConfig) {
+		this.externalApiConfig = externalApiConfig;
+	}
 
 	public Mono<String> getWeather(String position, String date) {
 		if (!position.contains(",")) {
-			return Mono.error(new IllegalArgumentException("location格式错误，position: " + position));
+			log.warn("position格式错误，position: {}", position);
+			return Mono.just("");
 		}
 		LocalDate targetLocalDate = LocalDate.parse(date);
-		if (targetLocalDate.isBefore(LocalDate.now()) || targetLocalDate.isAfter(LocalDate.now().plusDays(Consts.CAIYUN_MAX_DAYS))) {
-			return Mono.error(new IllegalArgumentException("天气查询日期不在范围内，date: " + date));
+		if (targetLocalDate.isBefore(LocalDate.now()) || targetLocalDate.isAfter(LocalDate.now().plusDays(ConstsPool.CAIYUN_MAX_DAYS))) {
+			log.warn("天气查询日期不在范围内，date: {}", date);
+			return Mono.just("");
 		}
 
 		String baseUrl = String.format(externalApiConfig.getCaiyun().getDailyWeather(), externalApiConfig.getCaiyun().getKey(), position);
@@ -44,8 +50,10 @@ public class CaiyunServiceImpl implements CaiyunService {
 				.retrieve()
 				.bodyToMono(CaiyunResponse.class)
 				.flatMap(cyResponse -> {
+					log.debug("彩云api调用成功");
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 					return cyResponse.getResult().getDaily().getSkycon().stream()
+							// 这里采用子串操作，可能会出错
 							.filter(skycon -> targetLocalDate.equals(LocalDate.parse(skycon.getDate().substring(0, 10), formatter)))
 							.findFirst()
 							.map(skycon -> Mono.just(skycon.getValue()))

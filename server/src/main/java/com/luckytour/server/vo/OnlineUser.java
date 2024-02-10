@@ -1,12 +1,13 @@
 package com.luckytour.server.vo;
 
-import com.luckytour.server.common.constant.Consts;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -18,6 +19,8 @@ import java.util.Objects;
 @Schema(name = "OnlineUser", description = "前端显示的用户信息")
 @Slf4j
 public class OnlineUser implements Serializable {
+
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "用户id，使用uuid标识")
@@ -51,9 +54,9 @@ public class OnlineUser implements Serializable {
 		OnlineUser onlineUser = new OnlineUser();
 		BeanUtils.copyProperties(user, onlineUser);
 		if (Objects.nonNull(user.getSex())) {
-			if (user.getSex().equals(Consts.MALE_INT)) {
+			if (user.getSex().equals(ConstsPool.MALE_INT)) {
 				onlineUser.setSex("男");
-			} else if (user.getSex().equals(Consts.FEMALE_INT)) {
+			} else if (user.getSex().equals(ConstsPool.FEMALE_INT)) {
 				onlineUser.setSex("女");
 			}
 		}

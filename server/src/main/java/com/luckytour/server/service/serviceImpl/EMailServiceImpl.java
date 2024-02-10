@@ -1,6 +1,7 @@
 package com.luckytour.server.service.serviceImpl;
 
 import com.luckytour.server.common.constant.EMailTemplate;
+import com.luckytour.server.exception.EMailException;
 import com.luckytour.server.service.EMailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,13 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class EMailServiceImpl implements EMailService {
-	@Autowired
+
 	private final JavaMailSender javaMailSender;
 
 	@Value("${spring.mail.username}")
 	private String from;
 
+	@Autowired
 	public EMailServiceImpl(JavaMailSender javaMailSender) {
 		this.javaMailSender = javaMailSender;
 	}
@@ -50,9 +52,7 @@ public class EMailServiceImpl implements EMailService {
 			log.debug("邮件发送成功:from: {} to: {}", from, to);
 			return true;
 		} catch (Exception e) {
-			log.error("邮件发送失败:from: {} to: {}", from, to);
-			log.error(e.getMessage());
-			return false;
+			throw new EMailException();
 		}
 	}
 

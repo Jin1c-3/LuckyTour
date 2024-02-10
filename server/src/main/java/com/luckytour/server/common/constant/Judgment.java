@@ -6,7 +6,7 @@ import java.util.List;
  * @author qing
  * @date Created in 2024/1/17 20:27
  */
-public class Judgment {
+public final class Judgment {
 	/**
 	 * 直线距离过远，单位米
 	 */
@@ -34,5 +34,11 @@ public class Judgment {
 
 	public static String getBadWeatherPrompt(String date, String location, String weather) {
 		return String.format(BAD_WEATHER_PROMPT, date, location, weather);
+	}
+
+	/**
+	 * 私有构造方法
+	 */
+	private Judgment() {
 	}
 }

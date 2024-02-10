@@ -1,7 +1,7 @@
 package com.luckytour.server.interceptor;
 
 import com.luckytour.server.common.constant.ApiStatus;
-import com.luckytour.server.common.constant.Consts;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.util.ApiResponseUtil;
 import com.luckytour.server.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -27,13 +27,13 @@ public class TokenInterceptor implements HandlerInterceptor {
 		if (RequestMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
 			return true;
 		}
-		String token = request.getHeader(Consts.TOKEN_KEY);
+		String token = request.getHeader(ConstsPool.TOKEN_KEY);
 		if (StringUtils.isBlank(token)) {
 			// 返回请求未登录
 			ApiResponseUtil.renderJson(response, ApiStatus.UNAUTHORIZED, null);
 			return false;
 		}
-		Claims claims = null;
+		Claims claims;
 		// 校验token是否过期
 		try {
 			// 解析token，如果过期了会抛出异常

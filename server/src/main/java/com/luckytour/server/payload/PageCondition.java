@@ -3,6 +3,7 @@ package com.luckytour.server.payload;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -16,6 +17,7 @@ import java.io.Serializable;
 @Data
 @Schema(name = "PageCondition", description = "分页请求参数")
 public class PageCondition implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "当前页码，从1开始")

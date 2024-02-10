@@ -1,3 +1,4 @@
+/*
 package com.luckytour.server.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +10,12 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+*/
 /**
  * @author qing
  * @date Created in 2024/1/10 20:50
- */
+ *//*
+
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
@@ -39,3 +42,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	}
 }
 
+*/

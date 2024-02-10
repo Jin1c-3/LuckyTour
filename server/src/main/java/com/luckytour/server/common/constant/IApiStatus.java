@@ -9,14 +9,14 @@ public interface IApiStatus {
 	/**
 	 * 获取状态码
 	 *
-	 * @return
+	 * @return 状态码
 	 */
 	Integer getCode();
 
 	/**
 	 * 获取状态信息
 	 *
-	 * @return
+	 * @return 状态信息
 	 */
 	String getMessage();
 }

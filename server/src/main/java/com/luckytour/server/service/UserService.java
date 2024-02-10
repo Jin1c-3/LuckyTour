@@ -14,4 +14,8 @@ import com.luckytour.server.entity.User;
 public interface UserService extends IService<User> {
 	User findByEmailOrPhone(String emailOrPhone);
 
+	boolean idIsExist(String id);
+
+	boolean idIsExist(User user);
+
 }

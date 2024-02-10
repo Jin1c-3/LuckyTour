@@ -19,4 +19,6 @@ import java.util.Map;
 public interface PlanService extends IMppService<Plan> {
 
 	Mono<String> check(List<Map.Entry<Spot, String>> datedLocatedSpots);
+
+	Mono<Map<String, List<Object>>> create(Map<String, Object> prompt);
 }
