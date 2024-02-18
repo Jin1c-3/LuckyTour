@@ -5,12 +5,17 @@ import com.luckytour.server.common.constant.Regex;
 import com.luckytour.server.common.http.ServerStatus;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * @author qing
  * @date Created in 2024/2/16 20:00
  */
 @Slf4j
-public class Position {
+public class Position implements Serializable {
+	@Serial
+	private static final long serialVersionUID = 1L;
 
 	private final String latitude;
 

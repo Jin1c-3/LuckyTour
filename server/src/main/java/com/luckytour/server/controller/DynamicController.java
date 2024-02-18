@@ -1,20 +1,18 @@
 package com.luckytour.server.controller;
 
-import com.luckytour.server.common.http.ServerResponseEntity;
 import com.luckytour.server.common.constant.Alert;
+import com.luckytour.server.common.http.ServerResponseEntity;
 import com.luckytour.server.pojo.Position;
-import com.luckytour.server.service.DynamicCheckService;
-import com.luckytour.server.service.PushService;
-import com.luckytour.server.service.UserService;
+import com.luckytour.server.pojo.UserMonitor;
+import com.luckytour.server.pojo.UserMonitorCache;
+import com.luckytour.server.service.ScheduledExecutorSupplier;
 import com.luckytour.server.util.JwtUtil;
-import com.luckytour.server.vo.JiguangNotification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -37,24 +35,40 @@ import reactor.core.publisher.Mono;
 @Validated
 public class DynamicController {
 
-	private final DynamicCheckService dynamicCheckService;
+	/*@PostConstruct
+	public void init() {
+		scheduledExecutorSupplier.startMonitoring();
+	}*/
+
+	/*private final DynamicCheckService dynamicCheckService;
 
 	@Resource
 	private final PushService jiguangPushService;
 
 	private final UserService userService;
 
+	private final ScheduledExecutorSupplier scheduledExecutorSupplier;*/
+
+	private final UserMonitorCache userMonitorCache;
+
+
 	@Autowired
-	public DynamicController(DynamicCheckService dynamicCheckService, PushService jiguangPushService, UserService userService) {
-		this.dynamicCheckService = dynamicCheckService;
+	public DynamicController(/*DynamicCheckService dynamicCheckService,
+	                         PushService jiguangPushService,
+	                         UserService userService,
+			ScheduledExecutorSupplier scheduledExecutorSupplier,*/
+			UserMonitorCache userMonitorCache) {
+		/*this.dynamicCheckService = dynamicCheckService;
 		this.jiguangPushService = jiguangPushService;
 		this.userService = userService;
+		this.scheduledExecutorSupplier = scheduledExecutorSupplier;*/
+		this.userMonitorCache = userMonitorCache;
 	}
 
 	@PostMapping("/monitor")
 	@Operation(summary = "监视用户状态")
 	public Mono<ServerResponseEntity<String>> monitor(@NotBlank(message = Alert.PARAM_IS_NULL) String latitudeAndLongitude, HttpServletRequest request) {
-		Mono<String> weatherCheck = dynamicCheckService.checkRealTimeWeather(Position.create(latitudeAndLongitude));
+		/*Mono<String> weatherCheck = dynamicCheckService.checkRealTimeWeather(Position.create(latitudeAndLongitude));
 		Mono<String> somethingElseCheck = dynamicCheckService.checkSomeThingElse();
 
 		return Mono.zip(weatherCheck, somethingElseCheck)
@@ -78,6 +92,14 @@ public class DynamicController {
 								}
 							});
 					return Mono.just(ServerResponseEntity.ofSuccess(nonTrueResult));
-				});
+				});*/
+		String userId = JwtUtil.parseId(request);
+		userMonitorCache.addOrUpdateUserMonitor(UserMonitor.builder()
+				.userId(userId)
+				.position(Position.create(latitudeAndLongitude))
+				.monitorCount(0)
+				.build());
+		log.debug("监视容器状态 大小：{} -> 容器内容：{}", userMonitorCache.getCache().size(), userMonitorCache.getCache());
+		return Mono.just(ServerResponseEntity.ofSuccess());
 	}
 }

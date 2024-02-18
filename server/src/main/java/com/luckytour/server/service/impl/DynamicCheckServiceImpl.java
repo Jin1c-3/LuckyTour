@@ -7,12 +7,11 @@ import com.luckytour.server.pojo.Position;
 import com.luckytour.server.service.DynamicCheckService;
 import com.luckytour.server.service.WeatherService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Objects;
 
 /**
  * @author qing
@@ -42,18 +41,18 @@ public class DynamicCheckServiceImpl implements DynamicCheckService {
 					String weather = tuple.getT2();
 					String caiyunWeatherExplanation = CaiyunWeather.WEATHER_MAP.get(weather);
 					if (Judgment.GOOD_CAIYUN_WEATHER.stream().noneMatch(caiyunWeatherExplanation::equals)) {
-						return Judgment.getBadWeatherFriendlyAlert(String.valueOf(tuple.getT1() + 1), weather);
+						return Judgment.getBadWeatherFriendlyAlert(String.valueOf(tuple.getT1() + 1), caiyunWeatherExplanation);
 					} else {
-						return null;
+						return "";
 					}
 				})
-				.filter(Objects::nonNull)
+				.filter(StringUtils::isNotBlank)
 				.next()
 				.switchIfEmpty(Mono.just(Boolean.TRUE.toString()));
 	}
 
 	@Override
 	public Mono<String> checkSomeThingElse() {
-		return null;
+		return Mono.empty();
 	}
 }
