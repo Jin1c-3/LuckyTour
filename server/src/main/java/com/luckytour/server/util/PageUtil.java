@@ -2,7 +2,7 @@ package com.luckytour.server.util;
 
 
 import com.luckytour.server.common.constant.ConstsPool;
-import com.luckytour.server.payload.PageCondition;
+import com.luckytour.server.payload.front.PageCondition;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +16,12 @@ import org.springframework.data.domain.PageRequest;
  * @date Created in 2018-12-12 18:09
  */
 public class PageUtil {
+
+	/**
+	 * 私有构造器
+	 */
+	private PageUtil() {
+	}
 	/**
 	 * 校验分页参数，为NULL，设置分页参数默认值
 	 *

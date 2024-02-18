@@ -48,7 +48,7 @@ class TestDBGenerator {
 							.entity("entity")
 							.mapper("mapper")
 							.service("service")
-							.serviceImpl("service.serviceImpl")
+							.serviceImpl("service.impl")
 							.controller("controller")
 							.xml("mapper.xml");
 				})

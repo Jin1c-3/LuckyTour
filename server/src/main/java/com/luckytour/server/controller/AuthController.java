@@ -1,22 +1,23 @@
 package com.luckytour.server.controller;
 
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.common.constant.Alert;
-import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.common.constant.Regex;
-import com.luckytour.server.entity.User;
 import com.luckytour.server.exception.EMailException;
 import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.exception.SecurityException;
 import com.luckytour.server.exception.SmsException;
-import com.luckytour.server.payload.ApiResponse;
-import com.luckytour.server.payload.JwtResponse;
-import com.luckytour.server.payload.LoginRequest;
+import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.payload.front.JwtResponse;
+import com.luckytour.server.payload.front.LoginRequest;
 import com.luckytour.server.service.EMailService;
-import com.luckytour.server.service.JiguangPushService;
+import com.luckytour.server.service.PushService;
 import com.luckytour.server.service.UserService;
+import com.luckytour.server.util.CodeUtil;
 import com.luckytour.server.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -26,20 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
-
 /**
- * <p>
- * 认证controller
- * </p>
+ * 用户登录登出控制器
  *
  * @author qing
  * @date Created in 2023/8/4 8:43
  */
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "认证接口")
+@Tag(name = "用户登录登出控制器")
 @Slf4j
 @CrossOrigin
 @Validated
@@ -49,10 +45,11 @@ public class AuthController {
 
 	private final EMailService eMailService;
 
-	private final JiguangPushService jiguangPushService;
+	@Resource
+	private final PushService jiguangPushService;
 
 	@Autowired
-	public AuthController(UserService userService, EMailService eMailService, JiguangPushService jiguangPushService) {
+	public AuthController(UserService userService, EMailService eMailService, PushService jiguangPushService) {
 		this.userService = userService;
 		this.eMailService = eMailService;
 		this.jiguangPushService = jiguangPushService;
@@ -76,34 +73,33 @@ public class AuthController {
 		throw new IllegalArgumentException(Alert.PARAM_NOT_EMAIL_OR_PHONE);
 	}
 
-	private ApiResponse<String> sendCode(String emailOrPhone, boolean userExists) throws MysqlException {
-		Optional<User> userOptional = Optional.ofNullable(userService.findByEmailOrPhone(emailOrPhone));
-		if (userExists != userOptional.isPresent()) {
-			return ApiResponse.ofStatus(userExists ? ApiStatus.USER_NOT_EXIST : ApiStatus.USER_ALREADY_EXIST);
+	private ServerResponseEntity<String> sendCode(String emailOrPhone, boolean userExists) throws MysqlException {
+		if (userExists != userService.emailOrPhoneIsExist(emailOrPhone)) {
+			return ServerResponseEntity.ofStatus(userExists ? ServerStatus.USER_NOT_EXIST : ServerStatus.USER_ALREADY_EXIST);
 		}
-		String code = String.valueOf(ThreadLocalRandom.current().nextInt(10000, 100000));
+		String code = CodeUtil.generateVerificationCode();
 		if (sendVerificationCode(emailOrPhone, code)) {
-			return ApiResponse.ofSuccess(code);
+			return ServerResponseEntity.ofSuccess(code);
 		}
-		return ApiResponse.ofStatus(ApiStatus.SEND_CODE_FAILED);
+		return ServerResponseEntity.ofStatus(ServerStatus.SEND_CODE_FAILED);
 	}
 
 	@GetMapping("/getCodeNotInDB")
 	@Operation(summary = "新建用户之前的验证码获取")
-	public ApiResponse<String> getCodeNotInDB(@Valid @Pattern(regexp = Regex.MOBILE_OR_EMAIL_REGEX, message = Alert.PARAM_NOT_EMAIL_OR_PHONE) String emailOrPhone) throws MysqlException {
+	public ServerResponseEntity<String> getCodeNotInDB(@Valid @Pattern(regexp = Regex.MOBILE_OR_EMAIL_REGEX, message = Alert.PARAM_NOT_EMAIL_OR_PHONE) String emailOrPhone) throws MysqlException {
 		return sendCode(emailOrPhone, false);
 	}
 
 	@GetMapping("/getCodeInDB")
 	@Operation(summary = "无密码登录的验证码获取")
-	public ApiResponse<String> getCodeInDB(@Valid @Pattern(regexp = Regex.MOBILE_OR_EMAIL_REGEX, message = Alert.PARAM_NOT_EMAIL_OR_PHONE) String emailOrPhone) throws MysqlException {
+	public ServerResponseEntity<String> getCodeInDB(@Valid @Pattern(regexp = Regex.MOBILE_OR_EMAIL_REGEX, message = Alert.PARAM_NOT_EMAIL_OR_PHONE) String emailOrPhone) throws MysqlException {
 		return sendCode(emailOrPhone, true);
 	}
 
 	@Operation(summary = "登录")
 	@PostMapping("/login")
-	public ApiResponse<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) throws MysqlException {
-		return Optional.ofNullable(userService.findByEmailOrPhone(loginRequest.getEmailOrPhone()))
+	public ServerResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) throws MysqlException {
+		return userService.getOptByEmailOrPhone(loginRequest.getEmailOrPhone())
 				// 密码不存在 或 密码存在且错误
 				// 密码不存在，那肯定是之前就获取过验证码了。这是一处安全漏洞
 				.filter(user -> StringUtils.isBlank(loginRequest.getPassword()) || JwtUtil.matches(loginRequest.getPassword(), user.getPassword()))
@@ -114,20 +110,20 @@ public class AuthController {
 						userService.updateById(user);
 					}
 					String jwt = JwtUtil.createToken(user.getId(), user.getNickname(), loginRequest.getRememberMe());
-					return ApiResponse.ofStatus(ApiStatus.LOGIN_SUCCESS, new JwtResponse(jwt));
+					return ServerResponseEntity.ofStatus(ServerStatus.LOGIN_SUCCESS, new JwtResponse(jwt));
 				})
-				.orElseGet(() -> ApiResponse.ofStatus(ApiStatus.USERNAME_PASSWORD_ERROR));
+				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USERNAME_PASSWORD_ERROR));
 	}
 
 	@Operation(summary = "登出")
 	@PostMapping("/logout")
-	public <T> ApiResponse<T> logout(HttpServletRequest request) {
+	public <T> ServerResponseEntity<T> logout(HttpServletRequest request) {
 		try {
 			// 设置JWT过期
 			JwtUtil.invalidate(request);
 		} catch (SecurityException e) {
-			throw new SecurityException(ApiStatus.UNAUTHORIZED);
+			throw new SecurityException(ServerStatus.UNAUTHORIZED);
 		}
-		return ApiResponse.ofStatus(ApiStatus.LOGOUT);
+		return ServerResponseEntity.ofStatus(ServerStatus.LOGOUT);
 	}
 }

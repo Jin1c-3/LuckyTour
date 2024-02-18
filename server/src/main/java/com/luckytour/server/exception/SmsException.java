@@ -1,7 +1,7 @@
 package com.luckytour.server.exception;
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerStatus;
 
 /**
  * @author qing
@@ -10,10 +10,10 @@ import com.luckytour.server.common.constant.ApiStatus;
 public class SmsException extends BaseException {
 
 	public SmsException() {
-		super(ApiStatus.MYSQL_ERROR);
+		super(ServerStatus.MYSQL_ERROR);
 	}
 
 	public SmsException(String message, Object data) {
-		super(ApiStatus.MYSQL_ERROR.getCode(), message, data);
+		super(ServerStatus.MYSQL_ERROR.getCode(), message, data);
 	}
 }

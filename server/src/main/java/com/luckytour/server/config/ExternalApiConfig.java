@@ -34,6 +34,8 @@ public class ExternalApiConfig {
 	public static class Caiyun {
 		private String key;
 		private String dailyWeather;
+		private String hourlyWeather;
+		private Integer checkHours;
 	}
 
 	@Getter
@@ -49,6 +51,7 @@ public class ExternalApiConfig {
 			private String url;
 			private Integer counter;
 			private String promptField;
+			private Long waitTime;
 		}
 	}
 

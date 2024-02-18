@@ -1,18 +1,20 @@
 package com.luckytour.server.util;
 
-import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.common.constant.ConstsPool;
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.config.JwtConfig;
 import com.luckytour.server.exception.SecurityException;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,31 +29,32 @@ public class JwtUtil {
 
 	private final JwtConfig jwtConfig;
 
-	public JwtUtil(JwtConfig jwtConfig) {
+	@Autowired
+	private JwtUtil(JwtConfig jwtConfig) {
 		this.jwtConfig = jwtConfig;
 	}
 
 	@PostConstruct
 	public void init() {
-		SECRET_KEY = jwtConfig.getSecretKey();
-		TTL_SHORT = jwtConfig.getShortTtl();
-		TTL_LONG = jwtConfig.getLongTtl();
+		ttlShort = jwtConfig.getShortTtl();
+		ttlLong = jwtConfig.getLongTtl();
+		secretKey = Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**
 	 * jwt 加密 key
 	 */
-	private static String SECRET_KEY;
+	private static Key secretKey;
 
 	/**
 	 * jwt 过期时间
 	 */
-	private static Long TTL_SHORT;
+	private static Long ttlShort;
 
 	/**
 	 * 开启 记住我 之后 jwt 过期时间
 	 */
-	private static Long TTL_LONG;
+	private static Long ttlLong;
 
 	/**
 	 * 创建JWT并存入Redis
@@ -68,10 +71,10 @@ public class JwtUtil {
 				.setSubject(subject)
 				.addClaims(Map.of("rememberMe", rememberMe))
 				.setIssuedAt(now)
-				.signWith(SignatureAlgorithm.HS256, SECRET_KEY);
+				.signWith(secretKey);
 
 		// 设置过期时间
-		Long ttl = Boolean.TRUE.equals(rememberMe) ? TTL_LONG : TTL_SHORT;
+		Long ttl = Boolean.TRUE.equals(rememberMe) ? ttlLong : ttlShort;
 		// 不设置token自带的过期时间，由redis来控制
 		/*if (ttl > 0) {
 			builder.setExpiration(DateUtil.offset(now, ttl.intValue(), ChronoUnit.MILLIS));
@@ -98,7 +101,7 @@ public class JwtUtil {
 	public static String encrypt(String raw) {
 		return Jwts.builder()
 				.setSubject(raw)
-				.signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+				.signWith(secretKey)
 				.compact();
 	}
 
@@ -120,8 +123,11 @@ public class JwtUtil {
 	 */
 	public static Claims parse(String jwt) {
 		try {
-			Claims claims = Jwts.parser()
-					.setSigningKey(SECRET_KEY)
+			JwtParser parser = Jwts.parserBuilder()
+					.setSigningKey(secretKey)
+					.build();
+
+			Claims claims = parser
 					.parseClaimsJws(jwt)
 					.getBody();
 
@@ -130,31 +136,28 @@ public class JwtUtil {
 
 			// 校验redis中的JWT是否存在
 			if (!RedisUtil.hasKey(redisKey)) {
-				throw new SecurityException(ApiStatus.TOKEN_EXPIRED);
+				throw new SecurityException(ServerStatus.TOKEN_EXPIRED);
 			}
 
 			// 校验redis中的JWT是否与当前的一致，不一致则代表用户已注销/用户在不同设备登录，均代表JWT已过期
 			String redisToken = RedisUtil.get(redisKey);
 			if (!jwt.equals(redisToken)) {
 				log.debug("jwt:{};||redis:{}", jwt, redisToken);
-				throw new SecurityException(ApiStatus.TOKEN_OUT_OF_CTRL);
+				throw new SecurityException(ServerStatus.TOKEN_OUT_OF_CTRL);
 			}
 			return claims;
 		} catch (ExpiredJwtException e) {
 			log.error("Token 已过期");
-			throw new SecurityException(ApiStatus.TOKEN_EXPIRED);
+			throw new SecurityException(ServerStatus.TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.error("不支持的 Token");
-			throw new SecurityException(ApiStatus.TOKEN_PARSE_ERROR);
+			throw new SecurityException(ServerStatus.TOKEN_PARSE_ERROR);
 		} catch (MalformedJwtException e) {
 			log.error("Token 无效");
-			throw new SecurityException(ApiStatus.TOKEN_PARSE_ERROR);
-		} catch (SignatureException e) {
-			log.error("无效的 Token 签名");
-			throw new SecurityException(ApiStatus.TOKEN_PARSE_ERROR);
+			throw new SecurityException(ServerStatus.TOKEN_PARSE_ERROR);
 		} catch (IllegalArgumentException e) {
 			log.error("Token 参数不存在");
-			throw new SecurityException(ApiStatus.TOKEN_PARSE_ERROR);
+			throw new SecurityException(ServerStatus.TOKEN_PARSE_ERROR);
 		}
 	}
 
@@ -165,7 +168,7 @@ public class JwtUtil {
 	 */
 	public static void invalidate(HttpServletRequest request) {
 		String jwt = getJwtFromRequest(request);
-		String id = getIdFromJwt(jwt);
+		String id = parseId(jwt);
 		// 从redis中清除JWT
 		RedisUtil.del(ConstsPool.REDIS_JWT_KEY_PREFIX + id);
 	}
@@ -177,19 +180,29 @@ public class JwtUtil {
 	 */
 	public static void renew(HttpServletRequest request) {
 		String jwt = getJwtFromRequest(request);
-		String id = getIdFromJwt(jwt);
+		String id = parseId(jwt);
 		// 从redis中清除JWT
-		RedisUtil.expire(ConstsPool.REDIS_JWT_KEY_PREFIX + id, TTL_LONG, TimeUnit.MILLISECONDS);
+		RedisUtil.expire(ConstsPool.REDIS_JWT_KEY_PREFIX + id, ttlLong, TimeUnit.MILLISECONDS);
 	}
 
 	/**
-	 * 根据 jwt 获取用户名
+	 * 根据 jwt 获取 id
 	 *
 	 * @param jwt JWT
 	 * @return 用户名
 	 */
-	private static String getIdFromJwt(String jwt) {
+	private static String parseId(String jwt) {
 		return parse(jwt).getId();
+	}
+
+	/**
+	 * 根据 jwt 获取 id
+	 *
+	 * @param request JWT
+	 * @return 用户名
+	 */
+	public static String parseId(HttpServletRequest request) {
+		return parseId(request.getHeader(ConstsPool.TOKEN_KEY));
 	}
 
 	/**

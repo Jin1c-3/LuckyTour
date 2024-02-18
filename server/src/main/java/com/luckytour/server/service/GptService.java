@@ -1,6 +1,6 @@
 package com.luckytour.server.service;
 
-import com.luckytour.server.payload.SimpleChatRequest;
+import com.luckytour.server.payload.external.SimpleChatRequest;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

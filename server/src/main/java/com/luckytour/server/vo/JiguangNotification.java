@@ -40,4 +40,8 @@ public class JiguangNotification implements Serializable {
 	 */
 	@Schema(description = "可选, 附加信息, 供业务使用。")
 	private Map<String, String> extras;
+
+	public JiguangNotification(String content) {
+		this.content = content;
+	}
 }

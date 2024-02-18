@@ -1,7 +1,6 @@
 package com.luckytour.server.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serial;
@@ -9,7 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
-import com.luckytour.server.payload.BlogFavorRequest;
+import com.luckytour.server.payload.front.BlogFavorRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

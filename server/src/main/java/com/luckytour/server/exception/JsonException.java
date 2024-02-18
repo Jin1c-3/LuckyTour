@@ -1,7 +1,7 @@
 package com.luckytour.server.exception;
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerStatus;
 import lombok.Getter;
 
 /**
@@ -15,10 +15,10 @@ import lombok.Getter;
 @Getter
 public class JsonException extends BaseException {
 	public JsonException() {
-		super(ApiStatus.JSON_ERROR);
+		super(ServerStatus.JSON_ERROR);
 	}
 
-	public JsonException(ApiStatus status) {
+	public JsonException(ServerStatus status) {
 		super(status);
 	}
 

@@ -2,7 +2,7 @@ package com.luckytour.server.exception;
 
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.IApiStatus;
+import com.luckytour.server.common.http.IServerStatus;
 
 /**
  * @author qing
@@ -10,7 +10,7 @@ import com.luckytour.server.common.constant.IApiStatus;
  */
 public class SecurityException extends BaseException {
 
-	public SecurityException(IApiStatus apiStatus) {
+	public SecurityException(IServerStatus apiStatus) {
 		super(apiStatus);
 	}
 

@@ -1,7 +1,7 @@
 package com.luckytour.server.exception;
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerStatus;
 import lombok.Getter;
 
 /**
@@ -11,10 +11,10 @@ import lombok.Getter;
 @Getter
 public class PageException extends BaseException {
 	public PageException() {
-		super(ApiStatus.UNKNOWN_ERROR);
+		super(ServerStatus.UNKNOWN_ERROR);
 	}
 
-	public PageException(ApiStatus status) {
+	public PageException(ServerStatus status) {
 		super(status);
 	}
 

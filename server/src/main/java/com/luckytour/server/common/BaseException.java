@@ -1,13 +1,12 @@
 package com.luckytour.server.common;
 
-import com.luckytour.server.common.constant.IApiStatus;
+import com.luckytour.server.common.http.IServerStatus;
+import com.luckytour.server.common.http.ServerStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * <p>
  * 异常基类
- * </p> *
  *
  * @author qing
  * @date Created in 2023/7/12 17:06
@@ -19,19 +18,23 @@ public class BaseException extends RuntimeException {
 	/**
 	 * 状态码
 	 */
-	private Integer code;
+	private final Integer code;
 
 	/**
 	 * 异常信息
 	 */
-	private String message;
+	private final String message;
 
 	/**
 	 * 异常数据
 	 */
-	private Object data;
+	private transient Object data;
 
-	public BaseException(IApiStatus status) {
+	public BaseException() {
+		throw new BaseException(ServerStatus.UNKNOWN_ERROR);
+	}
+
+	public BaseException(IServerStatus status) {
 		super(status.getMessage());
 		this.code = status.getCode();
 		this.message = status.getMessage();
@@ -43,7 +46,7 @@ public class BaseException extends RuntimeException {
 		this.message = message;
 	}
 
-	public BaseException(IApiStatus status, Object data) {
+	public BaseException(IServerStatus status, Object data) {
 		this(status);
 		this.data = data;
 	}

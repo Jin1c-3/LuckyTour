@@ -1,12 +1,19 @@
 package com.luckytour.server.exception.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.luckytour.server.common.aoplogger.AopLogger;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Objects;
 
 /**
  * @author qing
@@ -16,6 +23,13 @@ import org.springframework.stereotype.Component;
 @Component
 @Aspect
 public class AopLogger4GlobalExceptionHandler {
+
+	private final AopLogger aopLogger;
+
+	@Autowired
+	private AopLogger4GlobalExceptionHandler(AopLogger aopLogger) {
+		this.aopLogger = aopLogger;
+	}
 
 	/**
 	 * 定义全局异常的切点
@@ -33,9 +47,11 @@ public class AopLogger4GlobalExceptionHandler {
 	 */
 	@AfterReturning(value = "exceptionHandlerPointcut()", returning = "result")
 	public void exceptionHandlerResultLogger(JoinPoint point, Object result) throws JsonProcessingException {
-		Object[] args = point.getArgs();
-		log.error("异常捕捉结束，方法返回值是 {}",
-				result,
-				(Exception) args[0]);
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
+		long startTime = System.currentTimeMillis();
+		aopLogger.buildAopLog(request, startTime, point, result)
+				.makeSerializable()
+				.warn((Exception) point.getArgs()[0]);
 	}
 }

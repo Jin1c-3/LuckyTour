@@ -1,7 +1,6 @@
 package com.luckytour.server.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serial;
@@ -9,7 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
-import com.luckytour.server.payload.FollowUnfollowRequest;
+import com.luckytour.server.payload.front.FollowUnfollowRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -51,7 +50,7 @@ public class Follow implements Serializable {
     @TableField("create_time")
     private LocalDateTime createTime;
 
-    public Follow createByFollowUnfollowRequest(FollowUnfollowRequest followUnfollowRequest){
+    public Follow create(FollowUnfollowRequest followUnfollowRequest){
         this.followerUid=followUnfollowRequest.getFollowerUid();
         this.followedUid=followUnfollowRequest.getFollowedUid();
         return this;

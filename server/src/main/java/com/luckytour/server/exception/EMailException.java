@@ -1,7 +1,7 @@
 package com.luckytour.server.exception;
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerStatus;
 
 /**
  * @author qing
@@ -9,10 +9,10 @@ import com.luckytour.server.common.constant.ApiStatus;
  */
 public class EMailException extends BaseException {
 	public EMailException() {
-		super(ApiStatus.EMAIL_ERROR);
+		super(ServerStatus.EMAIL_ERROR);
 	}
 
 	public EMailException(String message, Object data) {
-		super(ApiStatus.EMAIL_ERROR.getCode(), message, data);
+		super(ServerStatus.EMAIL_ERROR.getCode(), message, data);
 	}
 }

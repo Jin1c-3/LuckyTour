@@ -1,5 +1,7 @@
 package com.luckytour.server.common.constant;
 
+import java.time.format.DateTimeFormatter;
+
 /**
  * 常量池
  *
@@ -89,7 +91,7 @@ public final class ConstsPool {
 	/**
 	 * AopLog字段的最大值限制数
 	 */
-	public static final int AOP_LOG_MAX_LENGTH = 100;
+	/*public static final int AOP_LOG_MAX_LENGTH = 100;*/
 
 	/**
 	 * 彩云天气可查询的最大天数
@@ -125,6 +127,16 @@ public final class ConstsPool {
 	 * 未收藏
 	 */
 	public static final byte UNFAVOR = 0;
+
+	/**
+	 * 日期时间格式化器，采用MySQL的日期时间格式
+	 */
+	public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+	/**
+	 * 日期格式化器
+	 */
+	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	/**
 	 * 私有化构造方法

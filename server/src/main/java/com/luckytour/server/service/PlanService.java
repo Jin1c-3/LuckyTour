@@ -2,7 +2,7 @@ package com.luckytour.server.service;
 
 import com.github.jeffreyning.mybatisplus.service.IMppService;
 import com.luckytour.server.entity.Plan;
-import com.luckytour.server.payload.Spot;
+import com.luckytour.server.pojo.Spot;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

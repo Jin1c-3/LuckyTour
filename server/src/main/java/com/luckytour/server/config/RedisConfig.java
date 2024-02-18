@@ -24,6 +24,12 @@ import java.io.Serializable;
 @AutoConfigureAfter(RedisAutoConfiguration.class)
 @EnableCaching
 public class RedisConfig {
+
+	@Bean
+	public LettuceConnectionFactory redisConnectionFactory() {
+		return new LettuceConnectionFactory();
+	}
+
 	/**
 	 * 默认情况下的模板只能支持RedisTemplate<String, String>，也就是只能存入字符串，因此支持序列化
 	 */

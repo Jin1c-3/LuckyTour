@@ -47,6 +47,11 @@ public final class Alert {
 	public static final String BLOG_CONTENT_IS_NULL = "博客内容不能为空";
 
 	/**
+	 * 参数为空的警告词
+	 */
+	public static final String PARAM_IS_NULL = "参数不能为空";
+
+	/**
 	 * 私有化构造方法
 	 */
 	private Alert() {

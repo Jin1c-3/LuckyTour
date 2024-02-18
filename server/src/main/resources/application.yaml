@@ -2,36 +2,6 @@ server:
   port: 58087
 
 spring:
-  # profiles:
-  #   active: dev
-  application:
-    name: server
-  data:
-    # Redis数据源配置
-    redis:
-      # database: 0
-      host: localhost
-      port: 6379
-      # password: ENC(zWGPPt/b2zYru5q6HuFG6kHCbf6/RR8ESY169Dig0r2QRF+xXPpZg1jRq1t8wWtZ)
-      lettuce:
-        pool:
-          # 连接池最大连接数（使用负值表示没有限制） 默认 8
-          max-active: 8
-          # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
-          max-wait: -1ms
-          # 连接池中的最大空闲连接 默认 8
-          max-idle: 8
-          # 连接池中的最小空闲连接 默认 0
-          min-idle: 0
-    mongodb:
-      uri: mongodb://localhost:27017/luckytour
-
-  datasource:
-    username: root
-    password: ENC(shaNgVEISbAUfrwFSbKmds6O9Z581sXrgvuYGHlUeWxTlNAgdUU3zx1lf4Mtsujz)
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    database-name: luckytour
-    url: jdbc:mysql://localhost:3306/${spring.datasource.database-name}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
   mail:
     default-encoding: UTF-8
     protocol: smtp
@@ -47,9 +17,50 @@ spring:
         debug: false
         mime:
           splitlongparameters: false
+  threads:
+    virtual:
+      enabled: true
+
+  webmvc:
+    interceptor:
+      exclusive-path:
+        - /**/doc.html
+        - /**/login
+        - /**/login.html
+        - /**/registry
+        - /**/registry.html
+        - /**/*.js
+        - /**/*.css
+        - /**/*.woff
+        - /**/*.ttf
+        - /**/*.jpg
+        - /**/*.png
+        - /css/**
+        - /js/**
+        - /img/**
+        - /media/**
+        - /vendors/**
+        - /**/avatar/**
+        - /**/download/**
+        - /test/**
+        - /swagger-ui.html/**
+        - /swagger-ui.html#/**
+        - /swagger-ui/**
+        - /swagger-resources/**
+        - /**/webjars/**
+        - /**/v3/**
+        - /**/callback/**
+        - /user/getcode/**
+        - /user/new/**
+        - /auth/**
+        - /plan/check/**
+        - /plan/saveOrUpdate/**
+        - /data/**
 
 logging:
   config: classpath:logback-spring.xml
+  aop:
+    max-length: 1000
 
 #springdoc相关配置
 springdoc:
@@ -90,7 +101,8 @@ mybatis-plus:
       update-strategy: not_empty
 
 jwt:
-  secret-key: ENC(h5csKS/XZMLdC0VfTS1a4anNg5T/YJheWMyLG9v3reH7yyaU/QfL7CegB8+DjqL/)
+  # 至少44位长，采用圆周率小数点后44位
+  secret-key: ENC(kOUiYgry3xli9QL3PZBVtc9MufPfDRjeP88MOcriP7lXwRbV7cBSjbyjUlhUzK5X5g9h6mRkeE8rRrPDjWDKtWa5dSU+RPT0cy1mtFUZX/o=)
   short-ttl: 600000
   long-ttl: 604800000
 
@@ -111,9 +123,32 @@ api:
   caiyun:
     key: ENC(rA9BtN+2c2RQpC+o8nhHFUZCWN6KqpcPwjzGK0MxiiqyX5tDpDjIcxMvf3WZBBcpDOwJf9IOknYdBmGPAQRDkA==)
     daily-weather: https://api.caiyunapp.com/v2.6/%s/%s/daily?dailysteps=15
+    hourly-weather: https://api.caiyunapp.com/v2.6/%s/%s/hourly?hourlysteps=15
+    check-hours: 4
   flask:
     chat: /chat
     plan-generator:
       url: /generatePlanner
       prompt-field: prompt
       counter: 3 # 计划重新生成的次数，-1表示无穷大
+      wait-time: 50000 # 重新生成计划的等待时间
+
+code:
+  user-id:
+    max-length: 6
+    min-length: 11
+  verification:
+    code-length: 5
+    expire-time: 300000
+
+jasypt:
+  encryptor:
+    algorithm: PBEWITHHMACSHA512ANDAES_256
+    key-obtention-iterations: 1000
+    pool-size: 1
+    salt-generator-classname: org.jasypt.salt.RandomSaltGenerator
+    string-output-type: base64
+    iv-generator-classname: org.jasypt.iv.RandomIvGenerator
+
+cache:
+  ttl: 30 # 缓存时间，单位分钟

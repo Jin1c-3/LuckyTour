@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
  * @author qing
  * @date Created in 2024/2/10 21:15
  */
+
 @ConfigurationProperties(prefix = "jwt")
 @Getter
 @Setter

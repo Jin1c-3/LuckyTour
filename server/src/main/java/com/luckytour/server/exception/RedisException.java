@@ -2,7 +2,7 @@ package com.luckytour.server.exception;
 
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerStatus;
 
 /**
  * @author qing
@@ -11,10 +11,10 @@ import com.luckytour.server.common.constant.ApiStatus;
 public class RedisException extends BaseException {
 
 	public RedisException() {
-		super(ApiStatus.REDIS_ERROR);
+		super(ServerStatus.REDIS_ERROR);
 	}
 
 	public RedisException(String message, Object data) {
-		super(ApiStatus.REDIS_ERROR.getCode(), message, data);
+		super(ServerStatus.REDIS_ERROR.getCode(), message, data);
 	}
 }

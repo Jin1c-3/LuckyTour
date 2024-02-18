@@ -23,6 +23,8 @@ public final class Regex {
 	public static final String CHINESE_REGEX = "^[\u4e00-\u9fa5]{1,}$";
 	public static final String POSITIVE_INTEGER_REGEX = "^[1-9]\\d*$";
 	public static final String BLOG_TITLE_REGEX = "^.{1,255}$";
+	public static final String LATITUDE_REGEX = "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$";
+	public static final String LONGITUDE_REGEX = "^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$";
 
 	public static boolean isMobile(String mobile) {
 		return mobile.matches(MOBILE_REGEX);
@@ -30,6 +32,14 @@ public final class Regex {
 
 	public static boolean isEmail(String email) {
 		return email.matches(EMAIL_REGEX);
+	}
+
+	public static boolean isLatitude(String latitude) {
+		return latitude.matches(LATITUDE_REGEX);
+	}
+
+	public static boolean isLongitude(String longitude) {
+		return longitude.matches(LONGITUDE_REGEX);
 	}
 
 	/**

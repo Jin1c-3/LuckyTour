@@ -1,18 +1,14 @@
 package com.luckytour.server.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.luckytour.server.common.AopLog;
-import com.luckytour.server.common.constant.ConstsPool;
-import com.luckytour.server.util.AopLoggerUtil;
-import com.luckytour.server.util.UserAgentUtil;
-import eu.bitwalker.useragentutils.UserAgent;
+import com.luckytour.server.common.aoplogger.AopLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -21,6 +17,8 @@ import reactor.core.publisher.Mono;
 import java.util.Objects;
 
 /**
+ * 控制器切面日志
+ *
  * @author qing
  * @date Created in 2023/7/12 19:35
  */
@@ -28,6 +26,13 @@ import java.util.Objects;
 @Component
 @Slf4j
 public class AopLogger4Controller {
+
+	private final AopLogger aopLogger;
+
+	@Autowired
+	private AopLogger4Controller(AopLogger aopLogger) {
+		this.aopLogger = aopLogger;
+	}
 
 	/**
 	 * 定义controller的切点
@@ -48,54 +53,15 @@ public class AopLogger4Controller {
 
 		long startTime = System.currentTimeMillis();
 		Object result = point.proceed();
-		String header = request.getHeader("User-Agent");
-		UserAgent userAgent = UserAgent.parseUserAgentString(header);
-
-		final AopLog l = AopLog.builder()
-				.threadId(Long.toString(Thread.currentThread().getId()))
-				.threadName(Thread.currentThread().getName())
-				.ip(UserAgentUtil.getIp(request))
-				.url(request.getRequestURL().toString())
-				.classMethod(String.format("%s.%s",
-						point.getSignature().getDeclaringTypeName(),
-						point.getSignature().getName()))
-				.httpMethod(request.getMethod())
-				.requestParams(AopLoggerUtil.getNameAndValue(point))
-				.timeCost(System.currentTimeMillis() - startTime)
-				.userAgent(header)
-				.browser(userAgent.getBrowser().toString())
-				.operatingSystem(userAgent.getOperatingSystem().toString()).build();
-
 		if (result instanceof Mono<?> monoResult) {
-			return monoResult.doOnNext(item -> logResult(item, l))
-					.doOnSuccess(item -> logInfo(l));
-		} else {
-			logResult(result, l);
-			logInfo(l);
-			return result;
+			return monoResult.doOnSuccess(item -> aopLogger.buildAopLog(request, startTime, point, item)
+					.makeSerializable()
+					.info());
 		}
-	}
-
-	private void logResult(Object result, AopLog l) {
-		try {
-			String resultString = new ObjectMapper().writeValueAsString(result);
-			if (resultString.length() > ConstsPool.AOP_LOG_MAX_LENGTH) {
-				l.setResult(resultString.substring(0, ConstsPool.AOP_LOG_MAX_LENGTH) +
-						"(... %s more)".formatted(resultString.length() - ConstsPool.AOP_LOG_MAX_LENGTH));
-			} else {
-				l.setResult(resultString);
-			}
-		} catch (JsonProcessingException e) {
-			log.warn("AopLogger记录失败", e);
-		}
-	}
-
-	private void logInfo(AopLog l) {
-		try {
-			log.info("请求日志: {}", new ObjectMapper().writeValueAsString(l));
-		} catch (Exception e) {
-			log.warn("AopLogger记录失败", e);
-		}
+		aopLogger.buildAopLog(request, startTime, point, result)
+				.makeSerializable()
+				.info();
+		return result;
 	}
 
 	//与全局异常处理函数功能重复，暂时注释掉

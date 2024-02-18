@@ -2,7 +2,9 @@ package com.luckytour.server.service;
 
 import com.github.jeffreyning.mybatisplus.service.IMppService;
 import com.luckytour.server.entity.Liked;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.luckytour.server.vo.SimpleUserVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,5 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2024-02-09
  */
 public interface LikedService extends IMppService<Liked> {
-
+	List<SimpleUserVO> getBlogLikers(String bid);
 }

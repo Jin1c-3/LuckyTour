@@ -2,12 +2,12 @@ package com.luckytour.server.config;
 
 import com.luckytour.server.interceptor.TokenInterceptor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
+
+import java.util.List;
 
 /**
  * @author qing
@@ -80,5 +80,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/%s/**".formatted(staticPath)).addResourceLocations("classpath:/%s/".formatted(staticPath), "file:%s/".formatted(staticPath));
+	}
+
+	/**
+	 * 解决异步请求超时问题
+	 */
+	@Override
+	public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+		configurer.setDefaultTimeout(50000); // 设置超时时间为50秒
 	}
 }

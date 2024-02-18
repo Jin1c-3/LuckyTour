@@ -1,31 +1,35 @@
 package com.luckytour.server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.common.constant.Alert;
-import com.luckytour.server.common.constant.ApiStatus;
 import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.entity.Liked;
-import com.luckytour.server.payload.ApiResponse;
-import com.luckytour.server.payload.BlogLikeRequest;
 import com.luckytour.server.service.BlogService;
 import com.luckytour.server.service.LikedService;
 import com.luckytour.server.service.UserService;
+import com.luckytour.server.util.JwtUtil;
+import com.luckytour.server.vo.SimpleUserVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * <p>
- * 点赞表 前端控制器
- * </p>
+ * 博客赞同控制器
  *
  * @author qing
  * @since 2024-02-09
@@ -52,41 +56,54 @@ public class LikedController {
 	}
 
 	@GetMapping("/getLikedBlogUserList")
-	@Operation(summary = "获取给博客点赞的用户列表")
-	public ApiResponse<List<String>> getLikedBlogUserList(@Valid @NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid) {
-		return blogService.getOptById(bid)
-				.map(blog -> ApiResponse.ofSuccess(
-						likedService.list(new QueryWrapper<>(Liked.builder().bid(Integer.parseInt(bid)).build())).stream()
-								.map(Liked::getUid).toList()))
-				.orElseGet(() -> ApiResponse.ofStatus(ApiStatus.BLOG_NOT_EXIST));
+	@Operation(summary = "博客id获取给该博客点赞的用户列表（极简用户）")
+	public ServerResponseEntity<List<SimpleUserVO>> getLikedBlogUserList(@Valid @NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid) {
+		if (!blogService.isIdExist(bid)) {
+			return ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST);
+		}
+		var blogLikers = likedService.getBlogLikers(bid);
+		return blogLikers.isEmpty()
+				? ServerResponseEntity.ofStatus(ServerStatus.BLOG_HAS_NO_LIKE)
+				: ServerResponseEntity.ofSuccess(blogLikers);
 	}
 
 	@GetMapping("/getUserLikedBlog")
-	@Operation(summary = "获取用户点赞的博客列表")
-	public ApiResponse<List<String>> getUserLikedBlog(@Valid @NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
+	@Operation(summary = "用户id获取该用户点赞的博客列表")
+	public ServerResponseEntity<List<String>> getUserLikedBlog(@Valid @NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
 		return userService.getOptById(uid)
-				.map(user -> ApiResponse.ofSuccess(
-						likedService.list(new QueryWrapper<>(Liked.builder().uid(uid).build())).stream()
-								.map(liked -> String.valueOf(liked.getBid())).toList()))
-				.orElseGet(() -> ApiResponse.ofStatus(ApiStatus.USER_NOT_EXIST));
+				.map(user -> Optional.of(likedService.list(new QueryWrapper<>(Liked.builder().uid(uid).build())).stream()
+								.filter(liked -> liked.getStatus() == ConstsPool.LIKED)
+								.map(liked -> String.valueOf(liked.getBid())).toList())
+						.map(ServerResponseEntity::ofSuccess)
+						.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.NO_LIKED_BLOG))
+				)
+				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST));
 	}
 
-	@PostMapping("/likeUnliked")
-	@Operation(summary = "点赞")
-	public ApiResponse<Object> likeUnliked(@RequestBody @Valid BlogLikeRequest lbRequest) {
-		return userService.getOptById(lbRequest.getUid())
-				.map(user -> blogService.getOptById(lbRequest.getBid())
+	@GetMapping("/getUserLikedBlogByRequest")
+	@Operation(summary = "用户id获取该用户点赞的博客列表")
+	public ServerResponseEntity<List<String>> getUserLikedBlog(HttpServletRequest request) {
+		return getUserLikedBlog(JwtUtil.parseId(request));
+	}
+
+	@GetMapping("/likeUnliked")
+	@Operation(summary = "点赞或取消点赞")
+	@Parameter(name = "bid", required = true, description = "点赞的博客id")
+	public ServerResponseEntity<Object> likeUnliked(@NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid, HttpServletRequest request) {
+		String uid = JwtUtil.parseId(request);
+		return userService.getOptById(uid)
+				.map(user -> blogService.getOptById(bid)
 						.map(blog -> {
-							Optional.ofNullable(likedService.selectByMultiId(new Liked().createByBlogLikeRequest(lbRequest)))
+							Optional.ofNullable(likedService.selectByMultiId(Liked.builder().uid(uid).bid(Integer.parseInt(bid)).build()))
 									.ifPresentOrElse(liked -> {
 												liked.setStatus(liked.getStatus() == ConstsPool.LIKED ? ConstsPool.UNLIKED : ConstsPool.LIKED);
-												likedService.updateById(liked);
-											}, () -> likedService.save(Liked.builder().uid(lbRequest.getUid()).bid(Integer.parseInt(lbRequest.getBid())).status(ConstsPool.LIKED).build())
+												likedService.updateByMultiId(liked);
+											}, () -> likedService.save(Liked.builder().uid(uid).bid(Integer.parseInt(bid)).status(ConstsPool.LIKED).build())
 									);
-							return ApiResponse.ofSuccess();
+							return ServerResponseEntity.ofSuccess();
 						})
-						.orElseGet(() -> ApiResponse.ofStatus(ApiStatus.BLOG_NOT_EXIST)))
-				.orElseGet(() -> ApiResponse.ofStatus(ApiStatus.USER_NOT_EXIST));
+						.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST)))
+				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST));
 	}
 
 }

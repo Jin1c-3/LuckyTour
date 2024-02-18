@@ -1,7 +1,7 @@
 package com.luckytour.server.exception;
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerStatus;
 
 /**
  * @author qing
@@ -9,10 +9,10 @@ import com.luckytour.server.common.constant.ApiStatus;
  */
 public class FileException extends BaseException {
 	public FileException() {
-		super(ApiStatus.FILE_ERROR);
+		super(ServerStatus.FILE_ERROR);
 	}
 
 	public FileException(String message, Object data) {
-		super(ApiStatus.FILE_ERROR.getCode(), message, data);
+		super(ServerStatus.FILE_ERROR.getCode(), message, data);
 	}
 }

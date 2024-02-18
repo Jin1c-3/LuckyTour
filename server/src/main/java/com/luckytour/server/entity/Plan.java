@@ -2,9 +2,8 @@ package com.luckytour.server.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
-import com.luckytour.server.payload.PlanCreateRequest;
+import com.luckytour.server.payload.front.PlanCreateRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -38,7 +38,7 @@ public class Plan implements Serializable {
 	@Schema(description = "计划创建的时间戳，双主键之一")
 	@TableField("pid")
 	@MppMultiId
-	private String pid;
+	private LocalDateTime pid;
 
 	@Schema(description = "json化的plan字符串")
 	@TableField("content")
@@ -56,7 +56,7 @@ public class Plan implements Serializable {
 	@TableField("city")
 	private String city;
 
-	public Plan createByPlanCreateRequest(PlanCreateRequest planCreateRequest) {
+	public static Plan create(PlanCreateRequest planCreateRequest) {
 		Plan plan = new Plan();
 		BeanUtils.copyProperties(planCreateRequest, plan);
 		if (planCreateRequest.getTags() != null) {

@@ -1,7 +1,7 @@
 package com.luckytour.server.exception;
 
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerStatus;
 
 /**
  * @author qing
@@ -9,7 +9,7 @@ import com.luckytour.server.common.constant.ApiStatus;
  */
 public class PlanCreateReachLimitException extends BaseException {
 	public PlanCreateReachLimitException() {
-		super(ApiStatus.PLAN_CREATE_REACH_LIMIT);
+		super(ServerStatus.PLAN_CREATE_REACH_LIMIT);
 	}
 
 	public PlanCreateReachLimitException(Integer code, String message) {

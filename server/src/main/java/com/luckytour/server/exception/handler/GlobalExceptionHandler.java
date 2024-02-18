@@ -3,13 +3,13 @@ package com.luckytour.server.exception.handler;
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
 import com.luckytour.server.common.BaseException;
-import com.luckytour.server.common.constant.ApiStatus;
+import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.controller.AopLogger4Controller;
 import com.luckytour.server.exception.MysqlException;
-import com.luckytour.server.payload.ApiResponse;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -40,34 +40,36 @@ public class GlobalExceptionHandler {
 	 * @return
 	 */
 	@ExceptionHandler(value = Exception.class)
-	public <T> ApiResponse<T> exceptionHandler(Exception e) {
+	public <T> ServerResponseEntity<T> exceptionHandler(Exception e) {
 		if (e instanceof NoHandlerFoundException) {
-			return ApiResponse.ofStatus(ApiStatus.NOT_FOUND);
+			return ServerResponseEntity.ofStatus(ServerStatus.NOT_FOUND);
 		} else if (e instanceof HttpRequestMethodNotSupportedException) {
-			return ApiResponse.ofStatus(ApiStatus.METHOD_NOT_ALLOWED);
+			return ServerResponseEntity.ofStatus(ServerStatus.METHOD_NOT_ALLOWED);
 		} else if (e instanceof MethodArgumentNotValidException me) {
-			return ApiResponse.of(ApiStatus.BAD_REQUEST.getCode(),
+			return ServerResponseEntity.of(ServerStatus.BAD_REQUEST.getCode(),
 					me.getBindingResult().getAllErrors().get(0).getDefaultMessage(),
 					null);
 		} else if (e instanceof ConstraintViolationException ce) {
-			return ApiResponse.of(ApiStatus.BAD_REQUEST.getCode(),
-					CollectionUtils.get(ce.getConstraintViolations(), 0).getMessage(),
-					null);
+			String message = ce.getConstraintViolations().stream()
+					.findFirst()
+					.map(ConstraintViolation::getMessage)
+					.orElse(null);
+			return ServerResponseEntity.of(ServerStatus.BAD_REQUEST.getCode(), message, null);
 		} else if (e instanceof MethodArgumentTypeMismatchException) {
-			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_MATCH);
+			return ServerResponseEntity.ofStatus(ServerStatus.PARAM_NOT_MATCH);
 		} else if (e instanceof APIConnectionException) {
-			return ApiResponse.ofStatus(ApiStatus.JIGUANG_CONNECTION_ERROR);
+			return ServerResponseEntity.ofStatus(ServerStatus.JIGUANG_CONNECTION_ERROR);
 		} else if (e instanceof APIRequestException) {
-			return ApiResponse.ofStatus(ApiStatus.JIGUANG_REQUEST_ERROR);
+			return ServerResponseEntity.ofStatus(ServerStatus.JIGUANG_REQUEST_ERROR);
 		} else if (e instanceof HttpMessageNotReadableException) {
-			return ApiResponse.ofStatus(ApiStatus.PARAM_NOT_NULL);
+			return ServerResponseEntity.ofStatus(ServerStatus.PARAM_NOT_NULL);
 		} else if (e instanceof MysqlException) {
-			return ApiResponse.ofStatus(ApiStatus.MYSQL_ERROR);
+			return ServerResponseEntity.ofStatus(ServerStatus.MYSQL_ERROR);
 		} else if (e instanceof RedisConnectionFailureException) {
-			return ApiResponse.ofStatus(ApiStatus.REDIS_ERROR);
+			return ServerResponseEntity.ofStatus(ServerStatus.REDIS_ERROR);
 		} else if (e instanceof BaseException) {
-			return ApiResponse.ofException(e);
+			return ServerResponseEntity.ofException(e);
 		}
-		return ApiResponse.ofStatus(ApiStatus.UNKNOWN_ERROR);
+		return ServerResponseEntity.ofStatus(ServerStatus.UNKNOWN_ERROR);
 	}
 }
