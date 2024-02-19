@@ -149,9 +149,7 @@ public class JiguangPushServiceImpl implements PushService {
 	 * 根据别名推送消息
 	 */
 	public boolean sendPushByAlias(JiguangNotification notification, String... alias) {
-		if (notification.getExtras().isEmpty()) {
-			notification.setExtras(new HashMap<>());
-		}
+		notification.setExtras(Optional.ofNullable(notification.getExtras()).orElseGet(HashMap::new));
 		String[] newAlias = removeArrayEmptyElement(alias);
 		try {
 			return jPushConfig.getJPushClient().sendPush(PushPayload.newBuilder()
@@ -171,9 +169,7 @@ public class JiguangPushServiceImpl implements PushService {
 	 * 根据标签推送消息
 	 */
 	public boolean sendPushByTags(JiguangNotification notification, String... tags) {
-		if (notification.getExtras().isEmpty()) {
-			notification.setExtras(new HashMap<>());
-		}
+		notification.setExtras(Optional.ofNullable(notification.getExtras()).orElseGet(HashMap::new));
 		//批量删除数组中的空元素
 		String[] newTags = removeArrayEmptyElement(tags);
 		try {
@@ -203,10 +199,7 @@ public class JiguangPushServiceImpl implements PushService {
 	 * 根据RegistrationID推送消息
 	 */
 	public boolean sendPushByRegistrationID(JiguangNotification notification, String... registrationID) {
-		// 设置推送方式
-		if (notification.getExtras().isEmpty()) {
-			notification.setExtras(new HashMap<>());
-		}
+		notification.setExtras(Optional.ofNullable(notification.getExtras()).orElseGet(HashMap::new));
 		//批量删除数组中的空元素
 		String[] rids = removeArrayEmptyElement(registrationID);
 		try {

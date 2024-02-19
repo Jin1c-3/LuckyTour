@@ -3,13 +3,11 @@ package com.luckytour.server.controller;
 import com.luckytour.server.common.constant.Alert;
 import com.luckytour.server.common.http.ServerResponseEntity;
 import com.luckytour.server.pojo.Position;
-import com.luckytour.server.pojo.UserMonitor;
-import com.luckytour.server.pojo.UserMonitorCache;
-import com.luckytour.server.service.ScheduledExecutorSupplier;
+import com.luckytour.server.tasks.monitoruser.UserRealTimeInfo;
+import com.luckytour.server.tasks.monitoruser.UserMonitorCache;
 import com.luckytour.server.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
@@ -94,12 +92,11 @@ public class DynamicController {
 					return Mono.just(ServerResponseEntity.ofSuccess(nonTrueResult));
 				});*/
 		String userId = JwtUtil.parseId(request);
-		userMonitorCache.addOrUpdateUserMonitor(UserMonitor.builder()
+		userMonitorCache.addOrUpdateUserMonitor(UserRealTimeInfo.builder()
 				.userId(userId)
 				.position(Position.create(latitudeAndLongitude))
 				.monitorCount(0)
 				.build());
-		log.debug("监视容器状态 大小：{} -> 容器内容：{}", userMonitorCache.getCache().size(), userMonitorCache.getCache());
 		return Mono.just(ServerResponseEntity.ofSuccess());
 	}
 }

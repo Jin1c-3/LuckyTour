@@ -1,4 +1,4 @@
-package com.luckytour.server.pojo;
+package com.luckytour.server.tasks.monitoruser;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
@@ -9,11 +9,12 @@ import org.springframework.context.ApplicationEvent;
  */
 @Getter
 public class UserMonitorCacheUpdatedEvent extends ApplicationEvent {
-	private final UserMonitor userMonitor;
 
-	public UserMonitorCacheUpdatedEvent(Object source, UserMonitor userMonitor) {
+	private final UserRealTimeInfo userRealTimeInfo;
+
+	public UserMonitorCacheUpdatedEvent(Object source, UserRealTimeInfo userRealTimeInfo) {
 		super(source);
-		this.userMonitor = userMonitor;
+		this.userRealTimeInfo = userRealTimeInfo;
 	}
 
 }

@@ -53,6 +53,6 @@ public class DynamicCheckServiceImpl implements DynamicCheckService {
 
 	@Override
 	public Mono<String> checkSomeThingElse() {
-		return Mono.empty();
+		return Mono.just(Boolean.TRUE.toString());
 	}
 }
