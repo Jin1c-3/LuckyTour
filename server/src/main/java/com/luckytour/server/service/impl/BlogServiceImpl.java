@@ -27,7 +27,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
 	}
 
 	@Override
-	public boolean isIdExist(String id) {
+	public boolean idIsExist(String id) {
 		return blogMapper.exists(new QueryWrapper<>(Blog.builder().bid(Integer.parseInt(id)).build()));
 	}
 }

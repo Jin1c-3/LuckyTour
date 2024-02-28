@@ -1,10 +1,10 @@
 package com.luckytour.server.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.luckytour.server.common.http.ServerResponseEntity;
-import com.luckytour.server.common.http.ServerStatus;
+import com.luckytour.server.common.annotation.UserLoginRequired;
 import com.luckytour.server.common.constant.Alert;
 import com.luckytour.server.common.constant.ConstsPool;
+import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.entity.Follow;
 import com.luckytour.server.service.FollowService;
 import com.luckytour.server.service.UserService;
@@ -65,8 +65,14 @@ public class FollowController {
 
 	@GetMapping("/getFollowerByRequest")
 	@Operation(summary = "用户id获取粉丝列表（极简用户）")
+	@UserLoginRequired
 	public ServerResponseEntity<List<SimpleUserVO>> getFollower(HttpServletRequest request) {
-		return getFollower(JwtUtil.parseId(request));
+		String uid = JwtUtil.parseId(request);
+		var followers = followService.getFollowers(uid);
+		if (followers.isEmpty()) {
+			return ServerResponseEntity.ofStatus(ServerStatus.NO_FOLLOWER);
+		}
+		return ServerResponseEntity.ofSuccess(followers);
 	}
 
 	@GetMapping("/getFollowerCount")
@@ -75,13 +81,15 @@ public class FollowController {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
 		}
-		return ServerResponseEntity.ofSuccess(followService.count(new QueryWrapper<>(Follow.builder().followedUid(uid).build())));
+		return ServerResponseEntity.ofSuccess(followService.lambdaQuery().eq(Follow::getFollowedUid, uid).count());
 	}
 
 	@GetMapping("/getFollowerCountByRequest")
 	@Operation(summary = "用户id获取粉丝数")
+	@UserLoginRequired
 	public ServerResponseEntity<Long> getFollowerCountByRequest(HttpServletRequest request) {
-		return getFollowedCount(JwtUtil.parseId(request));
+		String uid = JwtUtil.parseId(request);
+		return ServerResponseEntity.ofSuccess(followService.lambdaQuery().eq(Follow::getFollowedUid, uid).count());
 	}
 
 	@GetMapping("/getFollowed")
@@ -99,22 +107,32 @@ public class FollowController {
 
 	@GetMapping("/getFollowedByRequest")
 	@Operation(summary = "用户id获取关注列表（极简用户）")
+	@UserLoginRequired
 	public ServerResponseEntity<List<SimpleUserVO>> getFollowedByRequest(HttpServletRequest request) {
-		return getFollowed(JwtUtil.parseId(request));
+		String uid = JwtUtil.parseId(request);
+		var followeds = followService.getFolloweds(uid);
+		if (followeds.isEmpty()) {
+			return ServerResponseEntity.ofStatus(ServerStatus.NO_FOLLOWER);
+		}
+		return ServerResponseEntity.ofSuccess(followeds);
 	}
 
 	@GetMapping("/getFollowedCount")
 	@Operation(summary = "用户id获取关注数")
 	public ServerResponseEntity<Long> getFollowedCount(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
-		return userService.getOptById(uid)
-				.map(user -> ServerResponseEntity.ofSuccess(followService.count(new QueryWrapper<>(Follow.builder().followerUid(uid).build()))))
-				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.NO_FOLLOWED));
+		if (!userService.idIsExist(uid)) {
+			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
+		}
+		long cnt = followService.lambdaQuery().eq(Follow::getFollowerUid, uid).count();
+		return cnt > 0 ? ServerResponseEntity.ofSuccess(cnt) : ServerResponseEntity.ofStatus(ServerStatus.NO_FOLLOWED);
 	}
 
 	@GetMapping("/getFollowedCountByRequest")
 	@Operation(summary = "用户id获取关注数")
+	@UserLoginRequired
 	public ServerResponseEntity<Long> getFollowedCountByRequest(HttpServletRequest request) {
-		return getFollowedCount(JwtUtil.parseId(request));
+		long cnt = followService.lambdaQuery().eq(Follow::getFollowerUid, JwtUtil.parseId(request)).count();
+		return cnt > 0 ? ServerResponseEntity.ofSuccess(cnt) : ServerResponseEntity.ofStatus(ServerStatus.NO_FOLLOWED);
 	}
 
 	@GetMapping("/followUnfollow")

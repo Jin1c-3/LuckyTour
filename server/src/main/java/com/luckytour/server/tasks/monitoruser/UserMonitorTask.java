@@ -62,11 +62,10 @@ public class UserMonitorTask implements Runnable {
 								// 根据用户的极光推送ID发送推送
 								if (StringUtils.isNotBlank(user.getJiguangRegistrationId())) {
 									String nonTrueResult = Boolean.TRUE.toString().equals(weatherCheckResult) ? somethingElseCheckResult : weatherCheckResult;
-									if (jiguangPushService.sendPushByRegistrationID(new JiguangNotification(nonTrueResult), user.getJiguangRegistrationId())) {
-										log.debug("推送成功 {} -> {}", nonTrueResult, user.getJiguangRegistrationId());
-									} else {
-										log.debug("推送失败 {} -> {}", nonTrueResult, user.getJiguangRegistrationId());
-									}
+									log.debug("推送状态：{} 内容：{} -> {}",
+											jiguangPushService.sendPushByRegistrationID(new JiguangNotification(nonTrueResult), user.getJiguangRegistrationId()),
+											nonTrueResult,
+											user.getJiguangRegistrationId());
 								}
 							});
 
@@ -77,6 +76,5 @@ public class UserMonitorTask implements Runnable {
 					}
 					return Mono.empty();
 				}).subscribe();
-		log.debug("用户 {} 一轮监视结束", userRealTimeInfo.getUserId());
 	}
 }

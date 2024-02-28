@@ -1,13 +1,12 @@
 package com.luckytour.server.config;
 
-import com.luckytour.server.interceptor.TokenInterceptor;
+import com.luckytour.server.interceptor.UserLoginInterceptor;
+import com.luckytour.server.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
-
-import java.util.List;
 
 /**
  * @author qing
@@ -54,18 +53,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			"/data/**"
 	};
 
-	@Bean
-	public TokenInterceptor getTokenInterceptor() {
-		return new TokenInterceptor();
-	}
+	/*@Bean
+	public UserLoginInterceptor getUserLoginInterceptor() {
+		return new UserLoginInterceptor();
+	}*/
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(getTokenInterceptor())
-				// 排除不需要拦截的路径
+//		registry.addInterceptor(getUserLoginInterceptor())
+		registry.addInterceptor(new UserLoginInterceptor())
+				/*// 排除不需要拦截的路径
 				.excludePathPatterns(EXCLUDED_PATH_PATTERNS)
 				// 需要拦截的路径
-				.addPathPatterns("/**");
+				.addPathPatterns("/**")*/;
 	}
 
 	@Override
@@ -87,6 +87,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	 */
 	@Override
 	public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-		configurer.setDefaultTimeout(50000); // 设置超时时间为50秒
+		configurer.setDefaultTimeout(150000); // 设置超时时间为150秒
 	}
 }

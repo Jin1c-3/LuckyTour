@@ -61,12 +61,10 @@ public class Blog implements Serializable {
 	@TableField("click_volume")
 	private Long clickVolume;
 
-	public static Blog createByBlogCreateRequest(BlogCreateRequest request) {
+	public static Blog create(BlogCreateRequest request) {
 		return Blog.builder()
-				.uid(request.getUid())
 				.pid(LocalDateTime.parse(request.getPid(), ConstsPool.DATE_TIME_FORMATTER))
 				.title(request.getTitle())
-				.content(request.getContent()).build();
+				.build();
 	}
-
 }

@@ -3,6 +3,7 @@ package com.luckytour.server.common.aoplogger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.util.UserAgentUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.RequestFacade;
 import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
@@ -22,10 +24,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author qing
@@ -51,7 +51,7 @@ public class AopLogger {
 		// 类方法
 		private String classMethod;
 		// 请求参数
-		private Object requestParams;
+		private Map<String, Serializable> requestParams;
 		// ip
 		private String ip;
 		// url
@@ -59,7 +59,7 @@ public class AopLogger {
 		// 接口耗时
 		private Long timeCost;
 		// 返回参数
-		private Object result;
+		private Serializable result;
 		// 线程id
 		private String threadId;
 		// 线程名称
@@ -91,43 +91,34 @@ public class AopLogger {
 	 * @param joinPoint
 	 * @return
 	 */
-	private Map<String, Object> getNameAndValue(JoinPoint joinPoint) {
+	private Map<String, Object> getParamNameAndValue(JoinPoint joinPoint) {
 		final Signature signature = joinPoint.getSignature();
 		MethodSignature methodSignature = (MethodSignature) signature;
 		final String[] names = methodSignature.getParameterNames();
 		Object[] args = joinPoint.getArgs();
-		args = Arrays.stream(args)
+		/*args = Arrays.stream(args)
 				.map(arg -> {
-					if (!(arg instanceof Serializable)) {
-						log.debug("{} 方法参数 {} 不可序列化，尝试用 toString() 替代", getClassMethod(joinPoint), arg);
-						try {
-							return arg.toString(); // 使用toString()代替
-						} catch (Exception e) {
-							log.warn("{} 方法参数 {} 无法用 toString() 替代", getClassMethod(joinPoint), arg);
-							return null;
-						}
-					} else if (arg instanceof MultipartFile file) {
-						// File保存在内存中，处理完毕后会引起jackson找不到文件的异常，所以需要特殊处理
-						return file.getOriginalFilename();
-					} else if (arg instanceof String s && s.length() > aopMaxLength) {
-						// 字符串太长了，截取一部分
-						return s.substring(0, aopMaxLength) + "(..." + (s.length() - aopMaxLength) + " more)";
-					} else {
+					try {
+						if (arg == null) return null;
+						return switch (arg) {
+							case Exception e -> e.getMessage();
+							case RequestFacade rf -> objectMapper.writeValueAsString(rf.getParameterMap());
+							case MultipartFile mf -> mf.getOriginalFilename();
+							case HttpServletRequest hr -> objectMapper.writeValueAsString(hr.getParameterMap());
+							default -> objectMapper.writeValueAsString(arg);
+						};
+					} catch (JsonProcessingException e) {
 						return arg;
 					}
-				}).toArray();
+				}).toArray();*/
 		if (ArrayUtils.isEmpty(names) || ArrayUtils.isEmpty(args)) {
 			return Collections.emptyMap();
 		}
 		if (names.length != args.length) {
-			log.warn("{}方法参数名和参数值数量不一致", getClassMethod(joinPoint));
+			log.warn("{} 方法参数名和参数值数量不一致", getClassMethod(joinPoint));
 			return Collections.emptyMap();
 		}
-		Map<String, Object> map = new HashMap<>();
-		for (int i = 0; i < names.length; i++) {
-			map.put(names[i], args[i]);
-		}
-		return map;
+		return Arrays.stream(names).collect(HashMap::new, (m, v) -> m.put(v, args[m.size()]), HashMap::putAll);
 	}
 
 	/**
@@ -145,7 +136,6 @@ public class AopLogger {
 		String header = request.getHeader("User-Agent");
 		UserAgent userAgent = UserAgent.parseUserAgentString(header);
 		Signature signature = point.getSignature();
-		Map<String, Object> nameAndValue = getNameAndValue(point);
 
 		aopLog = AopLog.builder()
 				.threadId(Long.toString(Thread.currentThread().threadId()))
@@ -156,63 +146,65 @@ public class AopLogger {
 						signature.getDeclaringTypeName(),
 						signature.getName()))
 				.httpMethod(request.getMethod())
-				.requestParams(nameAndValue)
+				.requestParams(getParamNameAndValue(point).entrySet().stream()
+						.collect(Collectors.toMap(
+								Map.Entry::getKey,
+								entry -> truncate(serialize(entry.getValue()))
+						)))
 				.timeCost(System.currentTimeMillis() - startTime)
 				.userAgent(header)
 				.browser(userAgent.getBrowser().toString())
 				.operatingSystem(userAgent.getOperatingSystem().toString())
-				.result(result).build();
+				.result(truncate(serialize(result)))
+				.build();
 		return this;
 	}
 
-	public AopLogger makeSerializable() {
-		try {
-			String resultString = objectMapper.writeValueAsString(aopLog.getResult());
-			String requestParamsString;
-			if (aopLog.getRequestParams() instanceof Exception e) {
-				requestParamsString = e.getMessage();
-			} else {
-				requestParamsString = objectMapper.writeValueAsString(aopLog.getRequestParams());
-			}
-			if (resultString.length() > aopMaxLength) {
-				aopLog.setResult(resultString.substring(0, aopMaxLength) +
-						"(... %s more)".formatted(resultString.length() - aopMaxLength));
-			} else {
-				aopLog.setResult(resultString);
-			}
-			if (requestParamsString.length() > aopMaxLength) {
-				aopLog.setRequestParams(requestParamsString.substring(0, aopMaxLength) +
-						"(... %s more)".formatted(requestParamsString.length() - aopMaxLength));
-			} else {
-				aopLog.setRequestParams(requestParamsString);
-			}
-		} catch (JsonProcessingException e) {
-			fail(e);
+	private String truncate(String str) {
+		if (str == null) return "null";
+		if (str.length() <= aopMaxLength) {
+			return str;
 		}
-		return this;
+		StringBuilder sb = new StringBuilder(str);
+		sb.setLength(aopMaxLength);
+		sb.append(String.format("...(%d more)", str.length() - aopMaxLength));
+		return sb.toString();
 	}
 
-	public AopLogger info() {
+	private String serialize(Object obj) {
+		try {
+			return switch (obj) {
+				case Exception exception -> exception.getMessage();
+				case RequestFacade requestFacade -> objectMapper.writeValueAsString(requestFacade.getParameterMap());
+				case MultipartFile multipartFile ->
+						Optional.ofNullable(multipartFile.getOriginalFilename()).orElse(multipartFile.getName());
+				case HttpServletRequest httpServletRequest ->
+						objectMapper.writeValueAsString(httpServletRequest.getHeader(ConstsPool.TOKEN_KEY));
+				case null, default -> objectMapper.writeValueAsString(obj);
+			};
+		} catch (JsonProcessingException e) {
+			return Optional.ofNullable(obj).map(Object::toString).orElse("null");
+		}
+	}
+
+	public void info() {
 		try {
 			log.info("请求日志: {}", aopLog);
 		} catch (Exception e) {
 			fail(e);
 		}
-		return this;
 	}
 
-	public AopLogger warn(Exception e) {
+	public void warn(Exception e) {
 		try {
 			log.warn("报错日志: {}", aopLog, e);
 		} catch (Exception e1) {
 			fail(e1);
 		}
-		return this;
 	}
 
-	public AopLogger warn() {
+	public void warn() {
 		warn(null);
-		return this;
 	}
 
 	private void fail(Exception e) {

@@ -1,16 +1,18 @@
 package com.luckytour.server.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.luckytour.server.common.http.ServerStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luckytour.server.common.constant.Alert;
 import com.luckytour.server.common.constant.Regex;
+import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.entity.Blog;
 import com.luckytour.server.entity.BlogView;
-import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.payload.front.BlogCreateRequest;
 import com.luckytour.server.service.BlogService;
 import com.luckytour.server.service.BlogViewService;
 import com.luckytour.server.service.UserService;
+import com.luckytour.server.util.FileUploadUtil;
 import com.luckytour.server.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 博客控制器
@@ -46,25 +49,33 @@ public class BlogController {
 
 	private final BlogService blogService;
 
+	private final ObjectMapper objectMapper;
+
 	@Autowired
-	public BlogController(UserService userService, BlogViewService blogViewService, BlogService blogService) {
+	public BlogController(UserService userService, BlogViewService blogViewService, BlogService blogService, ObjectMapper objectMapper) {
 		this.userService = userService;
 		this.blogViewService = blogViewService;
 		this.blogService = blogService;
+		this.objectMapper = objectMapper;
 	}
 
 	@Operation(summary = "用户id获取博客列表")
 	@GetMapping("/getBlogByUid")
 	public ServerResponseEntity<List<BlogView>> getBlogByUid(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
-		return userService.getOptById(uid)
-				.map(user -> ServerResponseEntity.ofSuccess(blogViewService.list(new QueryWrapper<BlogView>().eq("uid", uid))))
-				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST));
+		if (!userService.idIsExist(uid)) {
+			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
+		}
+		return Optional.ofNullable(blogViewService.lambdaQuery().eq(BlogView::getUid, uid).list())
+				.map(ServerResponseEntity::ofSuccess)
+				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_HAS_BO_BLOG));
 	}
 
 	@Operation(summary = "用户id获取博客列表")
 	@GetMapping("/getBlogByRequest")
 	public ServerResponseEntity<List<BlogView>> getBlogByRequest(HttpServletRequest request) {
-		return getBlogByUid(JwtUtil.parseId(request));
+		return Optional.ofNullable(blogViewService.lambdaQuery().eq(BlogView::getUid, JwtUtil.parseId(request)).list())
+				.map(ServerResponseEntity::ofSuccess)
+				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_HAS_BO_BLOG));
 	}
 
 	@Operation(summary = "博客id获取博客")
@@ -96,10 +107,44 @@ public class BlogController {
 
 	@PostMapping("/create")
 	@Operation(summary = "创建博客")
-	public <T> ServerResponseEntity<T> create(@RequestBody @Valid BlogCreateRequest bRequest) {
-		return blogService.save(Blog.createByBlogCreateRequest(bRequest))
+	public <T> ServerResponseEntity<T> create(@RequestBody @Valid BlogCreateRequest bRequest, HttpServletRequest request) {
+		/*bRequest.getContent().forEach(blogContent -> blogContent.setPhotoUrls(FileUploadUtil.storeFilesByUid(request, "", blogContent.getPhotos())));
+		Blog blog = Blog.create(bRequest);
+		try {
+			blog.setContent(objectMapper.writeValueAsString(bRequest.getContent()));
+		} catch (Exception e) {
+			throw new JsonException();
+		}
+		return blogService.save(blog)
+				? ServerResponseEntity.ofSuccess()
+				: ServerResponseEntity.ofStatus(ServerStatus.BLOG_CREATE_FAIL);*/
+		String uid = JwtUtil.parseId(request);
+		bRequest.getContent().forEach(
+				blogContent -> {
+					blogContent.setPhotos(
+							FileUploadUtil.saveBlogPicsByUid(
+									uid,
+									blogContent.getPhotos())
+					);
+				});
+		Blog blog = Blog.create(bRequest);
+		blog.setUid(uid);
+		try {
+			blog.setContent(objectMapper.writeValueAsString(bRequest.getContent()));
+		} catch (Exception e) {
+			throw new JsonException();
+		}
+		return blogService.save(blog)
 				? ServerResponseEntity.ofSuccess()
 				: ServerResponseEntity.ofStatus(ServerStatus.BLOG_CREATE_FAIL);
+	}
+
+	@GetMapping("/search")
+	@Operation(summary = "搜索博客")
+	public ServerResponseEntity<List<BlogView>> search(@NotBlank(message = Alert.BLOG_TITLE_IS_NULL) String string) {
+		return Optional.ofNullable(blogViewService.lambdaQuery().like(BlogView::getTitle, string).like(BlogView::getContent, string).list())
+				.map(ServerResponseEntity::ofSuccess)
+				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST));
 	}
 
 	@GetMapping("/title")

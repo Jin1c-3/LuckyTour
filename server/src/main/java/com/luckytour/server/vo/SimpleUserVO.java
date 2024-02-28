@@ -1,10 +1,10 @@
 package com.luckytour.server.vo;
 
 import com.luckytour.server.entity.User;
+import com.luckytour.server.util.URLUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.*;
 
 /**
  * @author qing
@@ -14,6 +14,8 @@ import lombok.Setter;
 @Setter
 @Builder
 @Schema(name = "SimpleUser", description = "简单的用户信息，只有id、昵称、头像")
+@AllArgsConstructor
+@NoArgsConstructor
 public class SimpleUserVO {
 
 	@Schema(description = "用户id，使用uuid标识")
@@ -25,11 +27,15 @@ public class SimpleUserVO {
 	@Schema(description = "用户头像，存储一个网址")
 	private String avatar;
 
-	public static SimpleUserVO create(User user) {
-		return SimpleUserVO.builder()
+	public static SimpleUserVO create(HttpServletRequest request, User user) {
+		SimpleUserVO simpleUserVO = SimpleUserVO.builder()
 				.id(user.getId())
 				.nickname(user.getNickname())
-				.avatar(user.getAvatar()).build();
+				.build();
+		if (URLUtil.isNotUrl(user.getAvatar())) {
+			simpleUserVO.setAvatar(URLUtil.create(request, user.getAvatar()));
+		}
+		return simpleUserVO;
 	}
 
 }

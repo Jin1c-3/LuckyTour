@@ -21,42 +21,6 @@ spring:
     virtual:
       enabled: true
 
-  webmvc:
-    interceptor:
-      exclusive-path:
-        - /**/doc.html
-        - /**/login
-        - /**/login.html
-        - /**/registry
-        - /**/registry.html
-        - /**/*.js
-        - /**/*.css
-        - /**/*.woff
-        - /**/*.ttf
-        - /**/*.jpg
-        - /**/*.png
-        - /css/**
-        - /js/**
-        - /img/**
-        - /media/**
-        - /vendors/**
-        - /**/avatar/**
-        - /**/download/**
-        - /test/**
-        - /swagger-ui.html/**
-        - /swagger-ui.html#/**
-        - /swagger-ui/**
-        - /swagger-resources/**
-        - /**/webjars/**
-        - /**/v3/**
-        - /**/callback/**
-        - /user/getcode/**
-        - /user/new/**
-        - /auth/**
-        - /plan/check/**
-        - /plan/saveOrUpdate/**
-        - /data/**
-
 logging:
   config: classpath:logback-spring.xml
   aop:
@@ -114,6 +78,10 @@ storage:
     avatar:
       path: avatar
       default: https://cdn.jsdelivr.net/gh/Jin1c-3/picx-images-hosting@master/20240110/luckytour-logo-round.1w2sagoaz074.webp
+    blog:
+      path: blog
+      pic:
+        path: pic
 
 api:
   gaode:

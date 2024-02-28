@@ -51,7 +51,6 @@ public class AopLogger4GlobalExceptionHandler {
 		HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
 		long startTime = System.currentTimeMillis();
 		aopLogger.buildAopLog(request, startTime, point, result)
-				.makeSerializable()
 				.warn((Exception) point.getArgs()[0]);
 	}
 }

@@ -30,12 +30,13 @@ public class UserMonitorCache {
 	}
 
 	public void addOrUpdateUserMonitor(UserRealTimeInfo userRealTimeInfo) {
+		if (cache.containsKey(userRealTimeInfo.getUserId())) {
+			userRealTimeInfo.setFuture(cache.get(userRealTimeInfo.getUserId()).getFuture());
+		}
 		cache.put(userRealTimeInfo.getUserId(), userRealTimeInfo);
 		synchronized (cache) {
 			// 遍历 ConcurrentHashMap
-			for (Map.Entry<String, UserRealTimeInfo> entry : cache.entrySet()) {
-				log.debug("用户监视容器更新 {} -> {}", entry.getKey(), entry.getValue().toString());
-			}
+			cache.forEach((key, value) -> log.debug("用户监视容器更新 {} -> {}", key, value.toString()));
 		}
 		eventPublisher.publishEvent(new UserMonitorCacheUpdatedEvent(this, userRealTimeInfo));
 	}

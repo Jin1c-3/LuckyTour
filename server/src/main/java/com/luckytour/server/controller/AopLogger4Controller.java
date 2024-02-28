@@ -55,11 +55,9 @@ public class AopLogger4Controller {
 		Object result = point.proceed();
 		if (result instanceof Mono<?> monoResult) {
 			return monoResult.doOnSuccess(item -> aopLogger.buildAopLog(request, startTime, point, item)
-					.makeSerializable()
 					.info());
 		}
 		aopLogger.buildAopLog(request, startTime, point, result)
-				.makeSerializable()
 				.info();
 		return result;
 	}

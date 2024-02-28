@@ -13,6 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface BlogService extends IService<Blog> {
 
-	boolean isIdExist(String id);
+	boolean idIsExist(String id);
 
 }

@@ -229,7 +229,22 @@ public enum ServerStatus implements IServerStatus {
 	/**
 	 * 计划无法创建
 	 */
-	PLAN_CREATE_FAIL(5111, "计划自己溜走啦~请稍后重试");
+	PLAN_CREATE_FAIL(5111, "计划自己溜走啦~请稍后重试"),
+
+	/**
+	 * 用户没有博客
+	 */
+	USER_HAS_BO_BLOG(5111, "还没有博客呢~"),
+
+	/**
+	 * 用户没有博客
+	 */
+	USER_HAS_NO_PLAN(5112, "还没有计划呢~"),
+
+	/**
+	 * 动态计划开启时间不合理
+	 */
+	ILLEGAL_MONITOR_TIME(5201, "当前计划不能开启动态模式哟~");
 
 	/**
 	 * 状态码

@@ -1,14 +1,16 @@
 package com.luckytour.server.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.luckytour.server.common.annotation.UserLoginRequired;
 import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.entity.Plan;
 import com.luckytour.server.exception.MysqlException;
 import com.luckytour.server.payload.front.PlanCreateRequest;
 import com.luckytour.server.pojo.Spot;
 import com.luckytour.server.service.PlanService;
+import com.luckytour.server.service.UserService;
 import com.luckytour.server.util.JwtUtil;
 import com.luckytour.server.vo.PlanVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,14 +45,18 @@ public class PlanController {
 
 	private final ObjectMapper objectMapper;
 
+	private final UserService userService;
+
 	@Autowired
-	public PlanController(PlanService planService, ObjectMapper objectMapper) {
+	public PlanController(PlanService planService, ObjectMapper objectMapper, UserService userService) {
 		this.planService = planService;
 		this.objectMapper = objectMapper;
+		this.userService = userService;
 	}
 
 	@PostMapping("/check")
 	@Operation(summary = "计划验证，用于自由模式计划")
+	@UserLoginRequired(required = false)
 	public Mono<ServerResponseEntity<String>> check(@RequestBody Map<String, List<Spot>> data) {
 		// 拿出有日期且有经纬度的景点
 		List<Map.Entry<Spot, String>> datedLocatedSpots = data.entrySet().stream()
@@ -66,23 +72,31 @@ public class PlanController {
 
 	@PostMapping("/saveOrUpdate")
 	@Operation(summary = "计划存储更新，用于自由模式计划")
+	@UserLoginRequired(required = false)
 	public boolean saveOrUpdate(@Valid @RequestBody Plan plan) throws MysqlException {
 		return planService.saveOrUpdateByMultiId(plan);
 	}
 
 	@GetMapping("/getByUid")
 	@Operation(summary = "用户uid获取计划")
-	public ServerResponseEntity<List<Plan>> getByUid(@Valid @NotBlank(message = "uid不能为空") String uid) throws MysqlException {
-		if (planService.list(new QueryWrapper<Plan>().eq("uid", uid)).isEmpty()) {
-			return ServerResponseEntity.ofSuccessMsg("暂时没有计划哟~");
+	public ServerResponseEntity<List<Plan>> getByUid(@NotBlank(message = "uid不能为空") String uid) throws MysqlException {
+		if (!userService.idIsExist(uid)) {
+			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
 		}
-		return ServerResponseEntity.ofSuccess(planService.list(new QueryWrapper<Plan>().eq("uid", uid)));
+		var planList = planService.lambdaQuery().eq(Plan::getUid, uid).list();
+		return planList.isEmpty()
+				? ServerResponseEntity.ofStatus(ServerStatus.USER_HAS_NO_PLAN)
+				: ServerResponseEntity.ofSuccess(planList);
 	}
 
 	@GetMapping("/getByRequest")
 	@Operation(summary = "用户uid获取计划")
+	@UserLoginRequired
 	public ServerResponseEntity<List<Plan>> getByRequest(HttpServletRequest request) throws MysqlException {
-		return getByUid(JwtUtil.parseId(request));
+		var planList = planService.lambdaQuery().eq(Plan::getUid, JwtUtil.parseId(request)).list();
+		return planList.isEmpty()
+				? ServerResponseEntity.ofStatus(ServerStatus.USER_HAS_NO_PLAN)
+				: ServerResponseEntity.ofSuccess(planList);
 	}
 
 	@PostMapping("/create")

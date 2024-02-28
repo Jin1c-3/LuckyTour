@@ -2,7 +2,9 @@ package com.luckytour.server.vo;
 
 import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.entity.User;
+import com.luckytour.server.util.URLUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -48,7 +50,7 @@ public class UserVO implements Serializable {
 	@Schema(description = "用户等级")
 	private Integer level;
 
-	public static UserVO create(User user) {
+	public static UserVO create(HttpServletRequest request, User user) {
 		UserVO userVO = new UserVO();
 		BeanUtils.copyProperties(user, userVO);
 		if (Objects.nonNull(user.getSex())) {
@@ -57,6 +59,9 @@ public class UserVO implements Serializable {
 			} else if (user.getSex().equals(ConstsPool.FEMALE_INT)) {
 				userVO.setSex("女");
 			}
+		}
+		if (URLUtil.isNotUrl(user.getAvatar())) {
+			userVO.setAvatar(URLUtil.create(request, user.getAvatar()));
 		}
 		return userVO;
 	}

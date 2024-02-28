@@ -1,10 +1,10 @@
 package com.luckytour.server.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.luckytour.server.common.http.ServerResponseEntity;
-import com.luckytour.server.common.http.ServerStatus;
+import com.luckytour.server.common.annotation.UserLoginRequired;
 import com.luckytour.server.common.constant.Alert;
 import com.luckytour.server.common.constant.ConstsPool;
+import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.common.http.ServerStatus;
 import com.luckytour.server.entity.Liked;
 import com.luckytour.server.service.BlogService;
 import com.luckytour.server.service.LikedService;
@@ -58,7 +58,7 @@ public class LikedController {
 	@GetMapping("/getLikedBlogUserList")
 	@Operation(summary = "博客id获取给该博客点赞的用户列表（极简用户）")
 	public ServerResponseEntity<List<SimpleUserVO>> getLikedBlogUserList(@Valid @NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid) {
-		if (!blogService.isIdExist(bid)) {
+		if (!blogService.idIsExist(bid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST);
 		}
 		var blogLikers = likedService.getBlogLikers(bid);
@@ -70,25 +70,35 @@ public class LikedController {
 	@GetMapping("/getUserLikedBlog")
 	@Operation(summary = "用户id获取该用户点赞的博客列表")
 	public ServerResponseEntity<List<String>> getUserLikedBlog(@Valid @NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
-		return userService.getOptById(uid)
-				.map(user -> Optional.of(likedService.list(new QueryWrapper<>(Liked.builder().uid(uid).build())).stream()
-								.filter(liked -> liked.getStatus() == ConstsPool.LIKED)
-								.map(liked -> String.valueOf(liked.getBid())).toList())
-						.map(ServerResponseEntity::ofSuccess)
-						.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.NO_LIKED_BLOG))
-				)
-				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST));
+		if (!userService.idIsExist(uid)) {
+			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
+		}
+		var likeList = likedService.lambdaQuery().eq(Liked::getUid, uid).list().stream()
+				.filter(liked -> liked.getStatus() == ConstsPool.LIKED)
+				.map(liked -> String.valueOf(liked.getBid()))
+				.toList();
+		return likeList.isEmpty()
+				? ServerResponseEntity.ofStatus(ServerStatus.NO_LIKED_BLOG)
+				: ServerResponseEntity.ofSuccess(likeList);
 	}
 
 	@GetMapping("/getUserLikedBlogByRequest")
 	@Operation(summary = "用户id获取该用户点赞的博客列表")
+	@UserLoginRequired
 	public ServerResponseEntity<List<String>> getUserLikedBlog(HttpServletRequest request) {
-		return getUserLikedBlog(JwtUtil.parseId(request));
+		var likeList = likedService.lambdaQuery().eq(Liked::getUid, JwtUtil.parseId(request)).list().stream()
+				.filter(liked -> liked.getStatus() == ConstsPool.LIKED)
+				.map(liked -> String.valueOf(liked.getBid()))
+				.toList();
+		return likeList.isEmpty()
+				? ServerResponseEntity.ofStatus(ServerStatus.NO_LIKED_BLOG)
+				: ServerResponseEntity.ofSuccess(likeList);
 	}
 
 	@GetMapping("/likeUnliked")
 	@Operation(summary = "点赞或取消点赞")
 	@Parameter(name = "bid", required = true, description = "点赞的博客id")
+	@UserLoginRequired
 	public ServerResponseEntity<Object> likeUnliked(@NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid, HttpServletRequest request) {
 		String uid = JwtUtil.parseId(request);
 		return userService.getOptById(uid)

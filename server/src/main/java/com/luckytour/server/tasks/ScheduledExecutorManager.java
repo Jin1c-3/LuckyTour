@@ -1,17 +1,17 @@
 package com.luckytour.server.tasks;
 
-import com.luckytour.server.tasks.monitoruser.UserMonitorCache;
-import com.luckytour.server.tasks.monitoruser.UserMonitorCacheUpdatedEvent;
-import com.luckytour.server.tasks.monitoruser.UserMonitorTask;
 import com.luckytour.server.service.DynamicCheckService;
 import com.luckytour.server.service.PushService;
 import com.luckytour.server.service.UserService;
+import com.luckytour.server.tasks.monitoruser.UserMonitorCache;
+import com.luckytour.server.tasks.monitoruser.UserMonitorCacheUpdatedEvent;
+import com.luckytour.server.tasks.monitoruser.UserMonitorTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 /**
@@ -31,8 +31,6 @@ public class ScheduledExecutorManager {
 
 	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
 
-	private final Map<String, Future<?>> futures = new ConcurrentHashMap<>();
-
 	@Autowired
 	public ScheduledExecutorManager(UserMonitorCache userMonitorCache, DynamicCheckService dynamicCheckService, PushService jiguangPushService, UserService userService) {
 		this.userMonitorCache = userMonitorCache;
@@ -43,15 +41,18 @@ public class ScheduledExecutorManager {
 
 	@EventListener
 	public void onUserMonitorCacheUpdated(UserMonitorCacheUpdatedEvent event) {
-		String uid = event.getUserRealTimeInfo().getUserId();
-		Future<?> future = futures.get(uid);
-		// 如果任务存在就立即释放一次
-		if (future != null) {
-			future.cancel(false);
-		}
-		UserMonitorTask task = new UserMonitorTask(uid, dynamicCheckService, jiguangPushService, userService, userMonitorCache);
-		future = executorService.scheduleAtFixedRate(task, 0, 45, TimeUnit.MINUTES);
-		task.setFuture((ScheduledFuture<?>) future); // Set the future so the task can cancel itself
-		futures.put(uid, future);
+		Optional.ofNullable(event.getUserRealTimeInfo().getFuture())
+				.ifPresent(future -> future.cancel(false)); // Cancel the future task if it exists
+
+		UserMonitorTask task = new UserMonitorTask(
+				event.getUserRealTimeInfo().getUserId(),
+				dynamicCheckService,
+				jiguangPushService,
+				userService,
+				userMonitorCache
+		);
+
+		ScheduledFuture<?> future = executorService.scheduleAtFixedRate(task, 0, 45, TimeUnit.MINUTES);
+		task.setFuture(future); // Set the future so the task can cancel itself
 	}
 }

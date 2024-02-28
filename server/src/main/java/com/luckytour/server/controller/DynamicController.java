@@ -1,15 +1,25 @@
 package com.luckytour.server.controller;
 
-import com.luckytour.server.common.constant.Alert;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.luckytour.server.common.BaseException;
+import com.luckytour.server.common.annotation.UserLoginRequired;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.common.http.ServerStatus;
+import com.luckytour.server.entity.Plan;
+import com.luckytour.server.payload.front.MonitorRequest;
 import com.luckytour.server.pojo.Position;
-import com.luckytour.server.tasks.monitoruser.UserRealTimeInfo;
+import com.luckytour.server.service.PlanService;
 import com.luckytour.server.tasks.monitoruser.UserMonitorCache;
+import com.luckytour.server.tasks.monitoruser.UserRealTimeInfo;
 import com.luckytour.server.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +28,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * 动态监视控制器
@@ -49,52 +65,54 @@ public class DynamicController {
 
 	private final UserMonitorCache userMonitorCache;
 
+	private final PlanService planService;
+
+	private final ObjectMapper objectMapper;
+
 
 	@Autowired
-	public DynamicController(/*DynamicCheckService dynamicCheckService,
-	                         PushService jiguangPushService,
-	                         UserService userService,
-			ScheduledExecutorSupplier scheduledExecutorSupplier,*/
-			UserMonitorCache userMonitorCache) {
-		/*this.dynamicCheckService = dynamicCheckService;
-		this.jiguangPushService = jiguangPushService;
-		this.userService = userService;
-		this.scheduledExecutorSupplier = scheduledExecutorSupplier;*/
+	public DynamicController(UserMonitorCache userMonitorCache, PlanService planService, ObjectMapper objectMapper) {
 		this.userMonitorCache = userMonitorCache;
+		this.planService = planService;
+		this.objectMapper = objectMapper;
+	}
+
+	private boolean validateMonitorTime(Set<String> planTimeSet) {
+		LocalDate today = LocalDate.now();
+		return planTimeSet.stream()
+				.map(date -> LocalDate.parse(date, ConstsPool.DATE_FORMATTER))
+				.anyMatch(date -> date.isEqual(today));
 	}
 
 	@PostMapping("/monitor")
 	@Operation(summary = "监视用户状态")
-	public Mono<ServerResponseEntity<String>> monitor(@NotBlank(message = Alert.PARAM_IS_NULL) String latitudeAndLongitude, HttpServletRequest request) {
-		/*Mono<String> weatherCheck = dynamicCheckService.checkRealTimeWeather(Position.create(latitudeAndLongitude));
-		Mono<String> somethingElseCheck = dynamicCheckService.checkSomeThingElse();
-
-		return Mono.zip(weatherCheck, somethingElseCheck)
-				.flatMap(tuple -> {
-					String weatherCheckResult = tuple.getT1();
-					String somethingElseCheckResult = tuple.getT2();
-
-					if (Boolean.TRUE.toString().equals(weatherCheckResult) && Boolean.TRUE.toString().equals(somethingElseCheckResult)) {
-						return Mono.just(ServerResponseEntity.ofSuccess());
-					}
-					String nonTrueResult = Boolean.TRUE.toString().equals(weatherCheckResult) ? somethingElseCheckResult : weatherCheckResult;
-					userService.getOptById(JwtUtil.parseId(request))
-							.ifPresent(user -> {
-								// 根据用户的极光推送ID发送推送
-								if (StringUtils.isNotBlank(user.getJiguangRegistrationId())) {
-									if (jiguangPushService.sendPushByRegistrationID(new JiguangNotification(nonTrueResult), user.getJiguangRegistrationId())) {
-										log.debug("极光推送检测状态成功 {} -> {}", nonTrueResult, user.getJiguangRegistrationId());
-									} else {
-										log.debug("极光推送检测状态失败 {} -> {}", nonTrueResult, user.getJiguangRegistrationId());
-									}
-								}
-							});
-					return Mono.just(ServerResponseEntity.ofSuccess(nonTrueResult));
-				});*/
+	@Parameter(name = "latitudeAndLongitude", description = "经纬度的字符串，要有小数点和逗号", required = true, example = "122.183245,37.499276")
+	@UserLoginRequired
+	public Mono<ServerResponseEntity<String>> monitor(@Valid MonitorRequest monitorRequest, HttpServletRequest request) throws JsonProcessingException {
 		String userId = JwtUtil.parseId(request);
+
+		Optional<String> planContentOptional = planService.lambdaQuery()
+				.eq(Plan::getUid, userId)
+				.eq(Plan::getPid, monitorRequest.getPid())
+				.select(Plan::getContent)
+				.oneOpt()
+				.map(Plan::getContent);
+
+		if (planContentOptional.isEmpty()) {
+			throw new BaseException(ServerStatus.PARAM_NOT_MATCH);
+		}
+		Map<String, List<Map<String, Object>>> planContentMap = objectMapper.readValue(planContentOptional.get(), new TypeReference<Map<String, List<Map<String, Object>>>>() {
+		});
+		boolean isLegalMonitorTime = validateMonitorTime(planContentMap.keySet());
+
+		if (!isLegalMonitorTime) {
+			return Mono.just(ServerResponseEntity.ofStatus(ServerStatus.ILLEGAL_MONITOR_TIME));
+		}
+
 		userMonitorCache.addOrUpdateUserMonitor(UserRealTimeInfo.builder()
 				.userId(userId)
-				.position(Position.create(latitudeAndLongitude))
+				.pid(monitorRequest.getPid())
+				.position(Position.create(monitorRequest.getLatitudeAndLongitude()))
 				.monitorCount(0)
 				.build());
 		return Mono.just(ServerResponseEntity.ofSuccess());

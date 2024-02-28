@@ -17,7 +17,8 @@ spring:
       # database: 0
       host: ENC(gJtoIH0l8cWcupGlCdkQu/tZcWwX3iy9DgHj+EKUYIhrqnuhYAzEta92LBILByX1)
       port: 6379
-      # password: ENC(zWGPPt/b2zYru5q6HuFG6kHCbf6/RR8ESY169Dig0r2QRF+xXPpZg1jRq1t8wWtZ)
+      # 密码是经典0x...redis
+      password: ENC(wJ+iZigwh+jcM5aKgRB1Bz8D7b+AgKb17WiSwAqPkze8xsxVyxHJU1NU4Bd8LjSo)
       lettuce:
         pool:
           # 连接池最大连接数（使用负值表示没有限制） 默认 8
