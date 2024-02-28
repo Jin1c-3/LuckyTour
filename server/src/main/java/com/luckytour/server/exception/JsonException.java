@@ -25,4 +25,8 @@ public class JsonException extends BaseException {
 	public JsonException(Integer code, String message) {
 		super(code, message);
 	}
+
+	public JsonException(String message) {
+		super(ServerStatus.JSON_ERROR.getCode(), message);
+	}
 }

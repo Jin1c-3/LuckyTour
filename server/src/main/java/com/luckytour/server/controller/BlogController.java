@@ -1,5 +1,6 @@
 package com.luckytour.server.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luckytour.server.common.constant.Alert;
 import com.luckytour.server.common.constant.Regex;
@@ -9,11 +10,14 @@ import com.luckytour.server.entity.Blog;
 import com.luckytour.server.entity.BlogView;
 import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.payload.front.BlogCreateRequest;
+import com.luckytour.server.pojo.BlogContent;
 import com.luckytour.server.service.BlogService;
 import com.luckytour.server.service.BlogViewService;
 import com.luckytour.server.service.UserService;
 import com.luckytour.server.util.FileUploadUtil;
 import com.luckytour.server.util.JwtUtil;
+import com.luckytour.server.util.URLUtil;
+import com.luckytour.server.vo.BlogVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -141,10 +145,34 @@ public class BlogController {
 
 	@GetMapping("/search")
 	@Operation(summary = "搜索博客")
-	public ServerResponseEntity<List<BlogView>> search(@NotBlank(message = Alert.BLOG_TITLE_IS_NULL) String string) {
-		return Optional.ofNullable(blogViewService.lambdaQuery().like(BlogView::getTitle, string).like(BlogView::getContent, string).list())
-				.map(ServerResponseEntity::ofSuccess)
-				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST));
+	public ServerResponseEntity<List<BlogVO>> search(@NotBlank(message = Alert.BLOG_TITLE_IS_NULL) String string, HttpServletRequest request) {
+		List<BlogView> blogViews = blogViewService.lambdaQuery().like(BlogView::getTitle, string).like(BlogView::getContent, string).list();
+		if (blogViews == null) {
+			return ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST);
+		}
+		List<BlogVO> blogVOs = blogViews.stream().map(blogView -> {
+			try {
+				BlogVO blogVO = BlogVO.create(blogView);
+				blogVO.setAvatar(userService.getOptById(blogVO.getUid()).map(user -> URLUtil.isNotUrl(user.getAvatar()) ? URLUtil.create(request, user.getAvatar()) : user.getAvatar()).orElse(null));
+
+				List<BlogContent> blogContents = objectMapper.readValue(blogView.getContent(), new TypeReference<List<BlogContent>>() {
+				});
+				blogContents.forEach(blogContent -> blogContent.setPhotos(blogContent.getPhotos().stream()
+						.map(photo -> URLUtil.isNotUrl(photo) ? URLUtil.create(request, photo) : photo)
+						.toList()));
+				blogVO.setContent(blogContents);
+				blogVO.setView(blogVO.getContent().stream()
+						.filter(blogContent -> blogContent.getPhotos() != null && !blogContent.getPhotos().isEmpty())
+						.findFirst()
+						.map(blogContent -> blogContent.getPhotos().get(0))
+						.orElse(null));
+
+				return blogVO;
+			} catch (Exception e) {
+				throw new JsonException(e.getMessage());
+			}
+		}).toList();
+		return ServerResponseEntity.ofSuccess(blogVOs);
 	}
 
 	@GetMapping("/title")

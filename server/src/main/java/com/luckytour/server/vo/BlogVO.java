@@ -1,5 +1,6 @@
 package com.luckytour.server.vo;
 
+import com.luckytour.server.entity.BlogView;
 import com.luckytour.server.pojo.BlogContent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -36,4 +37,11 @@ public class BlogVO implements Serializable {
 
 	private List<BlogContent> content;
 
+	public static BlogVO create(BlogView blogView) {
+		BlogVO blogVO = new BlogVO();
+		blogVO.setUid(blogView.getUid());
+		blogVO.setPid(String.valueOf(blogView.getPid()));
+		blogVO.setTitle(blogView.getTitle());
+		return blogVO;
+	}
 }
