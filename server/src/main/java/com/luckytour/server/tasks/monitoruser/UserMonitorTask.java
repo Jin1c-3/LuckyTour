@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -62,9 +63,13 @@ public class UserMonitorTask implements Runnable {
 								// 根据用户的极光推送ID发送推送
 								if (StringUtils.isNotBlank(user.getJiguangRegistrationId())) {
 									String nonTrueResult = Boolean.TRUE.toString().equals(weatherCheckResult) ? somethingElseCheckResult : weatherCheckResult;
+									var varMap = new HashMap<String, String>();
+									varMap.put("type", "weather");
+									varMap.put("reason", nonTrueResult + "不适宜出行，将今天此时刻之后的景点更改为室内景点");
+									varMap.put("pid", userRealTimeInfo.getPid());
 									log.debug("推送状态：{} 内容：{} -> {}",
-											jiguangPushService.sendPushByRegistrationID(new JiguangNotification(nonTrueResult), user.getJiguangRegistrationId()),
-											nonTrueResult,
+											jiguangPushService.sendPushByRegistrationID(new JiguangNotification("云栖天气通知", nonTrueResult, varMap), user.getJiguangRegistrationId()),
+											"请注意，您" + nonTrueResult,
 											user.getJiguangRegistrationId());
 								}
 							});

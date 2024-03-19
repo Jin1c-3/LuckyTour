@@ -16,6 +16,7 @@ import com.luckytour.server.service.UserService;
 import com.luckytour.server.util.CodeUtil;
 import com.luckytour.server.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -86,18 +87,21 @@ public class AuthController {
 
 	@GetMapping("/getCodeNotInDB")
 	@Operation(summary = "新建用户之前的验证码获取")
+	@Parameter(name = "emailOrPhone", description = "邮箱或手机号", required = true, example = "12345678901")
 	public ServerResponseEntity<String> getCodeNotInDB(@Valid @Pattern(regexp = Regex.MOBILE_OR_EMAIL_REGEX, message = Alert.PARAM_NOT_EMAIL_OR_PHONE) String emailOrPhone) throws MysqlException {
 		return sendCode(emailOrPhone, false);
 	}
 
 	@GetMapping("/getCodeInDB")
 	@Operation(summary = "无密码登录的验证码获取")
+	@Parameter(name = "emailOrPhone", description = "邮箱或手机号", required = true, example = "12345678901")
 	public ServerResponseEntity<String> getCodeInDB(@Valid @Pattern(regexp = Regex.MOBILE_OR_EMAIL_REGEX, message = Alert.PARAM_NOT_EMAIL_OR_PHONE) String emailOrPhone) throws MysqlException {
 		return sendCode(emailOrPhone, true);
 	}
 
 	@Operation(summary = "登录")
 	@PostMapping("/login")
+	@Parameter(name = "loginRequest", description = "登录请求", required = true, example = "{\"emailOrPhone\":\"test@qq.com\",\"password\":\"123456\"}")
 	public ServerResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) throws MysqlException {
 		return userService.getOptByEmailOrPhone(loginRequest.getEmailOrPhone())
 				// 密码不存在 或 密码存在且错误

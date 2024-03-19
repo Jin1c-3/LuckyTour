@@ -66,7 +66,8 @@ public final class ConstsPool {
 	/**
 	 * 文件系统分隔符
 	 */
-	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+//	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+	public static final String FILE_SEPARATOR = "/";
 
 	/**
 	 * 男

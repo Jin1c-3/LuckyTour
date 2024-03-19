@@ -43,6 +43,10 @@ public final class Regex {
 		return longitude.matches(LONGITUDE_REGEX);
 	}
 
+	public static boolean isURI(String uri) {
+		return uri.matches(URL_REGEX);
+	}
+
 	/**
 	 * 私有化构造函数
 	 */

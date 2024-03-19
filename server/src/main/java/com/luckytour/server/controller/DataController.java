@@ -5,6 +5,7 @@ import com.luckytour.server.entity.CityDescription;
 import com.luckytour.server.common.http.ServerResponseEntity;
 import com.luckytour.server.service.GeographicService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -50,6 +51,7 @@ public class DataController {
 
 	@GetMapping("/getCityDescription")
 	@Operation(summary = "获取城市描述")
+	@Parameter(name = "character", description = "城市名称的首字母或汉字")
 	public ServerResponseEntity<List<CityDescription>> getCityDescription(/*@Valid @NotBlank(message = "城市不能为空") */String character) {
 		// 保护机制
 		if (!character.matches(Regex.CHINESE_REGEX)) {
@@ -60,6 +62,7 @@ public class DataController {
 
 	@GetMapping("/getGeoCode")
 	@Operation(summary = "获取地址的经纬度")
+	@Parameter(name = "address", description = "地址")
 	public Mono<ServerResponseEntity<String>> getGeoCode(@Valid @NotBlank(message = "地址不能为空") String address) {
 		return geographicService.getLongitudeAndLatitude(address)
 				.map(ServerResponseEntity::ofSuccess);

@@ -1,0 +1,34 @@
+# 使用官方的GraalVM Maven镜像作为构建环境
+FROM maven:3.8.1-openjdk-17-slim AS build
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制pom.xml文件到工作目录
+COPY ../../../pom.xml .
+
+# 下载依赖项
+RUN mvn dependency:go-offline -B
+
+# 复制源代码到工作目录
+COPY ../.. ./src
+COPY /static /app/static
+
+# 打包应用
+RUN mvn package -DskipTests -e
+
+# 使用java17作为运行环境
+#FROM ubuntu/jre:17-22.04_edge_39 as runtime
+FROM openjdk:17-jdk-slim as runtime
+
+# 设置工作目录
+WORKDIR /app
+
+# 从构建环境复制打包好的应用到运行环境
+COPY --from=build /app/target/*.jar ./app.jar
+
+# 暴露端口
+EXPOSE 80
+
+# 运行应用
+CMD ["java", "-jar", "./app.jar", "-Djasypt.encryptor.password=0x31cYJY@sb", "--spring.profiles.active=prod"]

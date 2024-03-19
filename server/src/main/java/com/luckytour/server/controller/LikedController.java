@@ -57,6 +57,7 @@ public class LikedController {
 
 	@GetMapping("/getLikedBlogUserList")
 	@Operation(summary = "博客id获取给该博客点赞的用户列表（极简用户）")
+	@Parameter(name = "bid", description = "博客id", required = true)
 	public ServerResponseEntity<List<SimpleUserVO>> getLikedBlogUserList(@Valid @NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid) {
 		if (!blogService.idIsExist(bid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST);
@@ -69,6 +70,7 @@ public class LikedController {
 
 	@GetMapping("/getUserLikedBlog")
 	@Operation(summary = "用户id获取该用户点赞的博客列表")
+	@Parameter(name = "uid", description = "用户id", required = true)
 	public ServerResponseEntity<List<String>> getUserLikedBlog(@Valid @NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
@@ -93,6 +95,17 @@ public class LikedController {
 		return likeList.isEmpty()
 				? ServerResponseEntity.ofStatus(ServerStatus.NO_LIKED_BLOG)
 				: ServerResponseEntity.ofSuccess(likeList);
+	}
+
+	@GetMapping("/isLiked")
+	@Operation(summary = "用户id和博客id判断用户是否点赞")
+	@UserLoginRequired
+	@Parameter(name = "bid", required = true, description = "博客id")
+	public ServerResponseEntity<Boolean> likedOrNot(HttpServletRequest request, String bid) {
+		String uid = JwtUtil.parseId(request);
+		return blogService.getOptById(bid)
+				.map(blog -> ServerResponseEntity.ofSuccess(likedService.lambdaQuery().eq(Liked::getUid, uid).eq(Liked::getBid, bid).eq(Liked::getStatus, ConstsPool.LIKED).oneOpt().isPresent()))
+				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST));
 	}
 
 	@GetMapping("/likeUnliked")

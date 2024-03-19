@@ -17,16 +17,14 @@ import com.luckytour.server.tasks.monitoruser.UserRealTimeInfo;
 import com.luckytour.server.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -86,9 +84,9 @@ public class DynamicController {
 
 	@PostMapping("/monitor")
 	@Operation(summary = "监视用户状态")
-	@Parameter(name = "latitudeAndLongitude", description = "经纬度的字符串，要有小数点和逗号", required = true, example = "122.183245,37.499276")
 	@UserLoginRequired
-	public Mono<ServerResponseEntity<String>> monitor(@Valid MonitorRequest monitorRequest, HttpServletRequest request) throws JsonProcessingException {
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "监视请求", required = true,content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = MonitorRequest.class)))
+	public Mono<ServerResponseEntity<String>> monitor(@Valid @RequestBody MonitorRequest monitorRequest, HttpServletRequest request) throws JsonProcessingException {
 		String userId = JwtUtil.parseId(request);
 
 		Optional<String> planContentOptional = planService.lambdaQuery()

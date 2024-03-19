@@ -3,8 +3,8 @@ package com.luckytour.server.controller;
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
 import com.luckytour.server.common.constant.Alert;
-import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.common.http.ServerResponseEntity;
+import com.luckytour.server.exception.JsonException;
 import com.luckytour.server.payload.external.SimpleChatRequest;
 import com.luckytour.server.service.*;
 import com.luckytour.server.vo.JiguangNotification;
@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
@@ -88,7 +89,6 @@ public class TestController {
 	public <T> ApiResponse<T> queueTest() {
 		return ApiResponse.ofSuccessMsg("queue message: test");
 	}*/
-
 	@GetMapping("/fail")
 	@Operation(summary = "失败函数 ofFailMsg()")
 	public <T> ServerResponseEntity<T> fail() {
@@ -140,37 +140,33 @@ public class TestController {
 		//设置、更新、设备的 tag, alias 信息。140fe1da9e38e9efd3e
 	}
 
-	@Operation(summary = "极光发送Alias安卓通知给游轩")
-	@GetMapping("/notificationyxAlias")
-	public void testSendYxNotificationByAlias() throws APIConnectionException, APIRequestException {
-		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
-		jiguangPushService.updateDeviceTagAlias("160a3797c903b80eda8", "yx", null, null);
-		jiguangPushService.sendPushByAlias(notification, "yx");
+	@Operation(summary = "极光发送Alias安卓通知，含extra字段")
+	@GetMapping("/notificationAlias")
+	public void testSendYxNotificationByAlias(String rid, String alias) throws APIConnectionException, APIRequestException {
+		if(StringUtils.isBlank(rid)) {
+			rid = "160a3797c903b80eda8";
+		}
+		if(StringUtils.isBlank(alias)) {
+			alias = "yx";
+		}
+		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>() {{
+			put("type", "test");
+		}});
+		jiguangPushService.updateDeviceTagAlias(rid, alias, null, null);
+		jiguangPushService.sendPushByAlias(notification, alias);
 //		jiguangPushService.sendPushToAndroid(notification);
 	}
 
-	@Operation(summary = "极光发送Alias安卓通知给于靖怿")
-	@GetMapping("/notificationyjyAlias")
-	public void testSendYjyNotificationByAlias() throws APIConnectionException, APIRequestException {
-		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
-		jiguangPushService.updateDeviceTagAlias("120c83f76125b36068d", "yjy", null, null);
-		jiguangPushService.sendPushByAlias(notification, "yjy");
-//		jiguangPushService.sendPushToAndroid(notification);
-	}
-
-	@Operation(summary = "极光发送RegistrationID安卓通知给游轩")
-	@GetMapping("/notificationyxRid")
-	public void testSendYxNotificationByRid() throws APIConnectionException, APIRequestException {
-		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
-		jiguangPushService.sendPushByRegistrationID(notification, "160a3797c903b80eda8");
-//		jiguangPushService.sendPushToAndroid(notification);
-	}
-
-	@Operation(summary = "极光发送RegistrationID安卓通知给游轩于靖怿")
-	@GetMapping("/notificationyjyRid")
-	public void testSendYjyNotificationByRid() throws APIConnectionException, APIRequestException {
-		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>());
-		jiguangPushService.sendPushByRegistrationID(notification, "120c83f76125b36068d");
+	@Operation(summary = "极光发送RegistrationID安卓通知，含extra字段")
+	@GetMapping("/notificationRid")
+	public void testSendYxNotificationByRid(String rid) throws APIConnectionException, APIRequestException {
+		if(StringUtils.isBlank(rid)) {
+			rid = "160a3797c903b80eda8";
+		}
+		JiguangNotification notification = new JiguangNotification("云栖自定义标题", "云栖自定义通知内容！包含emoji😘", new HashMap<>() {{
+			put("type", "test");
+		}});
+		jiguangPushService.sendPushByRegistrationID(notification, rid);
 //		jiguangPushService.sendPushToAndroid(notification);
 	}
 

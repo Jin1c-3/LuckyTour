@@ -1,11 +1,14 @@
 package com.luckytour.server.config;
 
+import io.netty.channel.ChannelOption;
 import io.netty.resolver.DefaultAddressResolverGroup;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import reactor.netty.http.client.HttpClient;
+
+import java.time.Duration;
 
 /**
  * @author qing
@@ -56,6 +59,8 @@ public class ExternalApiConfig {
 	}
 
 	private HttpClient httpClient = HttpClient.create()
+			.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000) // 连接超时设置为5秒
+			.responseTimeout(Duration.ofSeconds(150)) // 响应超时设置为150秒
 			.resolver(DefaultAddressResolverGroup.INSTANCE);
 
 }

@@ -2,7 +2,7 @@ package com.luckytour.server.vo;
 
 import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.entity.User;
-import com.luckytour.server.util.URLUtil;
+import com.luckytour.server.util.URIUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
@@ -60,9 +60,7 @@ public class UserVO implements Serializable {
 				userVO.setSex("女");
 			}
 		}
-		if (URLUtil.isNotUrl(user.getAvatar())) {
-			userVO.setAvatar(URLUtil.create(request, user.getAvatar()));
-		}
+		userVO.setAvatar(URIUtil.parse(request, user.getAvatar()));
 		return userVO;
 	}
 }

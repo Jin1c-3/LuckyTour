@@ -105,7 +105,7 @@ public class FileUploadUtil {
 		try {
 			Files.write(destinationFile, fileBytes);
 			String httpAddress = /*request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() +*/ConstsPool.FILE_SEPARATOR + folderPath + fileName;
-			log.debug("图片存储成功，真实文件位置: {} 网络文件地址: {}", folderPath + ConstsPool.FILE_SEPARATOR + fileName, httpAddress);
+			log.debug("图片存储成功，真实文件位置: {} 网络文件地址: {}", folderPath + fileName, httpAddress);
 			return httpAddress;
 		} catch (IOException e) {
 			throw new FileException("文件存储发生异常", e);

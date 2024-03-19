@@ -1,4 +1,47 @@
 api:
   # 内网的flask服务地址
   flask:
+    base: http://
   front:
+    base: http://
+
+server:
+  port: 80
+
+jpush:
+  apns-production: true # 是否生产环境，true表示生产环境
+
+spring:
+  application:
+    name: server
+  data:
+    # Redis数据源配置
+    redis:
+      # database: 0
+      host: localhost
+      port: 6379
+      # 密码是经典0x...redis
+      password: ENC(wJ+iZigwh+jcM5aKgRB1Bz8D7b+AgKb17WiSwAqPkze8xsxVyxHJU1NU4Bd8LjSo)
+      lettuce:
+        pool:
+          # 连接池最大连接数（使用负值表示没有限制） 默认 8
+          max-active: 8
+          # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+          max-wait: -1ms
+          # 连接池中的最大空闲连接 默认 8
+          max-idle: 8
+          # 连接池中的最小空闲连接 默认 0
+          min-idle: 0
+    mongodb:
+      uri: mongodb://localhost:27017/luckytour
+  datasource:
+    username: root
+    # 密码是经典0x...mysql
+    password: ENC(L7CgAH+E4rDSOhzXnN7IGYgHEmQhBVknD5T1gdl9fCCu/UztNWk26RdIi+oWSHQm)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    database-name: luckytour
+    url: jdbc:mysql://localhost:3306/${spring.datasource.database-name}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+
+#jasypt:
+#  encryptor:
+#    password: 0x31cYJY@sb

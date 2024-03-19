@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author qing
- * @since 2024-02-09
+ * @since 2024-03-01
  */
 public interface BlogViewMapper extends BaseMapper<BlogView> {
 

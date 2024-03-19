@@ -1,7 +1,7 @@
 package com.luckytour.server.vo;
 
 import com.luckytour.server.entity.User;
-import com.luckytour.server.util.URLUtil;
+import com.luckytour.server.util.URIUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
@@ -32,9 +32,7 @@ public class SimpleUserVO {
 				.id(user.getId())
 				.nickname(user.getNickname())
 				.build();
-		if (URLUtil.isNotUrl(user.getAvatar())) {
-			simpleUserVO.setAvatar(URLUtil.create(request, user.getAvatar()));
-		}
+		simpleUserVO.setAvatar(URIUtil.parse(request, user.getAvatar()));
 		return simpleUserVO;
 	}
 

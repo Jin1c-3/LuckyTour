@@ -3,7 +3,9 @@ package com.luckytour.server.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
+import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.payload.front.PlanCreateRequest;
+import com.luckytour.server.payload.front.PlanSaveRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,10 +60,22 @@ public class Plan implements Serializable {
 
 	public static Plan create(PlanCreateRequest planCreateRequest) {
 		Plan plan = new Plan();
-		BeanUtils.copyProperties(planCreateRequest, plan);
+		plan.setUid(planCreateRequest.getUid());
+		plan.setTitle(planCreateRequest.getTitle());
+		plan.setCity(planCreateRequest.getCity());
 		if (planCreateRequest.getTags() != null) {
 			plan.setTags(String.join(",", planCreateRequest.getTags()));
 		}
+		return plan;
+	}
+
+	public static Plan create(PlanSaveRequest planSaveRequest) {
+		Plan plan = new Plan();
+		BeanUtils.copyProperties(planSaveRequest, plan);
+		if (planSaveRequest.getTags() != null) {
+			plan.setTags(String.join(",", planSaveRequest.getTags()));
+		}
+		plan.setPid(LocalDateTime.parse(planSaveRequest.getPid(), ConstsPool.DATE_TIME_FORMATTER));
 		return plan;
 	}
 }

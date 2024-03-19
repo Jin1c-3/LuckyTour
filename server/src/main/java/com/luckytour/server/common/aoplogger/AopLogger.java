@@ -138,7 +138,7 @@ public class AopLogger {
 		Signature signature = point.getSignature();
 
 		aopLog = AopLog.builder()
-				.threadId(Long.toString(Thread.currentThread().threadId()))
+				.threadId(Long.toString(Thread.currentThread().getId()))
 				.threadName(Thread.currentThread().getName())
 				.ip(UserAgentUtil.getIp(request))
 				.url(request.getRequestURL().toString())
@@ -173,15 +173,17 @@ public class AopLogger {
 
 	private String serialize(Object obj) {
 		try {
-			return switch (obj) {
-				case Exception exception -> exception.getMessage();
-				case RequestFacade requestFacade -> objectMapper.writeValueAsString(requestFacade.getParameterMap());
-				case MultipartFile multipartFile ->
-						Optional.ofNullable(multipartFile.getOriginalFilename()).orElse(multipartFile.getName());
-				case HttpServletRequest httpServletRequest ->
-						objectMapper.writeValueAsString(httpServletRequest.getHeader(ConstsPool.TOKEN_KEY));
-				case null, default -> objectMapper.writeValueAsString(obj);
-			};
+			if (obj instanceof Exception exception) {
+				return exception.getMessage();
+			} else if (obj instanceof RequestFacade requestFacade) {
+				return objectMapper.writeValueAsString(requestFacade.getParameterMap());
+			} else if (obj instanceof MultipartFile multipartFile) {
+				return Optional.ofNullable(multipartFile.getOriginalFilename()).orElse(multipartFile.getName());
+			} else if (obj instanceof HttpServletRequest httpServletRequest) {
+				return objectMapper.writeValueAsString(httpServletRequest.getHeader(ConstsPool.TOKEN_KEY));
+			} else {
+				return objectMapper.writeValueAsString(obj);
+			}
 		} catch (JsonProcessingException e) {
 			return Optional.ofNullable(obj).map(Object::toString).orElse("null");
 		}

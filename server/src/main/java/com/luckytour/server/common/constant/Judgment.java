@@ -60,7 +60,7 @@ public final class Judgment {
 	 */
 	private static final String BAD_WEATHER_PROMPT = "%s日%s天气为%s，不适合出行~";
 
-	private static final String BAD_WEATHER_FRIENDLY_ALERT = "请注意，您所处位置未来%s小时天气为%s...";
+	private static final String BAD_WEATHER_FRIENDLY_ALERT = "所处位置未来%s小时天气为%s...";
 
 	public static String getTooFarPrompt(String location1, String location2) {
 		return String.format(STRAIGHT_DISTANCE_TOO_FAR_PROMPT, location1, location2);

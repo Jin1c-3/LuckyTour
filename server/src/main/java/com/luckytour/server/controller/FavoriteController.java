@@ -5,8 +5,10 @@ import com.luckytour.server.common.constant.Alert;
 import com.luckytour.server.common.constant.ConstsPool;
 import com.luckytour.server.common.http.ServerResponseEntity;
 import com.luckytour.server.common.http.ServerStatus;
+import com.luckytour.server.entity.BlogView;
 import com.luckytour.server.entity.Favorite;
 import com.luckytour.server.service.BlogService;
+import com.luckytour.server.service.BlogViewService;
 import com.luckytour.server.service.FavoriteService;
 import com.luckytour.server.service.UserService;
 import com.luckytour.server.util.JwtUtil;
@@ -46,38 +48,53 @@ public class FavoriteController {
 
 	private final BlogService blogService;
 
+	private final BlogViewService blogViewService;
+
 	@Autowired
-	public FavoriteController(FavoriteService favoriteService, UserService userService, BlogService blogService) {
+	public FavoriteController(FavoriteService favoriteService, UserService userService, BlogService blogService, BlogViewService blogViewService) {
 		this.favoriteService = favoriteService;
 		this.userService = userService;
 		this.blogService = blogService;
+		this.blogViewService = blogViewService;
 	}
 
 	@GetMapping("/getFavorByUid")
 	@Operation(summary = "用户id获取收藏列表")
-	public ServerResponseEntity<List<Favorite>> getFavorByUid(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
+	@Parameter(name = "uid", description = "用户id", required = true)
+	public ServerResponseEntity<List<BlogView>> getFavorByUid(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
 		}
-		return Optional.ofNullable(favoriteService.lambdaQuery().eq(Favorite::getUid, uid).list())
-				.map(ServerResponseEntity::ofSuccess)
-				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.NO_FAVORITE));
+		List<Favorite> favorites = favoriteService.lambdaQuery().eq(Favorite::getUid, uid).list();
+		if (favorites == null || favorites.isEmpty()) {
+			return ServerResponseEntity.ofStatus(ServerStatus.NO_FAVORITE);
+		}
+		List<String> blogIds = favorites.stream().map(favorite -> String.valueOf(favorite.getBid())).toList();
+		List<BlogView> blogViews = blogViewService.lambdaQuery().in(BlogView::getBid, blogIds).list();
+		return ServerResponseEntity.ofSuccess(blogViews);
 	}
 
 	@GetMapping("/getFavorByRequest")
 	@Operation(summary = "用户id获取收藏列表")
 	@UserLoginRequired
-	public ServerResponseEntity<List<Favorite>> getFavorByRequest(HttpServletRequest request) {
-		return Optional.ofNullable(favoriteService.lambdaQuery().eq(Favorite::getUid, JwtUtil.parseId(request)).list())
-				.map(ServerResponseEntity::ofSuccess)
-				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.NO_FAVORITE));
+	public ServerResponseEntity<List<BlogView>> getFavorByRequest(HttpServletRequest request) {
+		String uid = JwtUtil.parseId(request);
+		List<Favorite> favorites = favoriteService.lambdaQuery().eq(Favorite::getUid, uid).list();
+		if (favorites == null || favorites.isEmpty()) {
+			return ServerResponseEntity.ofStatus(ServerStatus.NO_FAVORITE);
+		}
+		List<String> blogIds = favorites.stream().map(favorite -> String.valueOf(favorite.getBid())).toList();
+		List<BlogView> blogViews = blogViewService.lambdaQuery().in(BlogView::getBid, blogIds).list();
+		return ServerResponseEntity.ofSuccess(blogViews);
 	}
+
 
 	@GetMapping("/getFavorCountByBid")
 	@Operation(summary = "博客id获取博客被收藏数")
+	@Parameter(name = "bid", description = "博客id", required = true)
 	public ServerResponseEntity<Long> getFavorCountByBid(@NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid) {
 		return blogService.getOptById(bid)
-				.map(blog ->favoriteService.lambdaQuery().eq(Favorite::getBid, Integer.parseInt(bid)).count())
+				.map(blog -> favoriteService.lambdaQuery().eq(Favorite::getBid, Integer.parseInt(bid)).count())
 				.map(ServerResponseEntity::ofSuccess)
 				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST));
 	}

@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author qing
  * @date Created in 2023/8/2 9:43
  */
+
 @SpringBootTest(classes = TestJasypt.class)
 class TestJasypt {
 	@Test

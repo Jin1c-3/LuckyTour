@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,7 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author qing
  * @date Created in 2023/8/5 9:25
  */
+
 @SpringBootTest(classes = TestDBGenerator.class)
+@Disabled
 class TestDBGenerator {
 
 	@Value("${spring.datasource.url}")
@@ -27,10 +31,9 @@ class TestDBGenerator {
 	/**
 	 * 需要生成的表
 	 */
+
 	private final String[] includedTables = {
-			"favorite",
-			"follow",
-			"liked",
+			"",
 	};
 
 	@Test

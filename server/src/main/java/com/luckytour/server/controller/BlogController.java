@@ -16,9 +16,14 @@ import com.luckytour.server.service.BlogViewService;
 import com.luckytour.server.service.UserService;
 import com.luckytour.server.util.FileUploadUtil;
 import com.luckytour.server.util.JwtUtil;
-import com.luckytour.server.util.URLUtil;
+import com.luckytour.server.util.URIUtil;
 import com.luckytour.server.vo.BlogVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -65,11 +70,30 @@ public class BlogController {
 
 	@Operation(summary = "用户id获取博客列表")
 	@GetMapping("/getBlogByUid")
-	public ServerResponseEntity<List<BlogView>> getBlogByUid(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
+	@Parameter(name = "uid", description = "用户id", required = true)
+	public ServerResponseEntity<List<BlogView>> getBlogByUid(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid, HttpServletRequest request) {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
 		}
 		return Optional.ofNullable(blogViewService.lambdaQuery().eq(BlogView::getUid, uid).list())
+				.map(blogViews -> {
+					blogViews.forEach(blogView -> {
+								blogView.setAvatar(URIUtil.parse(request, blogView.getAvatar()));
+								String content = blogView.getContent();
+								try {
+									List<BlogContent> blogContents = objectMapper.readValue(content, new TypeReference<List<BlogContent>>() {
+									});
+									blogContents.forEach(blogContent -> blogContent.setPhotos(blogContent.getPhotos().stream()
+											.map(photo -> URIUtil.parse(request, photo))
+											.toList()));
+									blogView.setContent(objectMapper.writeValueAsString(blogContents));
+								} catch (Exception e) {
+									throw new JsonException(e.getMessage());
+								}
+							}
+					);
+					return blogViews;
+				})
 				.map(ServerResponseEntity::ofSuccess)
 				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_HAS_BO_BLOG));
 	}
@@ -78,28 +102,56 @@ public class BlogController {
 	@GetMapping("/getBlogByRequest")
 	public ServerResponseEntity<List<BlogView>> getBlogByRequest(HttpServletRequest request) {
 		return Optional.ofNullable(blogViewService.lambdaQuery().eq(BlogView::getUid, JwtUtil.parseId(request)).list())
+				.map(blogViews -> {
+					blogViews.forEach(blogView -> {
+								blogView.setAvatar(URIUtil.parse(request, blogView.getAvatar()));
+								String content = blogView.getContent();
+								try {
+									List<BlogContent> blogContents = objectMapper.readValue(content, new TypeReference<List<BlogContent>>() {
+									});
+									blogContents.forEach(blogContent -> blogContent.setPhotos(blogContent.getPhotos().stream()
+											.map(photo -> URIUtil.parse(request, photo))
+											.toList()));
+									blogView.setContent(objectMapper.writeValueAsString(blogContents));
+								} catch (Exception e) {
+									throw new JsonException(e.getMessage());
+								}
+							}
+					);
+					return blogViews;
+				})
 				.map(ServerResponseEntity::ofSuccess)
 				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.USER_HAS_BO_BLOG));
 	}
 
 	@Operation(summary = "博客id获取博客")
 	@GetMapping("/getBlogByBid")
+	@Parameter(name = "bid", description = "博客id", required = true)
 	public ServerResponseEntity<BlogView> getBlogByBid(@NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid) {
-		return blogViewService.getOptById(bid)
+		return blogViewService.lambdaQuery().eq(BlogView::getBid, bid).oneOpt()
 				.map(ServerResponseEntity::ofSuccess)
 				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST));
 	}
 
 	@Operation(summary = "博客id列表获取博客列表")
 	@PostMapping("/getBlogByBidList")
-	public ServerResponseEntity<BlogView> getBlogByBidList(@NotEmpty(message = Alert.USER_ID_IS_NULL) String[] bid) {
-		return blogViewService.getOptById(bid)
-				.map(ServerResponseEntity::ofSuccess)
-				.orElseGet(() -> ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST));
+	public ServerResponseEntity<List<BlogView>> getBlogByBidList(@NotEmpty(message = Alert.USER_ID_IS_NULL) String[] bid) {
+		return ServerResponseEntity.ofSuccess(blogViewService.lambdaQuery().in(BlogView::getBid, bid).list());
+	}
+
+	@GetMapping("/delete")
+	@Operation(summary = "删除博客")
+	@Parameter(name = "bid", description = "博客id", required = true)
+	public ServerResponseEntity<Object> delete(@NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid, HttpServletRequest request) {
+		String uid = JwtUtil.parseId(request);
+		return blogService.lambdaUpdate().eq(Blog::getBid, bid).eq(Blog::getUid, uid).remove()
+				? ServerResponseEntity.ofSuccess()
+				: ServerResponseEntity.ofStatus(ServerStatus.BLOG_NOT_EXIST);
 	}
 
 	@Operation(summary = "博客id增加一次点击量")
 	@GetMapping("/addClick")
+	@Parameter(name = "bid", description = "博客id", required = true)
 	public ServerResponseEntity<Object> addClick(@NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid) {
 		return blogService.getOptById(bid)
 				.map(blog -> {
@@ -111,6 +163,7 @@ public class BlogController {
 
 	@PostMapping("/create")
 	@Operation(summary = "创建博客")
+	@Parameter(name = "bRequest", description = "博客创建请求", required = true)
 	public <T> ServerResponseEntity<T> create(@RequestBody @Valid BlogCreateRequest bRequest, HttpServletRequest request) {
 		/*bRequest.getContent().forEach(blogContent -> blogContent.setPhotoUrls(FileUploadUtil.storeFilesByUid(request, "", blogContent.getPhotos())));
 		Blog blog = Blog.create(bRequest);
@@ -145,6 +198,7 @@ public class BlogController {
 
 	@GetMapping("/search")
 	@Operation(summary = "搜索博客")
+	@Parameter(name = "string", description = "搜索字符串", required = true)
 	public ServerResponseEntity<List<BlogVO>> search(@NotBlank(message = Alert.BLOG_TITLE_IS_NULL) String string, HttpServletRequest request) {
 		List<BlogView> blogViews = blogViewService.lambdaQuery().like(BlogView::getTitle, string).like(BlogView::getContent, string).list();
 		if (blogViews == null) {
@@ -153,12 +207,14 @@ public class BlogController {
 		List<BlogVO> blogVOs = blogViews.stream().map(blogView -> {
 			try {
 				BlogVO blogVO = BlogVO.create(blogView);
-				blogVO.setAvatar(userService.getOptById(blogVO.getUid()).map(user -> URLUtil.isNotUrl(user.getAvatar()) ? URLUtil.create(request, user.getAvatar()) : user.getAvatar()).orElse(null));
+				blogVO.setAvatar(userService.getOptById(blogVO.getUid())
+						.map(user -> URIUtil.parse(request, user.getAvatar()))
+						.orElse(null));
 
 				List<BlogContent> blogContents = objectMapper.readValue(blogView.getContent(), new TypeReference<List<BlogContent>>() {
 				});
 				blogContents.forEach(blogContent -> blogContent.setPhotos(blogContent.getPhotos().stream()
-						.map(photo -> URLUtil.isNotUrl(photo) ? URLUtil.create(request, photo) : photo)
+						.map(photo -> URIUtil.parse(request, photo))
 						.toList()));
 				blogVO.setContent(blogContents);
 				blogVO.setView(blogVO.getContent().stream()
@@ -177,6 +233,10 @@ public class BlogController {
 
 	@GetMapping("/title")
 	@Operation(summary = "修改博客标题")
+	@Parameters({
+			@Parameter(name = "bid", description = "博客id", required = true),
+			@Parameter(name = "title", description = "博客标题", required = true)
+	})
 	public ServerResponseEntity<Object> updateTitle(@NotBlank(message = Alert.BLOG_ID_IS_NULL) String bid, @Pattern(regexp = Regex.BLOG_TITLE_REGEX, message = Alert.BLOG_TITLE_FORMAT_ERROR) String title) {
 		return blogService.getOptById(bid)
 				.map(blog -> {

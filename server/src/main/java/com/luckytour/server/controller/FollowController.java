@@ -12,6 +12,7 @@ import com.luckytour.server.util.JwtUtil;
 import com.luckytour.server.vo.SimpleUserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
@@ -52,6 +53,7 @@ public class FollowController {
 
 	@GetMapping("/getFollower")
 	@Operation(summary = "用户id获取粉丝列表（极简用户）")
+	@Parameter(name = "uid", description = "用户id", required = true)
 	public ServerResponseEntity<List<SimpleUserVO>> getFollower(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
@@ -77,6 +79,7 @@ public class FollowController {
 
 	@GetMapping("/getFollowerCount")
 	@Operation(summary = "用户id获取粉丝数")
+	@Parameter(name = "uid", description = "用户id", required = true)
 	public ServerResponseEntity<Long> getFollowerCount(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
@@ -94,6 +97,7 @@ public class FollowController {
 
 	@GetMapping("/getFollowed")
 	@Operation(summary = "用户id获取关注列表（极简用户）")
+	@Parameter(name = "uid", description = "用户id", required = true)
 	public ServerResponseEntity<List<SimpleUserVO>> getFollowed(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
@@ -119,6 +123,7 @@ public class FollowController {
 
 	@GetMapping("/getFollowedCount")
 	@Operation(summary = "用户id获取关注数")
+	@Parameter(name = "uid", description = "用户id", required = true)
 	public ServerResponseEntity<Long> getFollowedCount(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid) {
 		if (!userService.idIsExist(uid)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);

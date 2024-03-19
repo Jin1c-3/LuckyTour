@@ -52,7 +52,14 @@ public class AopLogger4Controller {
 		HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
 
 		long startTime = System.currentTimeMillis();
-		Object result = point.proceed();
+		Object result = null;
+		try {
+			result = point.proceed();
+		} catch (Throwable e) {
+			aopLogger.buildAopLog(request, startTime, point, null)
+					.warn();
+			throw e;
+		}
 		if (result instanceof Mono<?> monoResult) {
 			return monoResult.doOnSuccess(item -> aopLogger.buildAopLog(request, startTime, point, item)
 					.info());

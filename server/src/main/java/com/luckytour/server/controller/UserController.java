@@ -15,6 +15,8 @@ import com.luckytour.server.util.JwtUtil;
 import com.luckytour.server.vo.SimpleUserVO;
 import com.luckytour.server.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -65,6 +67,7 @@ public class UserController {
 	@GetMapping("/getinfoById")
 	@Operation(summary = "用户id获取用户信息")
 	@UserLoginRequired
+	@Parameter(name = "uid", description = "用户id", required = true)
 	public ServerResponseEntity<UserVO> getOnlineUserInfoById(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid, HttpServletRequest request) throws MysqlException {
 		return userService.getOptById(uid)
 				.map(user -> UserVO.create(request, user))
@@ -75,6 +78,7 @@ public class UserController {
 	@GetMapping("/getSimpleInfoById")
 	@Operation(summary = "用户id获取用户信息（极简用户）")
 	@UserLoginRequired
+	@Parameter(name = "uid", description = "用户id", required = true)
 	public ServerResponseEntity<SimpleUserVO> getSimpleUserDescriptionInfoById(@NotBlank(message = Alert.USER_ID_IS_NULL) String uid, HttpServletRequest request) throws MysqlException {
 		return userService.getOptById(uid)
 				.map(user -> SimpleUserVO.create(request, user))
@@ -85,6 +89,7 @@ public class UserController {
 	@PostMapping("/getinfoList")
 	@Operation(summary = "用户id列表获取用户信息")
 	@UserLoginRequired
+	@Parameter(name = "userIds", description = "用户id列表", required = true)
 	public ServerResponseEntity<List<UserVO>> getOnlineInfoList(@RequestBody @NotEmpty(message = "用户id列表不能为空") String[] userIds, HttpServletRequest request) throws MysqlException {
 		return ServerResponseEntity.ofSuccess(
 				userService.listByIds(Arrays.stream(userIds).toList()).stream()
@@ -97,6 +102,7 @@ public class UserController {
 	@GetMapping("/new")
 	@Operation(summary = "新建用户")
 	@UserLoginRequired(required = false)
+	@Parameter(name = "emailOrPhone", description = "邮箱或手机号", required = true)
 	public ServerResponseEntity<Object> newUser(@Pattern(regexp = Regex.MOBILE_OR_EMAIL_REGEX, message = "邮箱或手机号输入错误") String emailOrPhone) throws MysqlException {
 		if (userService.emailOrPhoneIsExist(emailOrPhone)) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_ALREADY_EXIST);
@@ -120,8 +126,12 @@ public class UserController {
 	@PostMapping("/update")
 	@Operation(summary = "更新用户信息")
 	@UserLoginRequired
+	@Parameters({
+			@Parameter(name = "userUpdateRequest", description = "用户更新请求", required = true),
+			@Parameter(name = "avatarPic", description = "用户头像", required = false)
+	})
 	public <T> ServerResponseEntity<T> update(@Valid UserUpdateRequest userUpdateRequest, MultipartFile avatarPic) throws MysqlException {
-		if (userService.idIsExist(userUpdateRequest.getId())) {
+		if (!userService.idIsExist(userUpdateRequest.getId())) {
 			return ServerResponseEntity.ofStatus(ServerStatus.USER_NOT_EXIST);
 		}
 		User newUser = User.create(userUpdateRequest);

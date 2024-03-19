@@ -63,6 +63,9 @@ public class PlanServiceImpl extends MppServiceImpl<PlanMapper, Plan> implements
 	}
 
 	public Mono<String> check(List<Map.Entry<Spot, String>> datedLocatedSpots) {
+		if(datedLocatedSpots.isEmpty()){
+			return Mono.just(Boolean.TRUE.toString());
+		}
 		return Flux.fromIterable(datedLocatedSpots)
 				.flatMap(entry -> caiyunWeatherService.getDailyWeather(Position.create(entry.getKey().getLocation()), entry.getValue())
 						.map(weather -> {

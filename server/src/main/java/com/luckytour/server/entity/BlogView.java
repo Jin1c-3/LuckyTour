@@ -2,13 +2,9 @@ package com.luckytour.server.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
-
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +14,7 @@ import lombok.Setter;
  * </p>
  *
  * @author qing
- * @since 2024-02-09
+ * @since 2024-03-01
  */
 @Getter
 @Setter
@@ -26,7 +22,6 @@ import lombok.Setter;
 @Schema(name = "BlogView", description = "VIEW")
 public class BlogView implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "博客id")
@@ -36,6 +31,10 @@ public class BlogView implements Serializable {
     @Schema(description = "用户id，varchar(50)")
     @TableField("uid")
     private String uid;
+
+    @Schema(description = "用户头像，存储一个网址。有默认值，就是项目图标")
+    @TableField("avatar")
+    private String avatar;
 
     @Schema(description = "博客标题，nvarchar(255)")
     @TableField("title")
@@ -62,5 +61,4 @@ public class BlogView implements Serializable {
 
     @TableField("favorite_count")
     private Long favoriteCount;
-
 }
