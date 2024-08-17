@@ -1,0 +1,106 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+android {
+    namespace "com.example.lucky_tour"
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "com.example.lucky_tour"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+
+        // ndk {
+        //     // Tells Gradle to package prebuilt libraries with my APK.
+        //     abiFilters 'armeabi', 'armeabi-v7a', 'x86', 'x86_64', 'mips', 'mips64', 'arm64-v8a',  
+        // }
+
+        manifestPlaceholders = [
+            JPUSH_PKGNAME : applicationId,      
+            JPUSH_APPKEY : "484d33dab2b304676067ef55",
+            JPUSH_CHANNEL : "developer-default",
+        ]
+
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'sign'  //别名
+            keyPassword 'noip135791cc'
+            storeFile file('D:/key.jks')  //签名文件路径
+            storePassword 'noip135791cc'
+        }
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            minifyEnabled true
+            consumerProguardFiles "proguard-rules.pro"
+            signingConfig signingConfigs.release
+            manifestPlaceholders = [applicationName: "android.app.Application"]
+        }
+
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            manifestPlaceholders = [applicationName: "android.app.Application"]
+        }
+
+        build {
+            manifestPlaceholders = [applicationName: "android.app.Application"]
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation('com.amap.api:location:5.2.0')
+    implementation('com.amap.api:map2d:5.2.0')
+    implementation('com.amap.api:3dmap:7.9.1')
+    implementation('com.amap.api:search:7.9.0')
+}
