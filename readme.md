@@ -6,6 +6,8 @@
 
 `/algoserver`是算法端的web代码，主要用于算法端的服务器实现，可以是 `flask`
 
+`/app`是移动端代码，基于Flutter构建
+
 `/front`是前端代码，打包后的apk文件直接放在根目录
 
 `/server`是网站的后端代码，采用springboot
